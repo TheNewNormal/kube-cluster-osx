@@ -1,0 +1,48 @@
+#cloud-config
+
+coreos:
+  update:
+    reboot-strategy: off
+  etcd2:
+    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    initial-cluster: k8master-01=http://_MASTER_IP_:2380
+    proxy: on
+  fleet:
+    public-ip: $public_ipv4
+    metadata: role=node
+  flannel:
+    interface: $public_ipv4
+  units:
+    - name: flanneld.service
+      drop-ins:
+        - name: 50-network-config.conf
+          content: |
+            [Unit]
+            Requires=etcd2.service
+            [Service]
+            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"10.244.0.0/16", "Backend": {"Type": "vxlan"}}'
+      command: start
+    - name: fleet.service
+      command: start
+    - name: docker.service
+      command: start
+      drop-ins:
+        - name: 50-insecure-registry.conf
+          content: |
+            [Unit]
+            Requires=flanneld.service
+            After=flanneld.service
+            [Service]
+            Environment=DOCKER_OPTS='--insecure-registry="0.0.0.0/0"'
+write_files:
+ - path: /opt/bin/wupiao
+   permissions: '0755'
+   content: |
+      #!/bin/bash
+      # [w]ait [u]ntil [p]ort [i]s [a]ctually [o]pen
+      [ -n "$1" ] && \
+        until curl -o /dev/null -sIf http://${1}; do \
+          sleep 1 && echo .;
+        done;
+      exit $?

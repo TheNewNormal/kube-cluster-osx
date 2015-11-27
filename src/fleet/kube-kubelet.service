@@ -1,0 +1,28 @@
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStartPre=/opt/bin/wupiao 172.17.15.101:8080
+ExecStart=/opt/bin/kubelet \
+ --address=0.0.0.0 \
+ --port=10250 \
+ --hostname_override=${COREOS_PRIVATE_IPV4} \
+ --api_servers=http://172.17.15.101:8080 \
+ --register-node=true \
+ --container_runtime=docker \
+ --allow_privileged=true \
+ --cluster_dns=10.100.0.10 \
+ --cluster_domain=cluster.local \
+ --logtostderr=true \
+ --cadvisor_port=4194 \
+ --healthz_bind_address=0.0.0.0 \
+ --healthz_port=10248
+
+Restart=always
+RestartSec=10
+
+[X-Fleet]
+Global=true
+MachineMetadata=role=node

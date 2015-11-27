@@ -1,0 +1,32 @@
+#!/bin/bash
+# webserver for coreos-xhyve to serve cloud-init file
+
+res_folder=$(cat ~/kube-cluster/.env/resouces_path)
+
+cd ~/kube-cluster/cloud-init
+
+
+start() {
+    nohup "${res_folder}"/bin/kube-cluster-web -port 18001 >/dev/null 2>&1 &
+}
+
+stop() {
+    kill $(ps aux | grep "[k]ube-solo-web" | awk {'print $2'}) >/dev/null 2>&1 &
+}
+
+usage() {
+    echo "Usage: webserver start|stop"
+}
+
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        *)
+                usage
+                ;;
+esac
+

@@ -1,0 +1,17 @@
+[Unit]
+Description=Kubernetes Proxy
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStartPre=/opt/bin/wupiao 172.17.15.101:8080
+ExecStart=/opt/bin/kube-proxy \
+ --master=http://172.17.15.101:8080 \
+ --logtostderr=true
+
+Restart=always
+RestartSec=10
+
+[X-Fleet]
+Global=true
+MachineMetadata=role=node

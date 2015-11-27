@@ -1,0 +1,29 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/opt/bin/kube-apiserver \
+ --client-ca-file=/srv/kubernetes/ca.crt \
+ --tls-cert-file=/srv/kubernetes/server.cert \
+ --tls-private-key-file=/srv/kubernetes/server.key \
+ --admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota \
+ --service_account_key_file=/srv/kubernetes/server.key \
+ --service_account_lookup=false \
+ --allow_privileged=true \
+ --insecure_bind_address=0.0.0.0 \
+ --insecure_port=8080 \
+ --kubelet_https=true \
+ --secure_port=6443 \
+ --service-cluster-ip-range=10.100.0.0/16 \
+ --etcd_servers=http://127.0.0.1:2379 \
+ --public_address_override=127.0.0.1 \
+ --logtostderr=true \
+ --runtime-config=extensions/v1beta1=true,extensions/v1beta1/daemonsets=true
+
+Restart=always
+RestartSec=10
+
+[X-Fleet]
+MachineMetadata=role=control

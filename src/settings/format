@@ -1,0 +1,19 @@
+rm -f root.img
+
+dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*2048]  
+
+sudo coreos run --uuid=4420CA07-3C45-4110-86D7-D999D9FB6E2E \
+  --channel="beta" \
+  --volume=root.img \
+  --cloud_config=cloud-init/user-data-format-root \
+  --cpus 1 --memory 1024 \
+  --name=coreos-01-format -d
+
+sleep 3
+
+vm_status=$(coreos ssh coreos-01-format systemctl status format-ephemeral.service | grep "(code=exited, status=0/SUCCESS)")
+
+coreos ps -j | jq ".[] | select(.Name==\"coreos-01-format\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/' > ip_address_master
+
+coreos halt coreos-01-format
+
