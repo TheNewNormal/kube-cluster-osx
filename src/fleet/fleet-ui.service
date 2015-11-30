@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 User=core
 TimeoutStartSec=0
-EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/network-environment
 ExecStartPre=/usr/bin/docker pull purpleworks/fleet-ui:latest
 ExecStartPre=-/usr/bin/docker rm fleet_ui
 ExecStart=/usr/bin/docker run --rm --name fleet_ui --memory="128m" \

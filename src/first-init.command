@@ -14,7 +14,7 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 echo " "
-echo "Setting up Kubernetes Solo on OS X"
+echo "Setting up Kubernetes Cluster on OS X"
 
 # add ssh key to custom.conf
 echo " "
@@ -30,8 +30,10 @@ do
 done
 
 echo " "
-echo "$file found, updating custom.conf..."
-echo "SSHKEY='$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/custom.conf
+echo "$file found, installing ..."
+echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8smaster-01.toml
+echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8snode-01.toml
+echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8snode-02.toml
 #
 
 # save user's password to Keychain
@@ -45,8 +47,7 @@ release_channel
 echo " "
 echo "Fetching lastest CoreOS $channel channel ISO ..."
 echo " "
-cd ~/kube-cluster/
-"${res_folder}"/bin/coreos-xhyve-fetch -f custom.conf
+"${res_folder}"/bin/corectl pull --channel="$channel"
 echo " "
 #
 

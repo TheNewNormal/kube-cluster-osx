@@ -1,0 +1,16 @@
+[k8snode-01-format-root]
+   uuid = "0A45849A-0614-4B7B-A011-2506F7CEE975"
+   channel = "stable"
+   volume = "~/kube-cluster/node-01-root.img"
+   cloud_config = "~/kube-cluster/settings/user-data-format-root"
+   cpus = 1
+   memory = "1024"
+   local = "true"
+[k8snode-02-format-root]
+   uuid = "9E607710-F96B-4803-9D81-98F26BDD77E0"
+   channel = "stable"
+   volume = "~/kube-cluster/node-02-root.img"
+   cloud_config = "~/kube-cluster/settings/user-data-format-root"
+   cpus = 1
+   memory = "1024"
+   local = "true"

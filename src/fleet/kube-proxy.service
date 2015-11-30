@@ -4,9 +4,9 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 EnvironmentFile=/etc/environment
-ExecStartPre=/opt/bin/wupiao 172.17.15.101:8080
+ExecStartPre=/opt/bin/wupiao _MASTER_IP_:8080
 ExecStart=/opt/bin/kube-proxy \
- --master=http://172.17.15.101:8080 \
+ --master=http://_MASTER_IP_:8080 \
  --logtostderr=true
 
 Restart=always

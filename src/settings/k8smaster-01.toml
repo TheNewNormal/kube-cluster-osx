@@ -1,0 +1,9 @@
+[k8smaster-01]
+   uuid = "6677A350-A1E1-46FC-9BC7-4024162BF95B"
+   channel = "stable"
+   root = "~/kube-cluster/master-root.img"
+   cloud_config = "~/kube-cluster/settings/user-data.master"
+   cpus = 1
+   memory = "1024"
+   local = "true"
+

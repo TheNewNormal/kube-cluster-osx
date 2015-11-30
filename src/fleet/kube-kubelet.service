@@ -4,12 +4,12 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 EnvironmentFile=/etc/environment
-ExecStartPre=/opt/bin/wupiao 172.17.15.101:8080
+ExecStartPre=/opt/bin/wupiao _MASTER_IP_:8080
 ExecStart=/opt/bin/kubelet \
  --address=0.0.0.0 \
  --port=10250 \
  --hostname_override=${COREOS_PRIVATE_IPV4} \
- --api_servers=http://172.17.15.101:8080 \
+ --api_servers=http://_MASTER_IP_:8080 \
  --register-node=true \
  --container_runtime=docker \
  --allow_privileged=true \

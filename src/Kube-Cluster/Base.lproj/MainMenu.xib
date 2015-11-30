@@ -671,20 +671,26 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="jV7-Ne-Ped"/>
-                <menuItem title="SSH to k8solo-01" id="dvF-TI-XNx">
+                <menuItem title="SSH to k8smaster-01" id="dvF-TI-XNx">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="runSsh:" target="494" id="oZV-FT-fvi"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Attach to VM's console" id="y6z-Tq-2lg" userLabel="Attach to VM's console">
+                <menuItem title="SSH to k8snode-01" id="BRK-bI-Q1k">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="attachConsole:" target="494" id="mXu-yH-sCl"/>
+                        <action selector="runSsh:" target="494" id="KF4-6r-X4K"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="SSH to k8snode-02" id="ZVG-Db-RoM">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="runSsh:" target="494" id="iT5-97-ym5"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="B1N-0s-OFg"/>
-                <menuItem title="OS shell" id="YiP-H1-GtD" userLabel="OS shell">
+                <menuItem title="preset OS shell" id="YiP-H1-GtD" userLabel="OS shell">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="runShell:" target="494" id="jN7-v8-FoZ"/>
@@ -704,10 +710,16 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="k2D-0b-tel"/>
-                <menuItem title="k8solo-01 cAdvisor" id="bXS-8Q-f6a">
+                <menuItem title="k8snode-01 cAdvisor" id="bXS-8Q-f6a">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="node1_cAdvisor:" target="494" id="8AX-S8-lIe"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="k8snode-02 cAdvisor" id="qAU-XX-YzT">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="node1_cAdvisor:" target="494" id="HGW-NP-eAR"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="JNE-kH-7PZ"/>

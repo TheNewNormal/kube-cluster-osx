@@ -1,10 +1,4 @@
 
-sudo coreos run --uuid=4420CA07-3C45-4110-86D7-D999D9FB6E2E \
-  --channel="beta" \
-  --root=root.img \
-  --cloud_config=cloud-init/user-data \
-  --sshkey="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAPVzznFnpuj1CeqRDHM8yODebspQKLSnRRbi/aGblZi6xAitmUVvBfVGHAlI9b204C0Vswh33n7IGBHe+LLMfLOx6D1pOaghO/2L9XufXTUACh2ScXC8qbXWRrsoeDwPhbBZ4rH8wbHjDKHPs7N9neuwl7ktebf2dLbOfqA3/uibXeuwSSQzwEAWsO/XoMaAmNmH1dcAPpHNZEY1LpQasaFEavah64wCqZjKb2XZXYvbKO3wRuRlZtNpxO4ZEDJOlWBlc8LzDPkUF8CmvXEMcBwF18TjaREQioCsqZky//r2EktAoeO/wnW/tftn3/sxaOoqILqvcL/ClglHIdvu7 rimantasmocevicius@ENG001268.local" \
-  --cpus 2 --memory 2048 \
-  --name=coreos-01 -d
+sudo corectl load k8smaster-01.toml
 
-coreos ps
+corectl ps

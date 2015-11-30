@@ -10,7 +10,7 @@ function pause(){
 }
 
 function check_vm_status() {
-# check VM status
+# check VMs status
 status=$(ps aux | grep "[k]ube-solo/bin/xhyve" | awk '{print $2}')
 if [ "$status" = "" ]; then
     echo " "
@@ -41,8 +41,8 @@ do
     if [ $RESPONSE = 1 ]
     then
         VALID_MAIN=1
-        sed -i "" "s/CHANNEL=stable/CHANNEL=alpha/" ~/kube-cluster/custom.conf
-        sed -i "" "s/CHANNEL=beta/CHANNEL=alpha/" ~/kube-cluster/custom.conf
+        sed -i "" 's/channel = "stable"/channel = "alpha"/g' ~/kube-cluster/settings/*.toml
+        sed -i "" 's/channel = "beta"/channel = "alpha"/g' ~/kube-cluster/settings/*.toml
         channel="Alpha"
         LOOP=0
     fi
@@ -50,8 +50,8 @@ do
     if [ $RESPONSE = 2 ]
     then
         VALID_MAIN=1
-        sed -i "" "s/CHANNEL=alpha/CHANNEL=beta/" ~/kube-cluster/custom.conf
-        sed -i "" "s/CHANNEL=stable/CHANNEL=beta/" ~/kube-cluster/custom.conf
+        sed -i "" 's/channel = "stable"/channel = "beta"/g' ~/kube-cluster/settings/*.toml
+        sed -i "" 's/channel = "alpha"/channel = "beta"/g' ~/kube-cluster/settings/*.toml
         channel="Beta"
         LOOP=0
     fi
@@ -59,8 +59,8 @@ do
     if [ $RESPONSE = 3 ]
     then
         VALID_MAIN=1
-        sed -i "" "s/CHANNEL=alpha/CHANNEL=stable/" ~/kube-cluster/custom.conf
-        sed -i "" "s/CHANNEL=beta/CHANNEL=stable/" ~/kube-cluster/custom.confs
+        sed -i "" 's/channel = "beta"/channel = "stable"/g' ~/kube-cluster/settings/*.toml
+        sed -i "" 's/channel = "alpha"/channel = "stable"/g' ~/kube-cluster/settings/*.toml
         channel="Stable"
         LOOP=0
     fi
@@ -79,53 +79,86 @@ create_root_disk() {
 my_password=$(security find-generic-password -wa kube-cluster-app)
 echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
-# create persistent disk
+# create persistent disk for master
 cd ~/kube-cluster/
 echo "  "
-echo "Please type ROOT disk size in GBs followed by [ENTER]:"
+echo "Please type k8smaster-01 ROOT disk size in GBs followed by [ENTER]:"
+echo -n [default is 1]:
+read disk_size
+if [ -z "$disk_size" ]
+then
+    echo "Creating 1GB disk ..."
+    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*1*1024]
+    mkfile 1g master-root.img &
+else
+    echo "Creating "$disk_size"GB disk (could take a while for big files) ..."
+    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
+    mkfile "$disk_size"g master-root.img &
+fi
+echo " "
+spin='-\|/'
+i=1
+until ! ps aux | grep '[m]kfile "$disk_size"g master-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+
+#
+
+# create persistent disks for nodes
+cd ~/kube-cluster/
+echo "  "
+echo "Please type k8snodes ROOT disk size in GBs followed by [ENTER]:"
 echo -n [default is 5]:
 read disk_size
 if [ -z "$disk_size" ]
 then
-    echo "Creating 5GB disk ..."
-    dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*5120]
+    echo "Creating 5GB disk for k8snode-01 ..."
+    # dd if=/dev/zero of=node-01-root.img bs=1024 count=0 seek=$[1024*5*1024]
+    mkfile 5g node-01-root.img &
+    echo " "
+    spin='-\|/'
+    i=1
+    until ! ps aux | grep '[m]kfile "$disk_size"g node-01-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+    #
+    echo " "
+    echo "Creating 5GB disk for k8snode-02 ..."
+    # dd if=/dev/zero of=node-02-root.img bs=1024 count=0 seek=$[1024*5*1024]
+    mkfile 5g node-02-root.img &
+    echo " "
+    spin='-\|/'
+    i=1
+    until ! ps aux | grep '[m]kfile "$disk_size"g node-02-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+    #
 else
-    echo "Creating "$disk_size"GB disk ..."
-    dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
+    echo "Creating "$disk_size"GB disk for k8snode-01 (could take a while for big files) ..."
+    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
+    mkfile "$disk_size"g node-01-root.img &
+    echo " "
+    spin='-\|/'
+    i=1
+    until ! ps aux | grep '[m]kfile "$disk_size"g node-01-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+    #
+    echo " "
+    echo "Creating "$disk_size"GB disk for k8snode-02 (could take a while for big files) ..."
+    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
+    mkfile "$disk_size"g node-02-root.img &
+    echo " "
+    spin='-\|/'
+    i=1
+    until ! ps aux | grep '[m]kfile "$disk_size"g node-02-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 fi
-echo " "
 #
 
-### format ROOT disk
-# Start webserver
-cd ~/kube-cluster/cloud-init
-"${res_folder}"/bin/webserver start
-
-# Start VM
-echo "Waiting for VM to boot up for ROOT disk to be formated ... "
+### format ROOT disks
 echo " "
-cd ~/kube-cluster
-export XHYVE=~/kube-cluster/bin/xhyve
-
-# enable format mode
-sed -i "" "s/user-data/user-data-format-root/" ~/kube-cluster/custom.conf
-sed -i "" "s/ROOT_HDD=/#ROOT_HDD=/" ~/kube-cluster/custom.conf
-sed -i "" "s/#IMG_HDD=/IMG_HDD=/" ~/kube-cluster/custom.conf
-#
-"${res_folder}"/bin/coreos-xhyve-run -f custom.conf kube-cluster
-#
-# disable format mode
-sed -i "" "s/user-data-format-root/user-data/" ~/kube-cluster/custom.conf
-sed -i "" "s/IMG_HDD=/#IMG_HDD=/" ~/kube-cluster/custom.conf
-sed -i "" "s/#ROOT_HDD=/ROOT_HDD=/" ~/kube-cluster/custom.conf
+echo "Formating k8smaster-01 ROOT disk ..."
+echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8smaster-01-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > ~/kube-cluster/.env/ip_address_master
+echo " "
+echo "Formating k8snodes1/2 ROOT disks ..."
+echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/node-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > /dev/null
 #
 echo " "
-echo "ROOT disk got created and formated... "
+echo "ROOT disks got created and formated... "
 echo "---"
 ###
-
-# Stop webserver
-"${res_folder}"/bin/webserver stop
 
 }
 
@@ -178,7 +211,7 @@ rm -rf ~/kube-cluster/tmp/*
 echo "Downloading setup-network-environment"
 curl -L https://github.com/kelseyhightower/setup-network-environment/releases/download/1.0.1/setup-network-environment > ~/kube-cluster/tmp/setup-network-environment
 #
-# download latest version of k8s for CoreOS
+# download latest version of k8s binaries for CoreOS
 echo "Downloading latest version of Kubernetes"
 bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager )
 for b in "${bins[@]}"; do

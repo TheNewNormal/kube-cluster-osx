@@ -9,22 +9,35 @@ coreos:
     initial-cluster: k8master-01=http://_MASTER_IP_:2380
     proxy: on
   fleet:
-    public-ip: $public_ipv4
     metadata: role=node
-  flannel:
-    interface: $public_ipv4
   units:
-    - name: flanneld.service
-      drop-ins:
-        - name: 50-network-config.conf
-          content: |
-            [Unit]
-            Requires=etcd2.service
-            [Service]
-            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"10.244.0.0/16", "Backend": {"Type": "vxlan"}}'
+    - name: etcd2.service
       command: start
     - name: fleet.service
       command: start
+    - name: flanneld.service
+      command: start
+      drop-ins:
+      - name: 50-network-config.conf
+        content: |
+          [Unit]
+          Requires=etcd2.service
+          [Service]
+          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network": "10.244.0.0/16", "SubnetLen": 24, "SubnetMin": "10.244.0.0", "Backend": {"Type": "vxlan"}}'
+    - name: docker-tcp.socket
+      command: start
+      enable: true
+      content: |
+        [Unit]
+        Description=Docker Socket for the API
+
+        [Socket]
+        ListenStream=2375
+        BindIPv6Only=both
+        Service=docker.service
+
+        [Install]
+        WantedBy=sockets.target
     - name: docker.service
       command: start
       drop-ins:
@@ -32,9 +45,21 @@ coreos:
           content: |
             [Unit]
             Requires=flanneld.service
-            After=flanneld.service
             [Service]
             Environment=DOCKER_OPTS='--insecure-registry="0.0.0.0/0"'
+    - name: setup-network-environment.service
+      command: start
+      content: |
+        [Unit]
+        Description=Setup Network Environment
+        Documentation=https://github.com/kelseyhightower/setup-network-environment
+        Requires=network-online.target
+        After=network-online.target
+        [Service]
+        ExecStartPre=/bin/sh -c "while [ ! -f /opt/bin/setup-network-environment ]; do sleep 1; done"
+        ExecStart=/opt/bin/setup-network-environment
+        RemainAfterExit=yes
+        Type=oneshot
 write_files:
  - path: /opt/bin/wupiao
    permissions: '0755'

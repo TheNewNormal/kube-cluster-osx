@@ -1,5 +1,0 @@
-#!/bin/bash
-
-cmd=($HOME/kube-cluster/kube/kubectl --kubeconfig="$HOME/kube-cluster/kube/kubeconfig" "${@+$@}")
-
-"${cmd[@]}"

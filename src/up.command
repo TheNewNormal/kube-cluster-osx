@@ -21,8 +21,8 @@ then
 fi
 
 # copy xhyve to bin folder
-cp -f "${res_folder}"/bin/xhyve ~/kube-cluster/bin
-chmod 755 ~/kube-cluster/bin/xhyve
+cp -f "${res_folder}"/bin/corectl ~/kube-cluster/bin
+chmod 755 ~/kube-cluster/bin/corectl
 
 # check for password in Keychain
 my_password=$(security 2>&1 >/dev/null find-generic-password -wa kube-cluster-app)

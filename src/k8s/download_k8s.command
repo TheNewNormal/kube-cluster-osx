@@ -15,8 +15,8 @@ rm -f *.tgz
 
 # get latest k8s version
 function get_latest_version_number {
- local -r latest_url="https://storage.googleapis.com/kubernetes-release/release/stable.txt"
- curl -Ss ${latest_url}
+    local -r latest_url="https://storage.googleapis.com/kubernetes-release/release/stable.txt"
+    curl -Ss ${latest_url}
 
 }
 
@@ -40,6 +40,9 @@ for b in "${bins[@]}"; do
     curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > master/$b
 done
 chmod a+x master/*
+# download easy-rsa
+curl -k -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > master/easy-rsa.tar.gz
+#
 tar czvf master.tgz -C master .
 rm -f ./master/*
 

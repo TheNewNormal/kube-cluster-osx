@@ -1,1 +1,1 @@
-coreos ps -j | jq ".[] | select(.Name==\"coreos-01\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/' > ip_address
+corectl ps -j | jq ".[] | select(.Name==\"core-01\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/' > ip_address

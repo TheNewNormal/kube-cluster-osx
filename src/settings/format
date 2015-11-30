@@ -1,19 +1,45 @@
-rm -f root.img
+rm -f master-root.img
 
-dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*2048]  
+dd if=/dev/zero of=master-root.img bs=1024 count=0 seek=$[1024*1*1024]
 
-sudo coreos run --uuid=4420CA07-3C45-4110-86D7-D999D9FB6E2E \
-  --channel="beta" \
-  --volume=root.img \
-  --cloud_config=cloud-init/user-data-format-root \
-  --cpus 1 --memory 1024 \
-  --name=coreos-01-format -d
+sudo corectl load k8smaster-01-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > ip_address_master
 
-sleep 3
+#sudo corectl load k8smaster-01-format-root.toml
 
-vm_status=$(coreos ssh coreos-01-format systemctl status format-ephemeral.service | grep "(code=exited, status=0/SUCCESS)")
+#sleep 3
 
-coreos ps -j | jq ".[] | select(.Name==\"coreos-01-format\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/' > ip_address_master
+#vm_status=$(corectl ssh k8smaster-01-format-root systemctl status format-ephemeral.service | grep "(code=exited, status=0/SUCCESS)")
+#echo $vm_status
 
-coreos halt coreos-01-format
+#corectl ps -j | jq ".[] | select(.Name==\"k8smaster-01-format-root\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/' > ip_address_master
+
+#corectl halt k8smaster-01-format-root
+
+echo " "
+echo "Creating ROOT disk (could take a while for big files) ..."
+
+rm -f master-root.img
+
+#dd if=/dev/zero of=master-root.img bs=1024 count=0 seek=$[1024*5*1024]
+
+mkfile 5g master-root.img &
+
+spin='-\|/'
+i=1
+until ! ps aux | grep "[m]kfile 5g master-root.img" >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+
+#
+
+rm -f ip_address_master
+
+echo " "
+echo "Formating ROOT disk ..."
+
+my_password=$(security 2>&1 >/dev/null find-generic-password -wa kube-cluster-app)
+ 
+echo -e "$my_password\n" | sudo -S corectl load k8smaster-01-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > ip_address_master &
+
+spin='-\|/'
+i=1
+while [ ! -f ip_address_master ]; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 
