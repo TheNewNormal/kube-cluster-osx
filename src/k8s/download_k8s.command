@@ -22,7 +22,7 @@ function get_latest_version_number {
 
 K8S_VERSION=$(get_latest_version_number)
 
-# download latest version of kubectl for OS X
+# download latest stable version of kubectl for OS X
 echo "Downloading kubectl $K8S_VERSION for OS X"
 curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/darwin/amd64/kubectl > kubectl
 chmod a+x kubectl

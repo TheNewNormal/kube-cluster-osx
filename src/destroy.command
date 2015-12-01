@@ -34,7 +34,7 @@ do
             echo "Kube Solo is running, it will be stopped !!!"
 
             # Stop VM
-            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet -o ConnectTimeout=3 core@$vm_ip sudo halt
+            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet -o ConnectTimeout=3 core@$master_vm_ip sudo halt
 
             # just in case run
             kill_xhyve >/dev/null 2>&1

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# get VM's IP
-vm_ip=$(< ~/kube-cluster/.env/ip_address)
+# get master VM's IP
+master_vm_ip=$(< ~/kube-cluster/.env/ip_address)
 
-cmd=(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$vm_ip sudo /usr/bin/rkt "${@+$@}")
+cmd=(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$master_vm_ip sudo /usr/bin/rkt "${@+$@}")
 
 "${cmd[@]}"

@@ -12,7 +12,7 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 vm_ip=$(<~/kube-cluster/.env/ip_address)
 
 # Stop VM
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=5 core@$vm_ip sudo halt
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=5 core@$master_vm_ip sudo halt
 # just in case run
 kill_xhyve
 
@@ -44,14 +44,14 @@ echo "When you done with console just close it's window/tab with CMD+W "
 echo "Waiting for VM to boot up..."
 spin='-\|/'
 i=1
-while ! ping -c1 $vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+while ! ping -c1 $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 # set fleetctl endpoint
-export FLEETCTL_ENDPOINT=http://$vm_ip:2379
+export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 
@@ -59,7 +59,7 @@ export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 echo "Waiting for VM to be ready..."
 spin='-\|/'
 i=1
-until curl -o /dev/null http://$vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 
 #
 echo " "

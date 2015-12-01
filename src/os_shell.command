@@ -15,7 +15,7 @@ vm_ip=$(<~/kube-cluster/.env/ip_address)
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 # set etcd endpoint
-export ETCDCTL_PEERS=http://$vm_ip:2379
+export ETCDCTL_PEERS=http://$master_vm_ip:2379
 echo " "
 echo "etcdctl ls /:"
 etcdctl --no-sync ls /
@@ -23,7 +23,7 @@ echo " "
 
 # set fleetctl endpoint
 export FLEETCTL_TUNNEL=
-export FLEETCTL_ENDPOINT=http://$vm_ip:2379
+export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 echo "fleetctl list-machines:"
@@ -34,7 +34,7 @@ fleetctl list-units
 echo " "
 
 # set kubernetes master
-export KUBERNETES_MASTER=http://$vm_ip:8080
+export KUBERNETES_MASTER=http://$master_vm_ip:8080
 echo "kubectl get nodes:"
 kubectl get nodes
 echo " "

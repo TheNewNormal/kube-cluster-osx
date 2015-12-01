@@ -11,8 +11,13 @@ function pause(){
 
 function check_vm_status() {
 # check VMs status
-status=$(ps aux | grep "[k]ube-solo/bin/xhyve" | awk '{print $2}')
+status=$(~/kube-cluster/bin/corectl ps -j | ~/kube-cluster/bin/jq ".[] | select(.Name==\"k8smaster-01\") | .Detached")
 if [ "$status" = "" ]; then
+    # kill node VMs just in case they were left running
+    # Get password
+    my_password=$(security find-generic-password -wa kube-cluster-app)
+    echo -e "$my_password\n" | sudo -S ~/kube-cluster/bin/corectl stop k8snode-02 >/dev/null 2>&1
+    echo -e "$my_password\n" | sudo -S ~/kube-cluster/bin/corectl stop k8snode-01 >/dev/null 2>&1
     echo " "
     echo "CoreOS VM is not running, please start VM !!!"
     pause "Press any key to continue ..."
@@ -89,7 +94,7 @@ if [ -z "$disk_size" ]
 then
     echo "Creating 1GB disk ..."
     # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*1*1024]
-    mkfile 1g master-root.img &
+    mkfile 1g master-root.img
 else
     echo "Creating "$disk_size"GB disk (could take a while for big files) ..."
     # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
@@ -112,7 +117,7 @@ if [ -z "$disk_size" ]
 then
     echo "Creating 5GB disk for k8snode-01 ..."
     # dd if=/dev/zero of=node-01-root.img bs=1024 count=0 seek=$[1024*5*1024]
-    mkfile 5g node-01-root.img &
+    mkfile 5g node-01-root.img
     echo " "
     spin='-\|/'
     i=1
@@ -121,7 +126,7 @@ then
     echo " "
     echo "Creating 5GB disk for k8snode-02 ..."
     # dd if=/dev/zero of=node-02-root.img bs=1024 count=0 seek=$[1024*5*1024]
-    mkfile 5g node-02-root.img &
+    mkfile 5g node-02-root.img
     echo " "
     spin='-\|/'
     i=1
@@ -149,8 +154,7 @@ fi
 
 ### format ROOT disks
 echo " "
-echo "Formating k8smaster-01 ROOT disk ..."
-echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8smaster-01-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > ~/kube-cluster/.env/ip_address_master
+echo "Formating k8smaster-01 ROOT disk ..." 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > ~/kube-cluster/.env/ip_address_master
 echo " "
 echo "Formating k8snodes1/2 ROOT disks ..."
 echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/node-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > /dev/null
@@ -164,7 +168,7 @@ echo "---"
 
 function download_osx_clients() {
 # download fleetctl file
-LATEST_RELEASE=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no core@$vm_ip 'fleetctl version' | cut -d " " -f 3- | tr -d '\r')
+LATEST_RELEASE=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no core@$master_vm_ip 'fleetctl version' | cut -d " " -f 3- | tr -d '\r')
 cd ~/kube-cluster/bin
 echo "Downloading fleetctl v$LATEST_RELEASE for OS X"
 curl -L -o fleet.zip "https://github.com/coreos/fleet/releases/download/v$LATEST_RELEASE/fleet-v$LATEST_RELEASE-darwin-amd64.zip"
@@ -190,7 +194,7 @@ cd ~/kube-cluster/tmp
 
 # get latest k8s version
 function get_latest_version_number {
-    local -r latest_url="https://storage.googleapis.com/kubernetes-release/release/latest.txt"
+    local -r latest_url="https://storage.googleapis.com/kubernetes-release/release/stable.txt"
     curl -Ss ${latest_url}
 }
 
@@ -249,17 +253,16 @@ install_k8s_files
 }
 
 
-function check_for_images() {
-# Check if set channel's images are present
-CHANNEL=$(cat ~/kube-cluster/custom.conf | grep CHANNEL= | head -1 | cut -f2 -d"=")
-LATEST=$(ls -r ~/kube-cluster/imgs/${CHANNEL}.*.vmlinuz | head -n 1 | sed -e "s,.*${CHANNEL}.,," -e "s,.coreos_.*,," )
-if [[ -z ${LATEST} ]]; then
-    echo "Couldn't find anything to load locally (${CHANNEL} channel)."
-    echo "Fetching lastest $CHANNEL channel ISO ..."
-    echo " "
-    cd ~/kube-cluster/
-    "${res_folder}"/bin/coreos-xhyve-fetch -f custom.conf
-fi
+function install_k8s_files {
+# install k8s files on to VM
+echo " "
+echo "Installing Kubernetes files on to Master..."
+cd ~/kube-cluster/kube
+scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet master.tgz core@$master_vm_ip:/home/core
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$master_vm_ip 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+echo "Done with k8smaster-01 "
+echo " "
+
 }
 
 
@@ -277,23 +280,7 @@ echo " "
 echo "fleetctl list-units:"
 fleetctl list-units
 echo " "
-
 }
-
-
-function install_k8s_files {
-# install k8s files on to VM
-echo " "
-echo "Installing Kubernetes files on to Master..."
-cd ~/kube-cluster/kube
-scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet master.tgz core@$vm_ip:/home/core
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$vm_ip 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-echo "Done with k8smaster-01 "
-echo " "
-
-
-}
-
 
 function install_k8s_add_ons {
 echo " "
@@ -354,7 +341,7 @@ do
     fi
 done
 
-security add-generic-password -a kube-cluster-app -s kube-cluster-app -w $password -U
+security add-generic-password -a kube-cluster-app -s kube-cluster-app -w $my_password -U
 }
 
 
@@ -367,39 +354,18 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 # Get password
 my_password=$(security find-generic-password -wa kube-cluster-app)
 
-# Stop webserver
-kill $(ps aux | grep "[k]ube-solo-web" | awk {'print $2'})
-
-# kill all kube-cluster/bin/xhyve instances
-# ps aux | grep "[k]ube-solo/bin/xhyve" | awk '{print $2}' | sudo -S xargs kill | echo -e "$my_password\n"
-echo -e "$my_password\n" | sudo -S pkill -f [k]ube-solo/bin/xhyve
-#
-echo -e "$my_password\n" | sudo -S pkill -f "${res_folder}"/bin/uuid2mac
+# kill VMs just in case they were left running
+echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl stop k8snode-02
+echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl stop k8snode-01
+echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl stop k8smaster-01
 
 # kill all other scripts
-pkill -f [K]ube-Solo.app/Contents/Resources/start_VM.command
-pkill -f [K]ube-Solo.app/Contents/Resources/bin/get_ip
-pkill -f [K]ube-Solo.app/Contents/Resources/bin/get_mac
-pkill -f [K]ube-Solo.app/Contents/Resources/bin/mac2ip
-pkill -f [K]ube-Solo.app/Contents/Resources/fetch_latest_iso.command
-pkill -f [K]ube-Solo.app/Contents/Resources/update_k8s.command
-pkill -f [K]ube-Solo.app/Contents/Resources/update_osx_clients_files.command
-pkill -f [K]ube-Solo.app/Contents/Resources/change_release_channel.command
+pkill -f [K]ube-Cluster.app/Contents/Resources/fetch_latest_iso.command
+pkill -f [K]ube-Cluster.app/Contents/Resources/update_k8s.command
+pkill -f [K]ube-Cluster.app/Contents/Resources/update_osx_clients_files.command
+pkill -f [K]ube-Cluster.app/Contents/Resources/change_release_channel.command
 
 }
 
 
-function kill_xhyve {
-sleep 3
-
-# get App's Resources folder
-res_folder=$(cat ~/kube-cluster/.env/resouces_path)
-
-# Get password
-my_password=$(security find-generic-password -wa kube-cluster-app)
-
-# kill all kube-cluster/bin/xhyve instances
-echo -e "$my_password\n" | sudo -S pkill -f [k]ube-solo/bin/xhyve
-
-}
 

@@ -43,57 +43,42 @@ save_password
 # Set release channel
 release_channel
 
-# now let's fetch ISO file
-echo " "
-echo "Fetching lastest CoreOS $channel channel ISO ..."
-echo " "
-"${res_folder}"/bin/corectl pull --channel="$channel"
-echo " "
-#
-
 # create ROOT disk
 create_root_disk
 
+# get master VM's IP
+master_vm_ip=$(cat ~/kube-cluster/.env/ip_address_master);
+
+# Get password
+my_password=$(security find-generic-password -wa kube-cluster-app)
+
+# Start VMs
+cd ~/kube-cluster
 echo " "
-# Start VM
-echo "Starting VM ..."
-"${res_folder}"/bin/dtach -n ~/kube-cluster/.env/.console -z "${res_folder}"/start_VM.command
+echo "Starting VMs ..."
+echo " "
+echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8smaster-01.toml
+echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8snode-01.toml
+echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8snode-02.toml
 #
 
-# wait till VM is booted up
-echo "You can connect to VM console from menu 'Attach to VM's console' "
-echo "When you done with console just close it's window/tab with CMD+W "
-echo "Waiting for VM to boot up..."
+# waiting for master's VM response to ping
 spin='-\|/'
 i=1
-until [ -e ~/kube-cluster/.env/.console ] >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-#
-sleep 3
-
-# get VM IP
-echo "Waiting for VM to be ready..."
-spin='-\|/'
-i=1
-until cat ~/kube-cluster/.env/ip_address | grep 192.168.64 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-vm_ip=$(cat ~/kube-cluster/.env/ip_address)
-#
-# waiting for VM's response to ping
-spin='-\|/'
-i=1
-while ! ping -c1 $vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+while ! ping -c1 $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
 
-# install k8s files on to VM
+# install k8s files on to VMs
 install_k8s_files
 #
 
-# download latest version fleetctl client
+# download latest version fleetctl and helm clients
 download_osx_clients
 #
 
 # set fleetctl endpoint and install fleet units
 export FLEETCTL_TUNNEL=
-export FLEETCTL_ENDPOINT=http://$vm_ip:2379
+export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 echo " "
@@ -106,25 +91,26 @@ deploy_fleet_units
 
 # generate kubeconfig file
 echo Generate kubeconfig file ...
-"${res_folder}"/bin/gen_kubeconfig $vm_ip
+"${res_folder}"/bin/gen_kubeconfig $master_vm_ip
 #
 
 # set kubernetes master
-export KUBERNETES_MASTER=http://$vm_ip:8080
+export KUBERNETES_MASTER=http://$master_vm_ip:8080
 #
 echo Waiting for Kubernetes cluster to be ready. This can take a few minutes...
 spin='-\|/'
 i=1
-until curl -o /dev/null http://$vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until curl -o /dev/null http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
-# attach label to the node
-~/kube-cluster/bin/kubectl label nodes $vm_ip node=worker1
+# attach label to the nodes
+~/kube-cluster/bin/kubectl label nodes $(corectl ps -j | jq ".[] | select(.Name==\"k8snode-01\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/') node=worker1
+~/kube-cluster/bin/kubectl label nodes $(corectl ps -j | jq ".[] | select(.Name==\"k8snode-02\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/') node=worker2
 #
-install_k8s_add_ons "$vm_ip"
+install_k8s_add_ons "$master_vm_ip"
 #
 echo "fleetctl list-machines:"
 fleetctl list-machines
@@ -138,7 +124,7 @@ echo " "
 #
 echo "Installation has finished, Kube Solo VM is up and running !!!"
 echo " "
-echo "Assigned static VM's IP: $vm_ip"
+echo "Assigned static VM's IP: $master_vm_ip"
 echo " "
 echo "Enjoy Kube Solo on your Mac !!!"
 echo " "

@@ -15,7 +15,7 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 vm_ip=$(cat ~/kube-cluster/.env/ip_address)
 
 # send halt to VM
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=5 core@$vm_ip sudo halt
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=5 core@$master_vm_ip sudo halt
 
 # just in case run
 clean_up_after_vm
