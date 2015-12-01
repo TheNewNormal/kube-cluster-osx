@@ -213,82 +213,35 @@ curl -L https://github.com/kelseyhightower/setup-network-environment/releases/do
 #
 # download latest version of k8s binaries for CoreOS
 echo "Downloading latest version of Kubernetes"
+# master
 bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager )
 for b in "${bins[@]}"; do
     curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
 done
+chmod a+x *
+# download easy-rsa
+curl -k -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > master/easy-rsa.tar.gz
 #
-tar czvf kube.tgz *
-cp -f kube.tgz ~/kube-cluster/kube/
+tar czvf master.tgz *
+cp -f master.tgz ~/kube-cluster/kube/
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
 echo " "
 
-# get VM IP
-vm_ip=$(cat ~/kube-cluster/.env/ip_address)
-
-# install k8s files
-install_k8s_files
-
-}
-
-
-function download_k8s_files_version() {
-#
-cd ~/kube-cluster/tmp
-
-# ask for k8s version
-echo "You can install a particular version of Kubernetes you migh want to test..."
-echo "Bear in mind if the version you want is lower than the currently installed, "
-echo "Kubernetes cluster migth not work, so you will need to destroy the cluster first "
-echo " and boot VM again !!! "
-echo " "
-echo "Please type Kubernetes version you want to be installed e.g. v1.1.1"
-echo "followed by [ENTER] or CMD + W to exit:"
-read K8S_VERSION
-
-url=https://github.com/kubernetes/kubernetes/releases/download/$K8S_VERSION/kubernetes.tar.gz
-
-if curl --output /dev/null --silent --head --fail "$url"; then
-    echo "URL exists: $url" > /dev/null
-else
-    echo " "
-    echo "There is no such Kubernetes version to download !!!"
-    pause 'Press [Enter] key to continue...'
-    exit 1
-fi
-
-# download required version of Kubernetes
-cd ~/kube-cluster/tmp
-echo " "
-echo "Downloading Kubernetes $K8S_VERSION tar.gz from github ..."
-curl -k -L https://github.com/kubernetes/kubernetes/releases/download/$K8S_VERSION/kubernetes.tar.gz >  ~/kube-cluster/tmp/kubernetes.tar.gz
-mkdir kube
-
-# download setup-network-environment binary
-echo "Downloading setup-network-environment from github ..."
-curl -L https://github.com/kelseyhightower/setup-network-environment/releases/download/1.0.1/setup-network-environment > ~/kube-cluster/tmp/kube/setup-network-environment
-#
-# extracting Kubernetes files
-echo "Extracting Kubernetes $K8S_VERSION files ..."
-tar xvf  kubernetes.tar.gz --strip=4 kubernetes/platforms/darwin/amd64/kubectl
-mv -f kubectl ~/kube-cluster/kube
-#
-tar xvf kubernetes.tar.gz --strip=2 kubernetes/server/kubernetes-server-linux-amd64.tar.gz
-bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager )
+# nodes
+bins=( kubectl kubelet kube-proxy )
 for b in "${bins[@]}"; do
-    tar xvf kubernetes-server-linux-amd64.tar.gz -C ~/kube-cluster/tmp/kube --strip=3 kubernetes/server/bin/$b
+    curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
 done
-#
-chmod a+x kube/*
-tar czvf kube.tgz -C kube .
-cp -f kube.tgz ~/kube-cluster/kube/
+chmod a+x *
+tar czvf nodes.tgz *
+cp -f nodes.tgz ~/kube-cluster/kube/
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
 echo " "
 
 # get VM IP
-vm_ip=$(cat ~/kube-cluster/.env/ip_address)
+master_ip=$(cat ~/kube-cluster/.env/ip_address_master)
 
 # install k8s files
 install_k8s_files
@@ -331,12 +284,14 @@ echo " "
 function install_k8s_files {
 # install k8s files on to VM
 echo " "
-echo "Installing Kubernetes files on to VM..."
+echo "Installing Kubernetes files on to Master..."
 cd ~/kube-cluster/kube
-scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet kube.tgz core@$vm_ip:/home/core
+scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet master.tgz core@$vm_ip:/home/core
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$vm_ip 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-echo "Done with k8solo-01 "
+echo "Done with k8smaster-01 "
 echo " "
+
+
 }
 
 
