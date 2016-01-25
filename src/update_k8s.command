@@ -10,8 +10,10 @@ source "${DIR}"/functions.sh
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM IP
+# get VMs IPs
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
+node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
@@ -35,19 +37,22 @@ echo Generate kubeconfig file ...
 #
 
 # restart fleet units
+echo " "
 echo "Restarting fleet units:"
 # set fleetctl tunnel
 export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 cd ~/kube-cluster/fleet
-echo " Stopping Kubernetes fleet units ..."
+echo " "
+echo "Stopping Kubernetes fleet units ..."
 ~/kube-cluster/bin/fleetctl stop kube-apiserver.service
 ~/kube-cluster/bin/fleetctl stop kube-controller-manager.service
 ~/kube-cluster/bin/fleetctl stop kube-scheduler.service
 ~/kube-cluster/bin/fleetctl stop kube-kubelet.service
 ~/kube-cluster/bin/fleetctl stop kube-proxy.service
 sleep 5
+echo " "
 echo "Starting Kubernetes fleet units ..."
 ~/kube-cluster/bin/fleetctl start kube-apiserver.service
 ~/kube-cluster/bin/fleetctl start kube-controller-manager.service
@@ -68,14 +73,16 @@ spin='-\|/'
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+i=1
+until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
-echo "k8s nodes list:"
+echo "Kubernetes nodes list:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #
-echo "Cluster version:"
+echo "Kubernetes cluster version:"
 CLIENT_INSTALLED_VERSION=$(~/kube-cluster/bin/kubectl version | grep "Client Version:" | awk '{print $5}' | awk -v FS='(:"|",)' '{print $2}')
 SERVER_INSTALLED_VERSION=$(~/kube-cluster/bin/kubectl version | grep "Server Version:" | awk '{print $5}' | awk -v FS='(:"|",)' '{print $2}')
 echo "Client version: $CLIENT_INSTALLED_VERSION"

@@ -10,27 +10,27 @@ node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 current_folder=$(pwd)
 cd ~/kube-cluster/bin
 echo " "
-echo "Installing latest helm ..."
+echo "Installing latest helm version..."
 curl -s https://get.helm.sh | bash > /dev/null 2>&1
 cd $current_folder
 echo "helm is installed to ~/kube-cluster/bin ... "
 
 # run helm for the first time
 helm up
-# add Chart repo
-helm repo add kube-charts https://github.com/TheNewNormal/kube-charts
+# add Deis Chart repo
+helm repo add deis https://github.com/deis/charts
 # Get the latest version of all Charts from repos
 helm up
-# Fetch Deis-Lite Chart to your helm's working directory
-helm fetch kube-charts/deis-lite
-# Install Deis-Lite PaaS
-helm install deis-lite
+# Fetch Deis Chart to your helm's working directory
+helm fetch deis/deis
+# Install Deis PaaS
+helm install deis
 
 # Install deis client
 current_folder=$(pwd)
 cd ~/kube-cluster/bin
 echo " "
-echo "Installing deis client ..."
+echo "Installing deis OS X client ..."
 curl -sSL http://deis.io/deis-cli/install-v2-alpha.sh | bash > /dev/null 2>&1
 cd $current_folder
 echo "deis client is installed to ~/kube-cluster/bin ..."

@@ -3,7 +3,7 @@
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM's IP
+# get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 
 cmd=(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$master_vm_ip sudo /usr/bin/etcdctl "${@+$@}")
