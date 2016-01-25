@@ -32,7 +32,7 @@ Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kub
 * All dependent files/folders will be put under `kube-cluster` folder in the user's home folder e.g /Users/someuser/kube-cluster
 * User's Mac password will be stored in `OS X KeyChain`, it will be used for sudo command which needs to be used starting VM with `corectl`
 * ISO images are stored under `~/.coreos/images`.
-That allows to share the same images between different `corectl' based Apps and also speeds up this App's reinstall
+That allows to share the same images between different `corectl` based Apps and also speeds up this App's reinstall
 * user-data file will have fleet, etcd and flannel set
 * Will download latest CoreOS ISO image and run `corectl` to initialise VM 
 * When you first time do install or 'Up' after destroying Kube-Cluster setup, k8s binary files (with the version which was available when the App was built) get copied to CoreOS VM, this speeds up Kubernetes cluster setup. To update Kubernetes just run from menu 'Updates' - Update Kubernetes and OS X kubectl.
