@@ -15,7 +15,7 @@ typedef NS_ENUM(NSInteger, VMStatus) {
 
 @interface VMManager : NSObject
 
-- (VMStatus)checkVMStatus;
+@property (NS_NONATOMIC_IOSONLY, readonly) VMStatus checkVMStatus;
 - (void)start;
 - (void)halt;
 - (void)kill;

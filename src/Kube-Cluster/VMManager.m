@@ -18,10 +18,10 @@
 
     NSPipe *pipe;
     pipe = [NSPipe pipe];
-    [task setStandardOutput:pipe];
+    task.standardOutput = pipe;
 
     NSFileHandle *file;
-    file = [pipe fileHandleForReading];
+    file = pipe.fileHandleForReading;
 
     [task launch];
     [task waitUntilExit];
@@ -43,7 +43,7 @@
 }
 
 - (void)start {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"up.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"up.command"]];
 }
 
 - (void)halt {
@@ -51,27 +51,27 @@
 }
 
 - (void)kill {
-    [self runScript:@"kill_VM" arguments:@""];
+    [self runScript:@"kill_VMs" arguments:@""];
 }
 
 - (void)reload {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"reload.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"reload.command"]];
 }
 
 - (void)updateKubernetes {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"update_k8s.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"update_k8s.command"]];
 }
 
 - (void)updateKubernetesVersion {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"update_k8s_version.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"update_k8s_version.command"]];
 }
 
 - (void)updateClients {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"update_osx_clients_files.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"update_osx_clients_files.command"]];
 }
 
 - (void)restoreFleetUnits {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"restore_update_fleet_units.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"restore_update_fleet_units.command"]];
 }
 
 - (void)runScript:(NSString *)scriptName arguments:(NSString *)arguments {
@@ -89,39 +89,39 @@
 }
 
 - (void)updateISO {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"fetch_latest_iso.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"fetch_latest_iso.command"]];
 }
 
 - (void)changeReleaseChannel {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"change_release_channel.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"change_release_channel.command"]];
 }
 
 - (void)changeSudoPassword {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"change_sudo_password.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"change_sudo_password.command"]];
 }
 
 - (void)destroy {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"destroy.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"destroy.command"]];
 }
 
 - (void)install {
-    [self runScript:@"kube-cluster-install" arguments:[[NSBundle mainBundle] resourcePath]];
+    [self runScript:@"kube-cluster-install" arguments:[NSBundle mainBundle].resourcePath];
 }
 
 - (void)runShell {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"os_shell.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"os_shell.command"]];
 }
 
 - (void)runSSHMaster {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh_master.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"ssh_master.command"]];
 }
 
 - (void)runSSHNode1 {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh_node1.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"ssh_node1.command"]];
 }
 
 - (void)runSSHNode2 {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh_node2.command"]];
+    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"ssh_node2.command"]];
 }
 
 @end

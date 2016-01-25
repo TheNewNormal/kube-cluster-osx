@@ -10,7 +10,7 @@
 		011BBA3B1A2A842A00AAB35B /* change_release_channel.command in Resources */ = {isa = PBXBuildFile; fileRef = 011BBA3A1A2A842A00AAB35B /* change_release_channel.command */; };
 		01689B731A2D1A260099CB78 /* fleet in Resources */ = {isa = PBXBuildFile; fileRef = 01689B721A2D1A260099CB78 /* fleet */; };
 		01741B63190DB80500BB1F91 /* first-init.command in Resources */ = {isa = PBXBuildFile; fileRef = 01741B62190DB80500BB1F91 /* first-init.command */; };
-		019410681BE11DFA00723E19 /* kill_VM.command in Resources */ = {isa = PBXBuildFile; fileRef = 019410671BE11DFA00723E19 /* kill_VM.command */; };
+		019410681BE11DFA00723E19 /* kill_VMs.command in Resources */ = {isa = PBXBuildFile; fileRef = 019410671BE11DFA00723E19 /* kill_VMs.command */; };
 		01BB60D31AB74AE60069BF30 /* k8s in Resources */ = {isa = PBXBuildFile; fileRef = 01BB60D21AB74AE60069BF30 /* k8s */; };
 		01D3685918E5C184006510B5 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 01D3685818E5C184006510B5 /* icon.icns */; };
 		01E2853E18A6C4E300BC630D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01E2853D18A6C4E300BC630D /* Cocoa.framework */; };
@@ -51,7 +51,7 @@
 		0133608F18A70E0C0024B1CB /* Kube-Cluster.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Kube-Cluster.entitlements"; sourceTree = "<group>"; };
 		01689B721A2D1A260099CB78 /* fleet */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fleet; sourceTree = SOURCE_ROOT; };
 		01741B62190DB80500BB1F91 /* first-init.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "first-init.command"; sourceTree = SOURCE_ROOT; };
-		019410671BE11DFA00723E19 /* kill_VM.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = kill_VM.command; sourceTree = "<group>"; };
+		019410671BE11DFA00723E19 /* kill_VMs.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = kill_VMs.command; sourceTree = "<group>"; };
 		01BB60D21AB74AE60069BF30 /* k8s */ = {isa = PBXFileReference; lastKnownFileType = folder; path = k8s; sourceTree = SOURCE_ROOT; };
 		01D3685818E5C184006510B5 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		01E2853A18A6C4E300BC630D /* Kube-Cluster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kube-Cluster.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -127,7 +127,7 @@
 		01E2853118A6C4E300BC630D = {
 			isa = PBXGroup;
 			children = (
-				01E2854318A6C4E300BC630D /* Kube-Cluster */,
+				01E2854318A6C4E300BC630D /* kube-cluster */,
 				014E6F8B18B63AF700E697C0 /* Installation Files */,
 				01E285B918A6E23C00BC630D /* Scripts */,
 				01E2853C18A6C4E300BC630D /* Frameworks */,
@@ -163,7 +163,7 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		01E2854318A6C4E300BC630D /* Kube-Cluster */ = {
+		01E2854318A6C4E300BC630D /* kube-cluster */ = {
 			isa = PBXGroup;
 			children = (
 				0133608F18A70E0C0024B1CB /* Kube-Cluster.entitlements */,
@@ -178,7 +178,6 @@
 				01D3685818E5C184006510B5 /* icon.icns */,
 				01E2854418A6C4E300BC630D /* Supporting Files */,
 			);
-			name = "Kube-Cluster";
 			path = "kube-cluster";
 			sourceTree = "<group>";
 		};
@@ -204,7 +203,7 @@
 				011BBA3A1A2A842A00AAB35B /* change_release_channel.command */,
 				1347C2F81C30570D0083CDF9 /* change_sudo_password.command */,
 				1329DEA31BD4FB5F008AA719 /* destroy.command */,
-				019410671BE11DFA00723E19 /* kill_VM.command */,
+				019410671BE11DFA00723E19 /* kill_VMs.command */,
 				1329DEA81BD4FB5F008AA719 /* ssh_master.command */,
 				131540881C55C65C0015936E /* ssh_node1.command */,
 				1315408A1C55C68A0015936E /* ssh_node2.command */,
@@ -304,7 +303,7 @@
 				01689B731A2D1A260099CB78 /* fleet in Resources */,
 				01BB60D31AB74AE60069BF30 /* k8s in Resources */,
 				01E2854E18A6C4E300BC630D /* Credits.rtf in Resources */,
-				019410681BE11DFA00723E19 /* kill_VM.command in Resources */,
+				019410681BE11DFA00723E19 /* kill_VMs.command in Resources */,
 				1329DE921BD4F974008AA719 /* files in Resources */,
 				13FE22171C1C40C700F465F1 /* bin in Resources */,
 				1329DE901BD4F95F008AA719 /* settings in Resources */,
@@ -447,7 +446,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kube-cluster/Kube-Cluster-Prefix.pch";
-				INFOPLIST_FILE = "kube-cluster/Kube-Cluster-Info.plist";
+				INFOPLIST_FILE = "Kube-Cluster/Kube-Cluster-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -469,7 +468,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kube-cluster/Kube-Cluster-Prefix.pch";
-				INFOPLIST_FILE = "kube-cluster/Kube-Cluster-Info.plist";
+				INFOPLIST_FILE = "Kube-Cluster/Kube-Cluster-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

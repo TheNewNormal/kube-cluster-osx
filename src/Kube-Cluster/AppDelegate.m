@@ -19,18 +19,18 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
+    [NSUserNotificationCenter defaultUserNotificationCenter].delegate = self;
 
     self.vmManager = [[VMManager alloc] init];
 
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [self.statusItem setMenu:self.statusMenu];
-    [self.statusItem setImage: [NSImage imageNamed:@"StatusItemIcon"]];
+    (self.statusItem).menu = self.statusMenu;
+    (self.statusItem).image = [NSImage imageNamed:@"StatusItemIcon"];
     [self.statusItem setHighlightMode:YES];
 
     BOOL isDir;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[[NSURL ks_homeURL] path] isDirectory:&isDir] && isDir) {
-        NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[NSURL ks_homeURL].path isDirectory:&isDir] && isDir) {
+        NSString *resourcePath = [NSBundle mainBundle].resourcePath;
         [resourcePath writeToURL:[NSURL ks_resourcePathURL] atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
         NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
@@ -44,7 +44,7 @@
         [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         [alert setMessageText:NSLocalizedString(@"NotSetupAlertMessage", nil)];
         [alert setInformativeText:NSLocalizedString(@"NotSetupAlertInformativeText", nil)];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        alert.alertStyle = NSWarningAlertStyle;
 
         if ([alert runModal] == NSAlertFirstButtonReturn) {
             // OK clicked
@@ -65,7 +65,7 @@
     switch (vmStatus) {
         case VMStatusDown: {
             BOOL isDir;
-            if ([[NSFileManager defaultManager] fileExistsAtPath:[[NSURL ks_homeURL] path] isDirectory:&isDir] && isDir) {
+            if ([[NSFileManager defaultManager] fileExistsAtPath:[NSURL ks_homeURL].path isDirectory:&isDir] && isDir) {
                 [self notifyUserWithTitle:NSLocalizedString(@"WillSetupNotificationTitle", nil) text:NSLocalizedString(@"WillSetupNotificationMessage", nil)];
                 [self.vmManager start];
             }
@@ -75,7 +75,7 @@
                 [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
                 [alert setMessageText:NSLocalizedString(@"NotSetupAlertMessage", nil)];
                 [alert setInformativeText:NSLocalizedString(@"NotSetupAlertInformativeText", nil)];
-                [alert setAlertStyle:NSWarningAlertStyle];
+                alert.alertStyle = NSWarningAlertStyle;
 
                 if ([alert runModal] == NSAlertFirstButtonReturn) {
                     // OK clicked
@@ -232,15 +232,15 @@
 
 - (IBAction)initialInstall:(id)sender {
     BOOL isDir;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[[NSURL ks_homeURL] path] isDirectory:&isDir] && isDir) {
-        NSString *msg = [NSString stringWithFormat:NSLocalizedString(@"HomeFolderExistsAlertInformativeText", nil), [[NSURL ks_homeURL] path]];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[NSURL ks_homeURL].path isDirectory:&isDir] && isDir) {
+        NSString *msg = [NSString stringWithFormat:NSLocalizedString(@"HomeFolderExistsAlertInformativeText", nil), [NSURL ks_homeURL].path];
         [self alertWithMessage:NSLocalizedString(@"AppName", nil) infoText:msg];
     }
     else {
         NSLog(@"Folder does not exist: '%@'", [NSURL ks_homeURL]);
         [[NSFileManager defaultManager] createDirectoryAtURL:[NSURL ks_envURL] withIntermediateDirectories:YES attributes:nil error:nil];
 
-        NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
+        NSString *resourcePath = [NSBundle mainBundle].resourcePath;
         [resourcePath writeToURL:[NSURL ks_resourcePathURL] atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
         NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
@@ -443,9 +443,9 @@
 - (void)alertWithMessage:(NSString *)message infoText:(NSString *)infoText {
     NSAlert *alert = [[NSAlert alloc] init];
 
-    [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert setMessageText:message];
-    [alert setInformativeText:infoText];
+    alert.alertStyle = NSInformationalAlertStyle;
+    alert.messageText = message;
+    alert.informativeText = infoText;
     [alert runModal];
 }
 
