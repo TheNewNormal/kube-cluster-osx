@@ -7,7 +7,7 @@
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # check VM status
-status=$("${res_folder}"/bin/corectl ps 2>&1 | grep "[k]8solo-01")
+status=$("${res_folder}"/bin/corectl ps 2>&1 | grep "[k]8smaster-01")
 
 if [ "$status" = "" ]; then
     echo -n "VM is stopped"

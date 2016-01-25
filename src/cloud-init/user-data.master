@@ -8,12 +8,14 @@ coreos:
   etcd2:
     name: k8smaster-01
     initial-advertise-peer-urls: http://127.0.0.1:2380
-    initial-cluster-token: k8smaster-01_etcd
+    initial-cluster-token: k8s_etcd
     initial-cluster: k8smaster-01=http://127.0.0.1:2380
     initial-cluster-state: new
     listen-peer-urls: http://0.0.0.0:2380,http://0.0.0.0:7001
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    advertise-client-urls:  http://0.0.0.0:2379,http://0.0.0.0:4001
+    advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+  fleet:
+    metadata: role=control
   units:
     - name: docker-tcp.socket
       command: start

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  download_k8s.command
-#  Kube-Solo for OS X
+#  Kube-Cluster for OS X
 #
 #  Created by Rimantas on 03/06/2015.
 #  Copyright (c) 2014 Rimantas Mocevicius. All rights reserved.
@@ -10,8 +10,12 @@ function pause(){
 read -p "$*"
 }
 
+mkdir kube
 rm -f kubectl
 rm -f *.tgz
+
+# copy kube-apiproxy
+cp -f kube-apiproxy kube
 
 # get latest k8s version
 function get_latest_version_number {
@@ -27,7 +31,6 @@ curl -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/b
 chmod a+x kubectl
 
 # download latest version of k8s binaries for CoreOS
-mkdir kube
 bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager )
 for b in "${bins[@]}"; do
     curl -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > kube/$b

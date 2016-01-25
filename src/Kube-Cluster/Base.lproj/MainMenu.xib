@@ -14,9 +14,9 @@
         <menu title="AMainMenu" systemMenu="main" id="29">
             <items>
                 <menuItem title="Kube-Cluster" id="56">
-                    <menu key="submenu" title="Kube-Cluster" systemMenu="apple" id="57" userLabel="Kube-Solo">
+                    <menu key="submenu" title="Kube-Cluster" systemMenu="apple" id="57" userLabel="Kube-Cluster">
                         <items>
-                            <menuItem title="About CoreOS OS X GUI" id="58" userLabel="About Kube-Solo">
+                            <menuItem title="About Kube-Cluster for OS X" id="58" userLabel="About Kube-Cluster">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-2" id="142"/>
@@ -35,7 +35,7 @@
                             <menuItem isSeparatorItem="YES" id="144">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Hide CoreOS OS X GUI" keyEquivalent="h" id="134" userLabel="Hide Kube-Solo">
+                            <menuItem title="Hide Kube-Cluster for OS X" keyEquivalent="h" id="134" userLabel="Hide Kube-Cluster">
                                 <connections>
                                     <action selector="hide:" target="-1" id="367"/>
                                 </connections>
@@ -54,7 +54,7 @@
                             <menuItem isSeparatorItem="YES" id="149">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Quit CoreOS OS X GUI" keyEquivalent="q" id="136" userLabel="Quit Kube-Solo"/>
+                            <menuItem title="Quit Kube-Cluster for OS X" keyEquivalent="q" id="136" userLabel="Quit Kube-Cluster"/>
                         </items>
                     </menu>
                 </menuItem>
@@ -690,7 +690,7 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="B1N-0s-OFg"/>
-                <menuItem title="OS shell" id="YiP-H1-GtD" userLabel="OS shell">
+                <menuItem title="Preset OS shell" id="YiP-H1-GtD">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="runShell:" target="494" id="jN7-v8-FoZ"/>

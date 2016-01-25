@@ -1,12 +1,12 @@
 /* 
   Localizable.strings
-  Kube-Solo
+  Kube-Cluster
 
   Created by Brandon Evans on 2015-10-28.
   Copyright © 2015 Rimantas Mocevicius. All rights reserved.
 */
 
-"AppName" = "Kube-Solo";
+"AppName" = "Kube-Cluster";
 "OK" = "OK";
 "Cancel" = "Cancel";
 
@@ -33,18 +33,18 @@
 "ConsoleWillOpenNotificationMessage" = "VM's console will be opened";
 "WillSetupNotificationTitle" = "Kube Solo will be up shortly";
 "WillSetupNotificationMessage" = "and OS shell will be opened";
-"KubernetesUpdateNotificationTitle" = "Kube-Solo and";
+"KubernetesUpdateNotificationTitle" = "Kube-Cluster and";
 "KubernetedUpdateNotificationMessage" = "OS X kubectl will be updated";
 "KubernetesVersionChangeNotificationMessage" = "OS X kubectl version will be changed";
 "RestoreFleetUnitsNotificationMessage" = "fleet units will be restored/upgraded";
-"QuittingNotificationTitle" = "Quitting Kube-Solo App";
+"QuittingNotificationTitle" = "Quitting Kube-Cluster App";
 
 // Alerts
 
 "NotSetupAlertMessage" = "Kube Solo was not setup";
 "NotSetupAlertInformativeText" = "Do you want to set it up?";
-"SetupAlertMessage" = "You can set Kube-Solo from menu 'Setup':";
-"SetupAlertInformativeText" = " 'Initial setup of Kube-Solo' at any time later one !!! ";
+"SetupAlertMessage" = "You can set Kube-Cluster from menu 'Setup':";
+"SetupAlertInformativeText" = " 'Initial setup of Kube-Cluster' at any time later one !!! ";
 "HomeFolderExistsAlertInformativeText" = "Folder %@ exists, please delete or rename that folder !!!";
-"AboutAlertMessage" = "Kube-Solo for OS X v%@";
-"AboutInformativeText" = "It is a simple wrapper around corectl + CoreOS VM, which allows to control Kube-Solo via Status Bar !!!";
+"AboutAlertMessage" = "Kube-Cluster for OS X v%@";
+"AboutInformativeText" = "It is a simple wrapper around corectl + CoreOS VM, which allows to control Kube-Cluster via Status Bar !!!";

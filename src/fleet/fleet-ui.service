@@ -7,7 +7,7 @@ Requires=docker.service
 User=core
 EnvironmentFile=/etc/environment
 TimeoutStartSec=0
-ExecStartPre=/usr/bin/docker pull purpleworks/fleet-ui:latest
+ExecStartPre=-/usr/bin/docker pull purpleworks/fleet-ui:latest
 ExecStartPre=-/usr/bin/docker rm fleet_ui
 ExecStart=/usr/bin/docker run --rm --name fleet_ui --memory="128m" \
 -p 3000:3000 -e ETCD_PEER=http://${COREOS_PUBLIC_IPV4}:2379 \

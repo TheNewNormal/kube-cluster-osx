@@ -1,7 +1,7 @@
 [k8snode-01]
    uuid = "0A45849A-0614-4B7B-A011-2506F7CEE975"
    channel = "alpha"
-   volume = "node-01-root.img"
+   volume = "node-01-data.img"
    cloud_config = "cloud-init/user-data.node"
    cpus = 2
    memory = "2048"

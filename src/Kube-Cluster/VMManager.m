@@ -1,6 +1,6 @@
 //
 //  VMManager.m
-//  Kube-Solo
+//  Kube-Cluster
 //
 //  Created by Brandon Evans on 2015-10-28.
 //  Copyright © 2015 Rimantas Mocevicius. All rights reserved.

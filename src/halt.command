@@ -19,6 +19,7 @@ sudo -k
 # enable sudo
 echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
-# send halt to VM
-#sudo "${res_folder}"/bin/corectl ssh k8smaster-01 sudo halt
+# send halt to VMs
+sudo "${res_folder}"/bin/corectl halt k8snode-01
+sudo "${res_folder}"/bin/corectl halt k8snode-02
 sudo "${res_folder}"/bin/corectl halt k8smaster-01

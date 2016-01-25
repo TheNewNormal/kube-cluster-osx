@@ -27,6 +27,8 @@ done
 echo " "
 echo "$file found, updating configuration files ..."
 echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8smaster-01.toml
+echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8snode-01.toml
+echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8snode-02.toml
 #
 }
 
@@ -86,25 +88,41 @@ create_data_disk() {
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
-# create persistent disk
+# create persistent disks
 cd ~/kube-cluster/
 echo "  "
-echo "Please type Data disk size in GBs followed by [ENTER]:"
+echo "Creating 1GB Data disk for Master ..."
+mkfile 1g master-data.img
+echo "-"
+echo "Created 1GB Data disk for Master"
+echo " "
+
+echo "Please type Node1/2 Data disk size in GBs followed by [ENTER]:"
 echo -n "[default is 5]: "
 read disk_size
 if [ -z "$disk_size" ]
 then
     echo " "
-    echo "Creating 5GB disk ..."
-    mkfile 5g data.img
+    echo "Creating 5GB Data disk for Node1..."
+    mkfile 5g node-01-data.img
     echo "-"
-    echo "Created 5GB Data disk"
+    echo "Created 5GB Data disk for Node1"
+    echo " "
+    echo "Creating 5GB Data disk for Node2..."
+    mkfile 5g node-02-data.img
+    echo "-"
+    echo "Created 5GB Data disk for Node2"
 else
     echo " "
-    echo "Creating "$disk_size"GB disk (it could take a while for big disks)..."
-    mkfile "$disk_size"g data.img
+    echo "Creating "$disk_size"GB Data disk for Node1 (it could take a while for big disks)..."
+    mkfile "$disk_size"g node-01-data.img
     echo "-"
-    echo "Created "$disk_size"GB Data disk"
+    echo "Created "$disk_size"GB Data disk for Node1"
+    echo " "
+    echo "Creating "$disk_size"GB Data disk for Node2 (it could take a while for big disks)..."
+    mkfile "$disk_size"g node-02-data.img
+    echo "-"
+    echo "Created "$disk_size"GB Data disk for Node2"
 fi
 
 }
@@ -175,6 +193,11 @@ if [ $MATCH -ne 0 ]; then
 fi
 
 k8s_upgrade=1
+
+# clean up tmp folder
+rm -rf ~/kube-cluster/tmp/*
+# copy kube-apiproxy
+cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 
 # download latest version of kubectl for OS X
 cd ~/kube-cluster/tmp
@@ -247,6 +270,11 @@ fi
 
 k8s_upgrade=1
 
+# clean up tmp folder
+rm -rf ~/kube-cluster/tmp/*
+# copy kube-apiproxy
+cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
+
 # download required version of Kubernetes
 cd ~/kube-cluster/tmp
 echo " "
@@ -289,6 +317,7 @@ fleetctl start fleet-ui.service
 fleetctl start kube-apiserver.service
 fleetctl start kube-controller-manager.service
 fleetctl start kube-scheduler.service
+fleetctl start kube-apiproxy.service
 fleetctl start kube-kubelet.service
 fleetctl start kube-proxy.service
 echo " "
@@ -303,19 +332,33 @@ function install_k8s_files {
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM IP
-vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+# get master VM's IP
+master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 
-# install k8s files on to VM
+# install k8s files on to VMs
 echo " "
-echo "Installing Kubernetes files on to VM..."
+echo "Installing Kubernetes files on to VMs..."
+echo " "
 cd ~/kube-cluster/kube
-###scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet kube.tgz core@$vm_ip:/home/core
+echo "Installing into k8smaster-01..."
 "${res_folder}"/bin/corectl scp kube.tgz k8smaster-01:/home/core/
 "${res_folder}"/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
 "${res_folder}"/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
-
 echo "Done with k8smaster-01 "
+echo " "
+#
+echo "Installing into k8snode-01..."
+"${res_folder}"/bin/corectl scp kube.tgz k8snode-01:/home/core/
+"${res_folder}"/bin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+"${res_folder}"/bin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+echo "Done with k8snode-01 "
+echo " "
+#
+echo "Installing into k8snode-02..."
+"${res_folder}"/bin/corectl scp kube.tgz k8snode-02:/home/core/
+"${res_folder}"/bin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+"${res_folder}"/bin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+echo "Done with k8snode-02 "
 echo " "
 }
 
@@ -402,7 +445,9 @@ sudo -k
 # enable sudo
 echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
-# send halt to VM
+# send halt to VMs
+sudo "${res_folder}"/bin/corectl halt k8snode-01
+sudo "${res_folder}"/bin/corectl halt k8snode-02
 sudo "${res_folder}"/bin/corectl halt k8smaster-01
 
 # kill all other scripts
@@ -412,3 +457,4 @@ pkill -f [K]ube-Solo.app/Contents/Resources/update_osx_clients_files.command
 pkill -f [K]ube-Solo.app/Contents/Resources/change_release_channel.command
 
 }
+

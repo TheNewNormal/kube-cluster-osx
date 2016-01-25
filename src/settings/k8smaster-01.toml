@@ -1,7 +1,7 @@
 [k8smaster-01]
    uuid = "96677A350-A1E1-46FC-9BC7-4024162BF95B"
    channel = "alpha"
-   volume = "master-root.img"
+   volume = "master-data.img"
    cloud_config = "cloud-init/user-data.master"
    cpus = 1
    memory = "1024"

@@ -10,8 +10,8 @@ source "${DIR}"/functions.sh
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM IP
-vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+# get master VM's IP
+master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 
 # get password for sudo
 my_password=$(security find-generic-password -wa kube-cluster-app)
@@ -22,7 +22,7 @@ LOOP=1
 while [ $LOOP -gt 0 ]
 do
     VALID_MAIN=0
-    echo "VM will be stopped (if is running) and destroyed !!!"
+    echo "VMs will be stopped (if is running) and destroyed !!!"
     echo "Do you want to continue [y/n]"
 
     read RESPONSE
@@ -35,17 +35,21 @@ do
         # enable sudo
         echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
-        # send halt to VM
+        # send halt to VMs
         echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8smaster-01 > /dev/null 2>&1
+        echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8snode-01 > /dev/null 2>&1
+        echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8snode-02 > /dev/null 2>&1
 
-        # delete root image
-        rm -f ~/kube-cluster/data.img
+        # delete volume images
+        rm -f ~/kube-cluster/master-data.img
+        rm -f ~/kube-cluster/node-01-data
+        rm -f ~/kube-cluster/node-02-data
 
         # delete password in keychain
         security 2>&1 >/dev/null delete-generic-password -a kube-cluster-app 2>&1 >/dev/null
 
         echo "-"
-        echo "Done, please start VM with 'Up' and the VM will be recreated ..."
+        echo "Done, please start VMs with 'Up' and the VMs will be recreated ..."
         echo " "
         pause 'Press [Enter] key to continue...'
         LOOP=0

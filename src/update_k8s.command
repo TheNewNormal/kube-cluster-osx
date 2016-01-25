@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  update_k8s.command
-#  Kube-Solo for OS X
+#  Kube-Cluster for OS X
 #
 #
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -11,7 +11,7 @@ source "${DIR}"/functions.sh
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get VM IP
-vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
@@ -31,13 +31,13 @@ fi
 
 # generate kubeconfig file
 echo Generate kubeconfig file ...
- "${res_folder}"/bin/gen_kubeconfig $vm_ip
+ "${res_folder}"/bin/gen_kubeconfig $master_vm_ip
 #
 
 # restart fleet units
 echo "Restarting fleet units:"
 # set fleetctl tunnel
-export FLEETCTL_ENDPOINT=http://$vm_ip:2379
+export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 cd ~/kube-cluster/fleet
@@ -62,13 +62,13 @@ echo "fleetctl list-units:"
 echo " "
 
 # set kubernetes master
-export KUBERNETES_MASTER=http://$vm_ip:8080
+export KUBERNETES_MASTER=http://$master_vm_ip:8080
 echo Waiting for Kubernetes cluster to be ready. This can take a few minutes...
 spin='-\|/'
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
 echo "k8s nodes list:"

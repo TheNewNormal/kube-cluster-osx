@@ -4,7 +4,7 @@
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get VM's IP
-vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 
 # get lastest OS X helm version
 current_folder=$(pwd)
@@ -47,7 +47,7 @@ until kubectl --namespace=deis get po | grep [d]eis-database- | grep "Running"  
 until kubectl --namespace=deis get po | grep [d]eis-minio- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 until kubectl --namespace=deis get po | grep [d]eis-router- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 until kubectl --namespace=deis get po | grep [d]eis-workflow- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-until curl -o /dev/null -sI http://deis.$vm_ip.xip.io/health-check >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until curl -o /dev/null -sI http://deis.$node1_vm_ip.xip.io/health-check >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
 
 sleep 5
@@ -55,7 +55,7 @@ sleep 5
 # run deis register user
 echo " "
 echo "Registering user ..."
-deis register deis.$vm_ip.xip.io
+deis register deis.$node1_vm_ip.xip.io
 
 # add ssh key to Deis PaaS
 echo " "
@@ -76,11 +76,11 @@ echo " "
 cd ~/kube-cluster/deis/apps
 
 echo "Deis PaaS install is completed ..."
-echo "It can be accessed via http://deis.$vm_ip.xip.io "
+echo "It can be accessed via http://deis.$node1_vm_ip.xip.io "
 echo " "
 echo "Please read how to:" 
-echo "Deploy Applications - https://github.com/deis/workflow/blob/master/docs/src/using-deis/deploying-an-application.md"
-echo "To manage Applications - https://github.com/deis/workflow/blob/master/docs/src/using-deis/managing-an-application.md"
-echo "Using Deis PaaS - https://github.com/deis/workflow/tree/master/docs/src/using-deis"
+echo "Deploy Applications - https://github.com/deis/workflow/blob/node1/docs/src/using-deis/deploying-an-application.md"
+echo "To manage Applications - https://github.com/deis/workflow/blob/node1/docs/src/using-deis/managing-an-application.md"
+echo "Using Deis PaaS - https://github.com/deis/workflow/tree/node1/docs/src/using-deis"
 echo " "
 
