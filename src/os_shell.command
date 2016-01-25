@@ -11,7 +11,7 @@ ssh-add -K ~/.ssh/id_rsa &>/dev/null
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM IP
+# get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 
 # path to the bin folder where we store our binary files

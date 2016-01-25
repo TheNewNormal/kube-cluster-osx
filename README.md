@@ -34,7 +34,7 @@ Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kub
 * All dependent files/folders will be put under `kube-cluster` folder in the user's home folder e.g /Users/someuser/kube-cluster
 * User's Mac password will be stored in `OS X KeyChain`, it will be used for sudo command which needs to be used starting VM with `corectl`
 * ISO images are stored under `~/.coreos/images`.
-That allows to share the same images between different `corectl' based Apps and also speeds up this App's reinstall
+That allows to share the same images between different `corectl` based Apps and also speeds up this App's reinstall
 * user-data file will have fleet, etcd and flannel set
 * Will download latest CoreOS ISO image and run `corectl` to initialise VM 
 * When you first time do install or 'Up' after destroying Kube-Cluster setup, k8s binary files (with the version which was available when the App was built) get copied to CoreOS VM, this speeds up Kubernetes cluster setup. To update Kubernetes just run from menu 'Updates' - Update Kubernetes and OS X kubectl.
@@ -98,7 +98,7 @@ fleetctl list-units:
 UNIT				MACHINE				ACTIVE	SUB
 fleet-ui.service				f93b555e.../192.168.64.2	active	running
 kube-apiproxy.service			9b88a46c.../192.168.64.3	active	running
-kube-apiproxy.service			3d0c68677.../192.168.64.4	active	running
+kube-apiproxy.service			d0c68677.../192.168.64.4	active	running
 kube-apiserver.service			f93b555e.../192.168.64.2	active	running
 kube-controller-manager.service	f93b555e.../192.168.64.2	active	running
 kube-kubelet.service			9b88a46c.../192.168.64.3	active	running
@@ -126,8 +126,8 @@ Some examples to start with [Kubernetes examples](https://github.com/kubernetes/
 
 Other links
 -----------
-* A solo Kubernetes Cluster VM App can be found here [Kube-Solo for OS X](https://github.com/TheNewNormal/kube-solo-osx).
+* Kubernetes Solo Cluster VM App can be found here [Kube-Solo for OS X](https://github.com/TheNewNormal/kube-solo-osx).
 
-* A standalone one CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for OS X](https://github.com/TheNewNormal/coreos-osx).
+* Standalone CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for OS X](https://github.com/TheNewNormal/coreos-osx).
 
 * CoreOS Cluster App without Kubernetes can be found here [CoreOS Cluster for OS X](https://github.com/rimusz/coreos-osx-cluster).

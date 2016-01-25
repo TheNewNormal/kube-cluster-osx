@@ -37,85 +37,8 @@ my_password=$(security find-generic-password -wa kube-cluster-app)
 # reset sudo
 sudo -k > /dev/null 2>&1
 
-# Start VMs
-cd ~/kube-cluster
-echo " "
-echo "Starting k8smaster-01 VM ..."
-echo " "
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-#
-sudo "${res_folder}"/bin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/first-init_master_vm_up.log
-CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/first-init_master_vm_up.log | grep "started")
-#
-if [[ "$CHECK_VM_STATUS" == "" ]]; then
-    echo " "
-    echo "Master VM has not booted, please check '~/kube-cluster/logs/first-init_master_vm_up.log' and report the problem !!! "
-    echo " "
-    pause 'Press [Enter] key to continue...'
-    exit 0
-else
-    echo "Master VM successfully started !!!" >> ~/kube-cluster/logs/first-init_master_vm_up.log
-fi
-# check id /Users/homefolder is mounted, if not mount it
-"${res_folder}"/bin/corectl ssh k8smaster-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
-# save master VM's IP
-"${res_folder}"/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
-# get master VM's IP
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
-# update nodes cloud-init files with master's IP
-sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
-sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
-#
-sleep 2
-#
-echo " "
-echo "Starting k8snode-01 VM ..."
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-#
-sudo "${res_folder}"/bin/corectl load settings/k8snode-01.toml 2>&1 | tee ~/kube-cluster/logs/first-init_node1_vm_up.log
-CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/first-init_node1_vm_up.log | grep "started")
-#
-if [[ "$CHECK_VM_STATUS" == "" ]]; then
-    echo " "
-    echo "Node1 VM has not booted, please check '~/kube-cluster/logs/first-init_node1_vm_up.log' and report the problem !!! "
-    echo " "
-    pause 'Press [Enter] key to continue...'
-    exit 0
-else
-    echo "Node1 VM successfully started !!!" >> ~/kube-cluster/logs/first-init_node1_vm_up.log
-fi
-# check id /Users/homefolder is mounted, if not mount it
-"${res_folder}"/bin/corectl ssh k8snode-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
-echo " "
-# save node1 VM's IP
-"${res_folder}"/bin/corectl q -i k8snode-01 | tr -d "\n" > ~/kube-cluster/.env/node1_ip_address
-# get node1 VM's IP
-node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
-#
-#
-echo "Starting k8snode-02 VM ..."
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-#
-sudo "${res_folder}"/bin/corectl load settings/k8snode-02.toml 2>&1 | tee ~/kube-cluster/logs/first-init_node2_vm_up.log
-CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/first-init_node2_vm_up.log | grep "started")
-#
-if [[ "$CHECK_VM_STATUS" == "" ]]; then
-    echo " "
-    echo "Node2 VM has not booted, please check '~/kube-cluster/logs/first-init_node2_vm_up.log' and report the problem !!! "
-    echo " "
-    pause 'Press [Enter] key to continue...'
-    exit 0
-else
-    echo "Node2 VM successfully started !!!" >> ~/kube-cluster/logs/first-init_node2_vm_up.log
-fi
-# check id /Users/homefolder is mounted, if not mount it
-"${res_folder}"/bin/corectl ssh k8snode-02 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
-echo " "
-# save node2 VM's IP
-"${res_folder}"/bin/corectl q -i k8snode-02 | tr -d "\n" > ~/kube-cluster/.env/node2_ip_address
-# get node2 VM's IP
-node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
-###
+# start cluster VMs
+start_vms
 
 # install k8s files on to VMs
 install_k8s_files
@@ -194,8 +117,8 @@ echo " "
 echo "You can control this App via status bar icon... "
 echo " "
 
-##echo "Also you can install Deis PaaS (http://deis.io) v2 alpha version with 'install_deis' command ..."
-##echo " "
+echo "Also you can install Deis PaaS (http://deis.io) v2 alpha version with 'install_deis' command ..."
+echo " "
 
 cd ~/kube-cluster
 # open bash shell

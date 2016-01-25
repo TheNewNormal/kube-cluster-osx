@@ -10,7 +10,7 @@ node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 current_folder=$(pwd)
 cd ~/kube-cluster/bin
 echo " "
-echo "Installing latest helm ..."
+echo "Installing latest helm version..."
 curl -s https://get.helm.sh | bash > /dev/null 2>&1
 cd $current_folder
 echo "helm is installed to ~/kube-cluster/bin ... "
@@ -30,7 +30,7 @@ helm install deis
 current_folder=$(pwd)
 cd ~/kube-cluster/bin
 echo " "
-echo "Installing deis client ..."
+echo "Installing deis OS X client ..."
 curl -sSL http://deis.io/deis-cli/install-v2-alpha.sh | bash > /dev/null 2>&1
 cd $current_folder
 echo "deis client is installed to ~/kube-cluster/bin ..."
