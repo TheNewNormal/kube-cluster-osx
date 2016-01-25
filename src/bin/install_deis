@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# get App's Resources folder
+res_folder=$(cat ~/kube-cluster/.env/resouces_path)
+
+# get VM's IP
+vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+
+# get lastest OS X helm version
+current_folder=$(pwd)
+cd ~/kube-cluster/bin
+echo " "
+echo "Installing latest helm ..."
+curl -s https://get.helm.sh | bash > /dev/null 2>&1
+cd $current_folder
+echo "helm is installed to ~/kube-cluster/bin ... "
+
+# run helm for the first time
+helm up
+# add Chart repo
+helm repo add kube-charts https://github.com/TheNewNormal/kube-charts
+# Get the latest version of all Charts from repos
+helm up
+# Fetch Deis-Lite Chart to your helm's working directory
+helm fetch kube-charts/deis-lite
+# Install Deis-Lite PaaS
+helm install deis-lite
+
+# Install deis client
+current_folder=$(pwd)
+cd ~/kube-cluster/bin
+echo " "
+echo "Installing deis client ..."
+curl -sSL http://deis.io/deis-cli/install-v2-alpha.sh | bash > /dev/null 2>&1
+cd $current_folder
+echo "deis client is installed to ~/kube-cluster/bin ..."
+echo "To learn more about deis client, execute:"
+echo "deis -h"
+echo " "
+#
+echo "Waiting for Deis PaaS to be ready... but first, coffee! "
+spin='-\|/'
+i=1
+until kubectl --namespace=deis get po | grep [d]eis-builder- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until kubectl --namespace=deis get po | grep [d]eis-etcd-1- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until kubectl --namespace=deis get po | grep [d]eis-database- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until kubectl --namespace=deis get po | grep [d]eis-minio- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until kubectl --namespace=deis get po | grep [d]eis-router- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until kubectl --namespace=deis get po | grep [d]eis-workflow- | grep "Running"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until curl -o /dev/null -sI http://deis.$vm_ip.xip.io/health-check >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+#
+
+sleep 5
+
+# run deis register user
+echo " "
+echo "Registering user ..."
+deis register deis.$vm_ip.xip.io
+
+# add ssh key to Deis PaaS
+echo " "
+echo "Adding ssh key to Deis PaaS ... "
+deis keys:add ~/.ssh/id_rsa.pub
+echo " "
+
+echo " "
+echo "Clonning some demo Apps for Deis ... "
+rm -fr ~/kube-cluster/deis/apps
+mkdir -p ~/kube-cluster/deis/apps
+cd ~/kube-cluster/deis/apps
+git clone https://github.com/deis/example-ruby-sinatra.git
+git clone https://github.com/deis/helloworld.git
+git clone https://github.com/deis/example-go.git
+echo " "
+
+cd ~/kube-cluster/deis/apps
+
+echo "Deis PaaS install is completed ..."
+echo "It can be accessed via http://deis.$vm_ip.xip.io "
+echo " "
+echo "Please read how to:" 
+echo "Deploy Applications - https://github.com/deis/workflow/blob/master/docs/src/using-deis/deploying-an-application.md"
+echo "To manage Applications - https://github.com/deis/workflow/blob/master/docs/src/using-deis/managing-an-application.md"
+echo "Using Deis PaaS - https://github.com/deis/workflow/tree/master/docs/src/using-deis"
+echo " "
+

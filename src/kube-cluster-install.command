@@ -6,7 +6,9 @@
     # create in "kube-cluster" all required folders and files at user's home folder where all the data will be stored
     mkdir ~/kube-cluster
     mkdir ~/kube-cluster/tmp
+    mkdir ~/kube-cluster/logs
     mkdir ~/kube-cluster/bin
+    mkdir ~/kube-cluster/cloud-init
     mkdir ~/kube-cluster/settings
     mkdir ~/kube-cluster/fleet
     mkdir ~/kube-cluster/kubernetes
@@ -15,19 +17,23 @@
     # cd to App's Resources folder
     cd "$1"
 
-    # copy files to ~/kube-cluster/bin
+    # copy bin files to ~/kube-cluster/bin
     cp -f "$1"/bin/* ~/kube-cluster/bin
+    rm -f ~/kube-cluster/bin/gen_kubeconfig
+    chmod 755 ~/kube-cluster/bin/*
 
-    # copy user-data and VMs profiles files
+    # copy user-data
+    cp -f "$1"/cloud-init/* ~/kube-cluster/cloud-init
+
+    # copy settings
     cp -f "$1"/settings/* ~/kube-cluster/settings
 
     # copy k8s files
     cp "$1"/k8s/kubectl ~/kube-cluster/kube
     chmod 755 ~/kube-cluster/kube/kubectl
-    # linux binaries
-    cp "$1"/k8s/*.tgz ~/kube-cluster/kube
-    # add-ons
     cp "$1"/k8s/*.yaml ~/kube-cluster/kubernetes
+    # linux binaries
+    cp "$1"/k8s/kube.tgz ~/kube-cluster/kube
 
     # copy fleet units
     cp -R "$1"/fleet/ ~/kube-cluster/fleet
@@ -42,3 +48,4 @@
 
     # initial init
     open -a iTerm.app "$1"/first-init.command
+

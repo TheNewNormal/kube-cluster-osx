@@ -11,18 +11,16 @@ source "${DIR}"/functions.sh
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get VM IP
-vm_ip=$(cat ~/kube-cluster/.env/ip_address)
+vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 # copy files to ~/kube-cluster/bin
-cp -f "${res_folder}"/files/* ~/kube-cluster/bin
-# copy xhyve to bin folder
-cp -f "${res_folder}"/bin/xhyve ~/kube-cluster/bin
+cp -f "${res_folder}"/bin/* ~/kube-cluster/bin
 chmod 755 ~/kube-cluster/bin/*
 
-# download latest version of fleetctl client
+# download latest version of fleetctl and helm clients
 download_osx_clients
 #
 

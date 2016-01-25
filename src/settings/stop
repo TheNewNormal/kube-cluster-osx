@@ -1,5 +1,0 @@
-corectl stop k8smaster-01
-
-sleep 1
-
-corectl ps

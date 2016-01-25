@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #  halt.command
-# stop VM via ssh
 
 #
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -10,12 +9,16 @@ source "${DIR}"/functions.sh
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM IP
-#vm_ip=$( ~/kube-cluster/mac2ip.sh $(cat ~/kube-cluster/.env/mac_address))
-vm_ip=$(cat ~/kube-cluster/.env/ip_address)
+# path to the bin folder where we store our binary files
+export PATH=${HOME}/kube-cluster/bin:$PATH
+
+# get password for sudo
+my_password=$(security find-generic-password -wa kube-cluster-app)
+# reset sudo
+sudo -k
+# enable sudo
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
 # send halt to VM
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=5 core@$master_vm_ip sudo halt
-
-# just in case run
-clean_up_after_vm
+#sudo "${res_folder}"/bin/corectl ssh k8smaster-01 sudo halt
+sudo "${res_folder}"/bin/corectl halt k8smaster-01

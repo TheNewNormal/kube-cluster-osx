@@ -9,22 +9,26 @@ function pause(){
     read -p "$*"
 }
 
-function check_vm_status() {
-# check VMs status
-status=$(~/kube-cluster/bin/corectl ps -j | ~/kube-cluster/bin/jq ".[] | select(.Name==\"k8smaster-01\") | .Detached")
-if [ "$status" = "" ]; then
-    # kill node VMs just in case they were left running
-    # Get password
-    my_password=$(security find-generic-password -wa kube-cluster-app)
-    echo -e "$my_password\n" | sudo -S ~/kube-cluster/bin/corectl stop k8snode-02 >/dev/null 2>&1
-    echo -e "$my_password\n" | sudo -S ~/kube-cluster/bin/corectl stop k8snode-01 >/dev/null 2>&1
-    echo " "
-    echo "CoreOS VM is not running, please start VM !!!"
-    pause "Press any key to continue ..."
-    exit 1
-fi
-}
 
+function sshkey(){
+# add ssh key to *.toml files
+echo " "
+echo "Reading ssh key from $HOME/.ssh/id_rsa.pub  "
+file="$HOME/.ssh/id_rsa.pub"
+
+while [ ! -f "$file" ]
+do
+echo " "
+echo "$file not found."
+echo "please run 'ssh-keygen -t rsa' before you continue !!!"
+pause 'Press [Enter] key to continue...'
+done
+
+echo " "
+echo "$file found, updating configuration files ..."
+echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8smaster-01.toml
+#
+}
 
 function release_channel(){
 # Set release channel
@@ -78,111 +82,72 @@ done
 }
 
 
-create_root_disk() {
+create_data_disk() {
+# path to the bin folder where we store our binary files
+export PATH=${HOME}/kube-cluster/bin:$PATH
 
-# Get password
-my_password=$(security find-generic-password -wa kube-cluster-app)
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-
-# create persistent disk for master
+# create persistent disk
 cd ~/kube-cluster/
 echo "  "
-echo "Please type k8smaster-01 ROOT disk size in GBs followed by [ENTER]:"
-echo -n [default is 1]:
+echo "Please type Data disk size in GBs followed by [ENTER]:"
+echo -n "[default is 5]: "
 read disk_size
 if [ -z "$disk_size" ]
 then
-    echo "Creating 1GB disk ..."
-    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*1*1024]
-    mkfile 1g master-root.img
+    echo " "
+    echo "Creating 5GB disk ..."
+    mkfile 5g data.img
+    echo "-"
+    echo "Created 5GB Data disk"
 else
-    echo "Creating "$disk_size"GB disk (could take a while for big files) ..."
-    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
-    mkfile "$disk_size"g master-root.img &
+    echo " "
+    echo "Creating "$disk_size"GB disk (it could take a while for big disks)..."
+    mkfile "$disk_size"g data.img
+    echo "-"
+    echo "Created "$disk_size"GB Data disk"
 fi
-echo " "
-spin='-\|/'
-i=1
-until ! ps aux | grep '[m]kfile "$disk_size"g master-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-
-#
-
-# create persistent disks for nodes
-cd ~/kube-cluster/
-echo "  "
-echo "Please type k8snodes ROOT disk size in GBs followed by [ENTER]:"
-echo -n [default is 5]:
-read disk_size
-if [ -z "$disk_size" ]
-then
-    echo "Creating 5GB disk for k8snode-01 ..."
-    # dd if=/dev/zero of=node-01-root.img bs=1024 count=0 seek=$[1024*5*1024]
-    mkfile 5g node-01-root.img
-    echo " "
-    spin='-\|/'
-    i=1
-    until ! ps aux | grep '[m]kfile "$disk_size"g node-01-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-    #
-    echo " "
-    echo "Creating 5GB disk for k8snode-02 ..."
-    # dd if=/dev/zero of=node-02-root.img bs=1024 count=0 seek=$[1024*5*1024]
-    mkfile 5g node-02-root.img
-    echo " "
-    spin='-\|/'
-    i=1
-    until ! ps aux | grep '[m]kfile "$disk_size"g node-02-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-    #
-else
-    echo "Creating "$disk_size"GB disk for k8snode-01 (could take a while for big files) ..."
-    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
-    mkfile "$disk_size"g node-01-root.img &
-    echo " "
-    spin='-\|/'
-    i=1
-    until ! ps aux | grep '[m]kfile "$disk_size"g node-01-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-    #
-    echo " "
-    echo "Creating "$disk_size"GB disk for k8snode-02 (could take a while for big files) ..."
-    # dd if=/dev/zero of=root.img bs=1024 count=0 seek=$[1024*$disk_size*1024]
-    mkfile "$disk_size"g node-02-root.img &
-    echo " "
-    spin='-\|/'
-    i=1
-    until ! ps aux | grep '[m]kfile "$disk_size"g node-02-root.img' >/dev/null 2>&1 ; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-fi
-#
-
-### format ROOT disks
-echo " "
-echo "Formating k8smaster-01 ROOT disk ..." 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > ~/kube-cluster/.env/ip_address_master
-echo " "
-echo "Formating k8snodes1/2 ROOT disks ..."
-echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/node-format-root.toml 2>&1 | grep IP | awk -v FS="(IP | and)" '{print $2}' > /dev/null
-#
-echo " "
-echo "ROOT disks got created and formated... "
-echo "---"
-###
 
 }
 
+
 function download_osx_clients() {
 # download fleetctl file
-LATEST_RELEASE=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no core@$master_vm_ip 'fleetctl version' | cut -d " " -f 3- | tr -d '\r')
-cd ~/kube-cluster/bin
-echo "Downloading fleetctl v$LATEST_RELEASE for OS X"
-curl -L -o fleet.zip "https://github.com/coreos/fleet/releases/download/v$LATEST_RELEASE/fleet-v$LATEST_RELEASE-darwin-amd64.zip"
-unzip -j -o "fleet.zip" "fleet-v$LATEST_RELEASE-darwin-amd64/fleetctl"
-rm -f fleet.zip
-echo "fleetctl was copied to ~/kube-cluster/bin "
+FLEETCTL_VERSION=$("${res_folder}"/bin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
+FILE=fleetctl
+if [ ! -f ~/kube-cluster/bin/$FILE ]; then
+    cd ~/kube-cluster/bin
+    echo "Downloading fleetctl v$FLEETCTL_VERSION for OS X"
+    curl -L -o fleet.zip "https://github.com/coreos/fleet/releases/download/v$FLEETCTL_VERSION/fleet-v$FLEETCTL_VERSION-darwin-amd64.zip"
+    unzip -j -o "fleet.zip" "fleet-v$FLEETCTL_VERSION-darwin-amd64/fleetctl" > /dev/null 2>&1
+    rm -f fleet.zip
+else
+    # we check the version of the binary
+    INSTALLED_VERSION=$(~/kube-cluster/bin/$FILE --version | awk '{print $3}' | tr -d '\r')
+    MATCH=$(echo "${INSTALLED_VERSION}" | grep -c "${FLEETCTL_VERSION}")
+    if [ $MATCH -eq 0 ]; then
+        # the version is different
+        cd ~/kube-cluster/bin
+        echo "Downloading fleetctl v$FLEETCTL_VERSION for OS X"
+        curl -L -o fleet.zip "https://github.com/coreos/fleet/releases/download/v$FLEETCTL_VERSION/fleet-v$FLEETCTL_VERSION-darwin-amd64.zip"
+        unzip -j -o "fleet.zip" "fleet-v$FLEETCTL_VERSION-darwin-amd64/fleetctl" > /dev/null 2>&1
+        rm -f fleet.zip
+    else
+        echo " "
+        echo "fleetctl is up to date ..."
+        echo " "
+    fi
+fi
 
 # get lastest OS X helm version from bintray
-bin_version=$(curl -I https://bintray.com/deis/helm-ci/helm/_latestVersion | grep "Location:" | sed -n 's%.*helm/%%;s%/view.*%%p')
+cd ~/kube-cluster/bin
+# curl -s https://get.helm.sh | bash > /dev/null 2>&1
+bin_version=$(curl -sI https://bintray.com/deis/helm/helm/_latestVersion | grep "Location:" | sed -n 's%.*helm/%%;s%/view.*%%p')
 echo "Downloading latest version of helm for OS X"
-curl -L "https://dl.bintray.com/deis/helm-ci/helm-$bin_version-darwin-amd64.zip" -o helm.zip
-unzip -o helm.zip
+curl -L "https://dl.bintray.com/deis/helm/helm-$bin_version-darwin-amd64.zip" -o helm.zip
+unzip -o helm.zip > /dev/null 2>&1
 rm -f helm.zip
-echo "helm was copied to ~/kube-cluster/bin "
+echo " "
+echo "Installed latest helm $bin_version to ~/kube-cluster/bin ..."
 #
 
 }
@@ -192,13 +157,24 @@ function download_k8s_files() {
 #
 cd ~/kube-cluster/tmp
 
-# get latest k8s version
+# get latest stable k8s version
 function get_latest_version_number {
     local -r latest_url="https://storage.googleapis.com/kubernetes-release/release/stable.txt"
     curl -Ss ${latest_url}
 }
-
 K8S_VERSION=$(get_latest_version_number)
+
+# we check the version of installed k8s cluster
+INSTALLED_VERSION=$(~/kube-cluster/bin/kubectl version | grep "Server Version:" | awk '{print $5}' | awk -v FS='(:"|",)' '{print $2}')
+MATCH=$(echo "${INSTALLED_VERSION}" | grep -c "${K8S_VERSION}")
+if [ $MATCH -ne 0 ]; then
+    echo " "
+    echo "You have already the latest stable ${K8S_VERSION} of Kubernetes installed !!!"
+    pause 'Press [Enter] key to continue...'
+    exit 1
+fi
+
+k8s_upgrade=1
 
 # download latest version of kubectl for OS X
 cd ~/kube-cluster/tmp
@@ -211,41 +187,22 @@ echo " "
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
 
-# download setup-network-environment binary
-echo "Downloading setup-network-environment"
-curl -L https://github.com/kelseyhightower/setup-network-environment/releases/download/1.0.1/setup-network-environment > ~/kube-cluster/tmp/setup-network-environment
-#
-# download latest version of k8s binaries for CoreOS
-echo "Downloading latest version of Kubernetes"
-# master
+# download latest version of k8s for CoreOS
+echo "Downloading Kubernetes $K8S_VERSION"
 bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager )
 for b in "${bins[@]}"; do
     curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
 done
-chmod a+x *
-# download easy-rsa
-curl -k -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > master/easy-rsa.tar.gz
 #
-tar czvf master.tgz *
-cp -f master.tgz ~/kube-cluster/kube/
+chmod 755 ~/kube-cluster/tmp/*
+#
+curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > ~/kube-cluster/tmp/easy-rsa.tar.gz
+#
+tar czvf kube.tgz *
+cp -f kube.tgz ~/kube-cluster/kube/
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
 echo " "
-
-# nodes
-bins=( kubectl kubelet kube-proxy )
-for b in "${bins[@]}"; do
-    curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
-done
-chmod a+x *
-tar czvf nodes.tgz *
-cp -f nodes.tgz ~/kube-cluster/kube/
-# clean up tmp folder
-rm -rf ~/kube-cluster/tmp/*
-echo " "
-
-# get VM IP
-master_ip=$(cat ~/kube-cluster/.env/ip_address_master)
 
 # install k8s files
 install_k8s_files
@@ -253,15 +210,73 @@ install_k8s_files
 }
 
 
-function install_k8s_files {
-# install k8s files on to VM
+function download_k8s_files_version() {
+#
+cd ~/kube-cluster/tmp
+
+# ask for k8s version
+echo "You can install a particular version of Kubernetes you migh want to test..."
+echo "Bear in mind if the version you want is lower than the currently installed, "
+echo "Kubernetes cluster migth not work, so you will need to destroy the cluster first "
+echo " and boot VM again !!! "
 echo " "
-echo "Installing Kubernetes files on to Master..."
-cd ~/kube-cluster/kube
-scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet master.tgz core@$master_vm_ip:/home/core
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet core@$master_vm_ip 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-echo "Done with k8smaster-01 "
+echo "Please type Kubernetes version you want to be installed e.g. v1.1.1 or v1.2.0-alpha.4"
+echo "followed by [ENTER] to continue or press CMD + W to exit:"
+read K8S_VERSION
+
+url=https://github.com/kubernetes/kubernetes/releases/download/$K8S_VERSION/kubernetes.tar.gz
+
+if curl --output /dev/null --silent --head --fail "$url"; then
+    echo "URL exists: $url" > /dev/null
+else
+    echo " "
+    echo "There is no such Kubernetes version to download !!!"
+    pause 'Press [Enter] key to continue...'
+    exit 1
+fi
+
+# we check the version of installed k8s cluster
+INSTALLED_VERSION=$(~/kube-cluster/bin/kubectl version | grep "Server Version:" | awk '{print $5}' | awk -v FS='(:"|",)' '{print $2}')
+MATCH=$(echo "${INSTALLED_VERSION}" | grep -c "${K8S_VERSION}")
+if [ $MATCH -ne 0 ]; then
+    echo " "
+    echo "You have already the ${K8S_VERSION} of Kubernetes installed !!!"
+    pause 'Press [Enter] key to continue...'
+    exit 1
+fi
+
+k8s_upgrade=1
+
+# download required version of Kubernetes
+cd ~/kube-cluster/tmp
 echo " "
+echo "Downloading Kubernetes $K8S_VERSION tar.gz from github ..."
+curl -k -L https://github.com/kubernetes/kubernetes/releases/download/$K8S_VERSION/kubernetes.tar.gz >  kubernetes.tar.gz
+#
+# extracting Kubernetes files
+echo "Extracting Kubernetes $K8S_VERSION files ..."
+tar xvf  kubernetes.tar.gz --strip=4 kubernetes/platforms/darwin/amd64/kubectl
+mv -f kubectl ~/kube-cluster/kube
+chmod 755 ~/kube-cluster/kube/kubectl
+#
+tar xvf kubernetes.tar.gz --strip=2 kubernetes/server/kubernetes-server-linux-amd64.tar.gz
+bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-manager )
+for b in "${bins[@]}"; do
+    tar xvf kubernetes-server-linux-amd64.tar.gz -C ~/kube-cluster/tmp --strip=3 kubernetes/server/bin/$b
+done
+rm -f kubernetes.tar.gz
+rm -f kubernetes-server-linux-amd64.tar.gz
+#
+curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > easy-rsa.tar.gz
+#
+tar czvf kube.tgz *
+mv -f kube.tgz ~/kube-cluster/kube/
+# clean up tmp folder
+rm -rf ~/kube-cluster/tmp/*
+echo " "
+
+# install k8s files
+install_k8s_files
 
 }
 
@@ -280,7 +295,30 @@ echo " "
 echo "fleetctl list-units:"
 fleetctl list-units
 echo " "
+
 }
+
+
+function install_k8s_files {
+# get App's Resources folder
+res_folder=$(cat ~/kube-cluster/.env/resouces_path)
+
+# get VM IP
+vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+
+# install k8s files on to VM
+echo " "
+echo "Installing Kubernetes files on to VM..."
+cd ~/kube-cluster/kube
+###scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet kube.tgz core@$vm_ip:/home/core
+"${res_folder}"/bin/corectl scp kube.tgz k8smaster-01:/home/core/
+"${res_folder}"/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+"${res_folder}"/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+
+echo "Done with k8smaster-01 "
+echo " "
+}
+
 
 function install_k8s_add_ons {
 echo " "
@@ -346,26 +384,31 @@ security add-generic-password -a kube-cluster-app -s kube-cluster-app -w $my_pas
 
 
 function clean_up_after_vm {
-sleep 3
+sleep 1
 
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# Get password
-my_password=$(security find-generic-password -wa kube-cluster-app)
+# path to the bin folder where we store our binary files
+export PATH=${HOME}/kube-cluster/bin:$PATH
 
-# kill VMs just in case they were left running
-echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl stop k8snode-02
-echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl stop k8snode-01
-echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl stop k8smaster-01
+# get App's Resources folder
+res_folder=$(cat ~/kube-cluster/.env/resouces_path)
+
+# get password for sudo
+my_password=$(security find-generic-password -wa kube-cluster-app)
+# reset sudo
+sudo -k
+# enable sudo
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+
+# send halt to VM
+sudo "${res_folder}"/bin/corectl halt k8smaster-01
 
 # kill all other scripts
-pkill -f [K]ube-Cluster.app/Contents/Resources/fetch_latest_iso.command
-pkill -f [K]ube-Cluster.app/Contents/Resources/update_k8s.command
-pkill -f [K]ube-Cluster.app/Contents/Resources/update_osx_clients_files.command
-pkill -f [K]ube-Cluster.app/Contents/Resources/change_release_channel.command
+pkill -f [K]ube-Solo.app/Contents/Resources/fetch_latest_iso.command
+pkill -f [K]ube-Solo.app/Contents/Resources/update_k8s.command
+pkill -f [K]ube-Solo.app/Contents/Resources/update_osx_clients_files.command
+pkill -f [K]ube-Solo.app/Contents/Resources/change_release_channel.command
 
 }
-
-
-

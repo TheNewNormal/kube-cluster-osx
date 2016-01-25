@@ -1,4 +1,0 @@
-
-sudo corectl load k8smaster-01.toml
-
-corectl ps

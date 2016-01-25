@@ -1,8 +1,8 @@
-[k8smaster-01]
+[k8snode-01]
    uuid = "0A45849A-0614-4B7B-A011-2506F7CEE975"
-   channel = "stable"
-   root = "~/kube-cluster/node-01-root.img"
-   cloud_config = "~/kube-cluster/settings/user-data.node"
+   channel = "alpha"
+   volume = "node-01-root.img"
+   cloud_config = "cloud-init/user-data.node"
    cpus = 2
    memory = "2048"
    local = "true"

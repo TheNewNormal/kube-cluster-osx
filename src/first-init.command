@@ -14,27 +14,13 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 echo " "
-echo "Setting up Kubernetes Cluster on OS X"
+echo "Setting up Kubernetes Solo Cluster on OS X"
 
-# add ssh key to custom.conf
-echo " "
-echo "Reading ssh key from $HOME/.ssh/id_rsa.pub  "
-file="$HOME/.ssh/id_rsa.pub"
+# add ssh key to *.toml files
+sshkey
 
-while [ ! -f "$file" ]
-do
-    echo " "
-    echo "$file not found."
-    echo "please run 'ssh-keygen -t rsa' before you continue !!!"
-    pause 'Press [Enter] key to continue...'
-done
-
-echo " "
-echo "$file found, installing ..."
-echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8smaster-01.toml
-echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8snode-01.toml
-echo "   sshkey = '$(cat $HOME/.ssh/id_rsa.pub)'" >> ~/kube-cluster/settings/k8snode-02.toml
-#
+# add ssh key to Keychain
+ssh-add -K ~/.ssh/id_rsa &>/dev/null
 
 # save user's password to Keychain
 save_password
@@ -43,42 +29,64 @@ save_password
 # Set release channel
 release_channel
 
-# create ROOT disk
-create_root_disk
+# create Data disk
+create_data_disk
 
-# get master VM's IP
-master_vm_ip=$(cat ~/kube-cluster/.env/ip_address_master);
-
-# Get password
+# get password for sudo
 my_password=$(security find-generic-password -wa kube-cluster-app)
+# reset sudo
+sudo -k > /dev/null 2>&1
 
-# Start VMs
+# Start VM
 cd ~/kube-cluster
 echo " "
-echo "Starting VMs ..."
+echo "Starting VM ..."
 echo " "
-echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8smaster-01.toml
-echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8snode-01.toml
-echo -e "$my_password\n" | sudo -S corectl load ~/kube-cluster/settings/k8snode-02.toml
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+#
+sudo "${res_folder}"/bin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/first-init_vm_up.log
+CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/first-init_vm_up.log | grep "started")
+#
+if [[ "$CHECK_VM_STATUS" == "" ]]; then
+    echo " "
+    echo "VM have not booted, please check '~/kube-cluster/logs/first-init_vm_up.log' and report the problem !!! "
+    echo " "
+    pause 'Press [Enter] key to continue...'
+    exit 0
+else
+    echo "VM successfully started !!!" >> ~/kube-cluster/logs/first-init_vm_up.log
+fi
+
+# check id /Users/homefolder is mounted, if not mount it
+"${res_folder}"/bin/corectl ssh k8smaster-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
+
+# save VM's IP
+"${res_folder}"/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/ip_address
+# get VM IP
+vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 #
 
-# waiting for master's VM response to ping
-spin='-\|/'
-i=1
-while ! ping -c1 $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-#
-
-# install k8s files on to VMs
+# install k8s files on to VM
 install_k8s_files
 #
 
-# download latest version fleetctl and helm clients
+# download latest version of fleetctl and helm clients
 download_osx_clients
 #
 
+# run helm for the first time
+helm up
+# add kube-charts repo
+helm repo add kube-charts https://github.com/TheNewNormal/kube-charts
+# Get the latest version of all Charts from repos
+helm up
+
+# set etcd endpoint
+export ETCDCTL_PEERS=http://$vm_ip:2379
+
 # set fleetctl endpoint and install fleet units
 export FLEETCTL_TUNNEL=
-export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
+export FLEETCTL_ENDPOINT=http://$vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 echo " "
@@ -89,28 +97,29 @@ echo " "
 deploy_fleet_units
 #
 
+sleep 2
+
 # generate kubeconfig file
 echo Generate kubeconfig file ...
-"${res_folder}"/bin/gen_kubeconfig $master_vm_ip
+"${res_folder}"/bin/gen_kubeconfig $vm_ip
 #
 
 # set kubernetes master
-export KUBERNETES_MASTER=http://$master_vm_ip:8080
+export KUBERNETES_MASTER=http://$vm_ip:8080
 #
 echo Waiting for Kubernetes cluster to be ready. This can take a few minutes...
 spin='-\|/'
 i=1
-until curl -o /dev/null http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until curl -o /dev/null http://$vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep $vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
-# attach label to the nodes
-~/kube-cluster/bin/kubectl label nodes $(corectl ps -j | jq ".[] | select(.Name==\"k8snode-01\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/') node=worker1
-~/kube-cluster/bin/kubectl label nodes $(corectl ps -j | jq ".[] | select(.Name==\"k8snode-02\") | .PublicIP" | sed -e 's/"\(.*\)"/\1/') node=worker2
+# attach label to the node
+~/kube-cluster/bin/kubectl label nodes $vm_ip node=worker1
 #
-install_k8s_add_ons "$master_vm_ip"
+install_k8s_add_ons "$vm_ip"
 #
 echo "fleetctl list-machines:"
 fleetctl list-machines
@@ -124,11 +133,12 @@ echo " "
 #
 echo "Installation has finished, Kube Solo VM is up and running !!!"
 echo " "
-echo "Assigned static VM's IP: $master_vm_ip"
-echo " "
-echo "Enjoy Kube Solo on your Mac !!!"
+echo "Assigned static IP for VM: $vm_ip"
 echo " "
 echo "You can control this App via status bar icon... "
+echo " "
+
+echo "Also you can install Deis PaaS (http://deis.io) v2 alpha version with 'install_deis' command ..."
 echo " "
 
 cd ~/kube-cluster

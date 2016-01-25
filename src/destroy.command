@@ -11,13 +11,18 @@ source "${DIR}"/functions.sh
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get VM IP
-vm_ip=$(<~/kube-cluster/.env/ip_address)
+vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+
+# get password for sudo
+my_password=$(security find-generic-password -wa kube-cluster-app)
+# reset sudo
+sudo -k
 
 LOOP=1
 while [ $LOOP -gt 0 ]
 do
     VALID_MAIN=0
-    echo "VM will be stopped and destroyed !!!"
+    echo "VM will be stopped (if is running) and destroyed !!!"
     echo "Do you want to continue [y/n]"
 
     read RESPONSE
@@ -27,28 +32,14 @@ do
     then
         VALID_MAIN=1
 
-        # check VM status
-        status=$(ps aux | grep "[k]ube-solo/bin/xhyve" | awk '{print $2}')
-        if [[ $status = *[!\ ]* ]]; then
-            echo " "
-            echo "Kube Solo is running, it will be stopped !!!"
+        # enable sudo
+        echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
-            # Stop VM
-            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet -o ConnectTimeout=3 core@$master_vm_ip sudo halt
-
-            # just in case run
-            kill_xhyve >/dev/null 2>&1
-
-            # wait till VM is stopped
-            echo " "
-            echo "Waiting for VM to shutdown..."
-            spin='-\|/'
-            i=1
-            until "${res_folder}"/check_vm_status.command | grep "VM is stopped" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-        fi
+        # send halt to VM
+        echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8smaster-01 > /dev/null 2>&1
 
         # delete root image
-        rm -f ~/kube-cluster/root.img
+        rm -f ~/kube-cluster/data.img
 
         # delete password in keychain
         security 2>&1 >/dev/null delete-generic-password -a kube-cluster-app 2>&1 >/dev/null

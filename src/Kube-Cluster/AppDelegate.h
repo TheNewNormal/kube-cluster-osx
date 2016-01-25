@@ -1,6 +1,6 @@
 //
 //  AppDelegate.h
-//  Kube-Cluster for OS X
+//  Kube-Solo for OS X
 //
 //  Created by Rimantas on 03/06/2015.
 //  Copyright (c) 2014 Rimantas Mocevicius. All rights reserved.
@@ -14,8 +14,8 @@
 @property (strong, nonatomic) IBOutlet NSMenu *statusMenu;
 @property (strong, nonatomic) NSStatusItem *statusItem;
 
-@property(strong) NSWindowController *myWindowController;
+@property (strong) NSWindowController *myWindowController;
 
-@property(strong) NSString *resoucesPathFromApp;
+@property (strong) NSString *resoucesPathFromApp;
 
 @end

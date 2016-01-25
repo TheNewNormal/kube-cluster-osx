@@ -8,50 +8,53 @@ source "${DIR}"/functions.sh
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM IP
-vm_ip=$(<~/kube-cluster/.env/ip_address)
-
-# Stop VM
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=5 core@$master_vm_ip sudo halt
-# just in case run
-kill_xhyve
-
-# wait till VM is stopped
-echo " "
-echo "Waiting for VM to shutdown..."
-spin='-\|/'
-i=1
-until "${res_folder}"/check_vm_status.command | grep "VM is stopped" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-#
-spin='-\|/'
-i=1
-until [ ! -e ~/kube-cluster/.env/.console ] >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-#
-# Check if set channel's images are present
-check_for_images
-#
-
-# Start VM
-rm -f ~/kube-cluster/.env/.console
-echo " "
-echo "Starting VM ..."
-"${res_folder}"/bin/dtach -n ~/kube-cluster/.env/.console -z "${res_folder}"/start_VM.command
-#
-
-# wait till VM is booted up
-echo "You can connect to VM console from menu 'Attach to VM's console' "
-echo "When you done with console just close it's window/tab with CMD+W "
-echo "Waiting for VM to boot up..."
-spin='-\|/'
-i=1
-while ! ping -c1 $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-echo " "
-
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
+# get password for sudo
+my_password=$(security find-generic-password -wa kube-cluster-app)
+# reset sudo
+sudo -k
+
+### Stop VM
+echo " "
+echo "Stopping VM ..."
+# send halt to VM
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+sudo "${res_folder}"/bin/corectl halt k8smaster-01
+
+sleep 2
+
+# Start VM
+cd ~/kube-cluster
+echo " "
+echo "Starting VM ..."
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+#
+sudo "${res_folder}"/bin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/vm_reload.log
+CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/vm_reload.log | grep "started")
+#
+if [[ "$CHECK_VM_STATUS" == "" ]]; then
+    echo " "
+    echo "VM have not booted, please check '~/kube-cluster/logs/vm_reload.log' and report the problem !!! "
+    echo " "
+    pause 'Press [Enter] key to continue...'
+    exit 0
+else
+    echo "VM successfully started !!!" >> ~/kube-cluster/logs/vm_reload.log
+fi
+
+# check id /Users/homefolder is mounted, if not mount it
+"${res_folder}"/bin/corectl ssh k8smaster-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
+echo " "
+
+# save VM's IP
+"${res_folder}"/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/ip_address
+# get VM's IP
+vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+
 # set fleetctl endpoint
-export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
+export FLEETCTL_ENDPOINT=http://$vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 
@@ -59,7 +62,11 @@ export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
 echo "Waiting for VM to be ready..."
 spin='-\|/'
 i=1
-until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until curl -o /dev/null http://$vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+echo " "
+#
+
+sleep 2
 
 #
 echo " "
