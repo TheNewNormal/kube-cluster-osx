@@ -126,6 +126,6 @@ Other links
 -----------
 * Kubernetes Solo Cluster VM App can be found here [Kube-Solo for OS X](https://github.com/TheNewNormal/kube-solo-osx).
 
-* Standalone one CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for OS X](https://github.com/TheNewNormal/coreos-osx).
+* Standalone CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for OS X](https://github.com/TheNewNormal/coreos-osx).
 
 * CoreOS Cluster App without Kubernetes can be found here [CoreOS Cluster for OS X](https://github.com/rimusz/coreos-osx-cluster).
