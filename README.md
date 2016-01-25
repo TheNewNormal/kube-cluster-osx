@@ -96,7 +96,7 @@ fleetctl list-units:
 UNIT				MACHINE				ACTIVE	SUB
 fleet-ui.service				f93b555e.../192.168.64.2	active	running
 kube-apiproxy.service			9b88a46c.../192.168.64.3	active	running
-kube-apiproxy.service			3d0c68677.../192.168.64.4	active	running
+kube-apiproxy.service			d0c68677.../192.168.64.4	active	running
 kube-apiserver.service			f93b555e.../192.168.64.2	active	running
 kube-controller-manager.service	f93b555e.../192.168.64.2	active	running
 kube-kubelet.service			9b88a46c.../192.168.64.3	active	running
