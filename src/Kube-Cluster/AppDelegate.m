@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "VMManager.h"
-#import "NSURL+KubeSolo.h"
+#import "NSURL+KubeCluster.h"
 
 @interface AppDelegate ()
 
@@ -274,7 +274,7 @@
     }
 }
 
-- (IBAction)runSsh:(id)sender {
+- (IBAction)runSshMaster:(id)sender {
     VMStatus vmStatus = [self.vmManager checkVMStatus];
 
     switch (vmStatus) {
@@ -284,10 +284,41 @@
 
         case VMStatusUp:
             [self notifyUserWithText:NSLocalizedString(@"SSHShellWillOpenNotificationMessage", nil)];
-            [self.vmManager runSSH];
+            [self.vmManager runSSHMaster];
             break;
     }
 }
+
+- (IBAction)runSshNode1:(id)sender {
+    VMStatus vmStatus = [self.vmManager checkVMStatus];
+    
+    switch (vmStatus) {
+        case VMStatusDown:
+            [self notifyUserWithText:NSLocalizedString(@"VMStateOff", nil)];
+            break;
+            
+        case VMStatusUp:
+            [self notifyUserWithText:NSLocalizedString(@"SSHShellWillOpenNotificationMessage", nil)];
+            [self.vmManager runSSHNode1];
+            break;
+    }
+}
+
+- (IBAction)runSshNode2:(id)sender {
+    VMStatus vmStatus = [self.vmManager checkVMStatus];
+    
+    switch (vmStatus) {
+        case VMStatusDown:
+            [self notifyUserWithText:NSLocalizedString(@"VMStateOff", nil)];
+            break;
+            
+        case VMStatusUp:
+            [self notifyUserWithText:NSLocalizedString(@"SSHShellWillOpenNotificationMessage", nil)];
+            [self.vmManager runSSHNode2];
+            break;
+    }
+}
+
 
 - (IBAction)fleetUI:(id)sender {
     VMStatus vmStatus = [self.vmManager checkVMStatus];
@@ -298,7 +329,7 @@
             break;
 
         case VMStatusUp: {
-            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_ipAddressURL] encoding:NSUTF8StringEncoding error:nil];
+            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_masterIpAddressURL] encoding:NSUTF8StringEncoding error:nil];
             NSString *url = [NSString stringWithFormat:@"http://%@:3000", vmIP];
             [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
             break;
@@ -315,7 +346,7 @@
             break;
 
         case VMStatusUp: {
-            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_ipAddressURL] encoding:NSUTF8StringEncoding error:nil];
+            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_masterIpAddressURL] encoding:NSUTF8StringEncoding error:nil];
             NSString *url = [NSString stringWithFormat:@"http://%@:8080/ui", vmIP];
             [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
             break;
@@ -332,7 +363,24 @@
             break;
 
         case VMStatusUp: {
-            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_ipAddressURL] encoding:NSUTF8StringEncoding error:nil];
+            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_node1IpAddressURL] encoding:NSUTF8StringEncoding error:nil];
+            NSString *url = [NSString stringWithFormat:@"http://%@:4194", vmIP];
+            [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
+            break;
+        }
+    }
+}
+
+- (IBAction)node2_cAdvisor:(id)sender {
+    VMStatus vmStatus = [self.vmManager checkVMStatus];
+    
+    switch (vmStatus) {
+        case VMStatusDown:
+            [self notifyUserWithText:NSLocalizedString(@"VMStateOff", nil)];
+            break;
+            
+        case VMStatusUp: {
+            NSString *vmIP = [NSString stringWithContentsOfURL:[NSURL ks_node2IpAddressURL] encoding:NSUTF8StringEncoding error:nil];
             NSString *url = [NSString stringWithFormat:@"http://%@:4194", vmIP];
             [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
             break;

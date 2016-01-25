@@ -30,6 +30,8 @@ typedef NS_ENUM(NSInteger, VMStatus) {
 - (void)destroy;
 - (void)install;
 - (void)runShell;
-- (void)runSSH;
+- (void)runSSHMaster;
+- (void)runSSHNode1;
+- (void)runSSHNode2;
 
 @end

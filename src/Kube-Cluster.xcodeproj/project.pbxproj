@@ -41,7 +41,7 @@
 		13D9B8671C35B09B00EBB078 /* restore_update_fleet_units.command in Resources */ = {isa = PBXBuildFile; fileRef = 13D9B8661C35B09B00EBB078 /* restore_update_fleet_units.command */; };
 		13FE22171C1C40C700F465F1 /* bin in Resources */ = {isa = PBXBuildFile; fileRef = 13FE22161C1C40C700F465F1 /* bin */; };
 		13FE22191C1C410100F465F1 /* cloud-init in Resources */ = {isa = PBXBuildFile; fileRef = 13FE22181C1C410100F465F1 /* cloud-init */; };
-		CA4F6FFF1BE1910A00D87763 /* NSURL+KubeSolo.m in Sources */ = {isa = PBXBuildFile; fileRef = CA4F6FFE1BE1910A00D87763 /* NSURL+KubeSolo.m */; };
+		CA4F6FFF1BE1910A00D87763 /* NSURL+KubeCluster.m in Sources */ = {isa = PBXBuildFile; fileRef = CA4F6FFE1BE1910A00D87763 /* NSURL+KubeCluster.m */; };
 		CA4F70021BE19B8400D87763 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CA4F70001BE19B8400D87763 /* Localizable.strings */; };
 		CA5B6F621BE15FDC00708D85 /* VMManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CA5B6F611BE15FDC00708D85 /* VMManager.m */; };
 /* End PBXBuildFile section */
@@ -90,8 +90,8 @@
 		13D9B8661C35B09B00EBB078 /* restore_update_fleet_units.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = restore_update_fleet_units.command; sourceTree = "<group>"; };
 		13FE22161C1C40C700F465F1 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = SOURCE_ROOT; };
 		13FE22181C1C410100F465F1 /* cloud-init */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "cloud-init"; sourceTree = SOURCE_ROOT; };
-		CA4F6FFD1BE1910A00D87763 /* NSURL+KubeSolo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+KubeSolo.h"; sourceTree = "<group>"; };
-		CA4F6FFE1BE1910A00D87763 /* NSURL+KubeSolo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+KubeSolo.m"; sourceTree = "<group>"; };
+		CA4F6FFD1BE1910A00D87763 /* NSURL+KubeCluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+KubeCluster.h"; sourceTree = "<group>"; };
+		CA4F6FFE1BE1910A00D87763 /* NSURL+KubeCluster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+KubeCluster.m"; sourceTree = "<group>"; };
 		CA4F70011BE19B8400D87763 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CA5B6F601BE15FDC00708D85 /* VMManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMManager.h; sourceTree = "<group>"; };
 		CA5B6F611BE15FDC00708D85 /* VMManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMManager.m; sourceTree = "<group>"; };
@@ -171,8 +171,8 @@
 				01E2855018A6C4E300BC630D /* AppDelegate.m */,
 				CA5B6F601BE15FDC00708D85 /* VMManager.h */,
 				CA5B6F611BE15FDC00708D85 /* VMManager.m */,
-				CA4F6FFD1BE1910A00D87763 /* NSURL+KubeSolo.h */,
-				CA4F6FFE1BE1910A00D87763 /* NSURL+KubeSolo.m */,
+				CA4F6FFD1BE1910A00D87763 /* NSURL+KubeCluster.h */,
+				CA4F6FFE1BE1910A00D87763 /* NSURL+KubeCluster.m */,
 				01E2855218A6C4E300BC630D /* MainMenu.xib */,
 				01E2855518A6C4E300BC630D /* Images.xcassets */,
 				01D3685818E5C184006510B5 /* icon.icns */,
@@ -326,7 +326,7 @@
 			files = (
 				01E2855118A6C4E300BC630D /* AppDelegate.m in Sources */,
 				CA5B6F621BE15FDC00708D85 /* VMManager.m in Sources */,
-				CA4F6FFF1BE1910A00D87763 /* NSURL+KubeSolo.m in Sources */,
+				CA4F6FFF1BE1910A00D87763 /* NSURL+KubeCluster.m in Sources */,
 				01E2854A18A6C4E300BC630D /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -27,17 +27,7 @@ mkdir ~/kube-cluster/logs > /dev/null 2>&1
 rsync -r --verbose --exclude 'helm' "${res_folder}"/bin/* ~/kube-cluster/bin/ > /dev/null 2>&1
 rm -f ~/kube-cluster/bin/gen_kubeconfig
 chmod 755 ~/kube-cluster/bin/*
-## copy user-data
-rm -f ~/kube-cluster/cloud-init/*
-cp -f "${res_folder}"/cloud-init/* ~/kube-cluster/cloud-init
-### copy and update settings
-used_channel=$(cat ~/kube-cluster/settings/k8smaster-01.toml | grep channel | cut -f 2 -d"=" | awk -F '"' '{print $2}' )
-rm -f ~/kube-cluster/settings/*
-cp -f "${res_folder}"/settings/* ~/kube-cluster/settings
-# restore coreos channel
-sed -i '' "s/"alpha"/$used_channel/g" ~/kube-cluster/settings/*.toml
-# add ssh key to *.toml file
-sshkey
+
 # add ssh key to Keychain
 ssh-add -K ~/.ssh/id_rsa &>/dev/null
 #
@@ -53,10 +43,10 @@ then
 fi
 
 new_vm=0
-# check if root disk exists, if not create it
-if [ ! -f $HOME/kube-cluster/data.img ]; then
+# check if master's data disk exists, if not create it
+if [ ! -f $HOME/kube-cluster/master-data.img ]; then
     echo " "
-    echo "Data disk does not exist, it will be created now ..."
+    echo "Data disks do not exist, they will be created now ..."
     create_data_disk
     new_vm=1
 fi
@@ -93,6 +83,7 @@ fi
 # get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 #
+sleep 2
 #
 echo " "
 echo "Starting k8snode-01 VM ..."
@@ -110,7 +101,7 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
 else
     echo "Node1 VM successfully started !!!" >> ~/kube-cluster/logs/node1_vm_up.log
 fi
-# check id /Users/homefolder is mounted, if not mount it
+# check if /Users/homefolder is mounted, if not mount it
 "${res_folder}"/bin/corectl ssh k8snode-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 echo " "
 # save node1 VM's IP
@@ -119,7 +110,6 @@ echo " "
 node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 #
 #
-echo " "
 echo "Starting k8snode-02 VM ..."
 echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 #
@@ -135,7 +125,7 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
 else
     echo "Node2 VM successfully started !!!" >> ~/kube-cluster/logs/node2_vm_up.log
 fi
-# check id /Users/homefolder is mounted, if not mount it
+# check if /Users/homefolder is mounted, if not mount it
 "${res_folder}"/bin/corectl ssh k8snode-02 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 echo " "
 # save node2 VM's IP
@@ -149,7 +139,7 @@ node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
 # wait till VM is ready
 echo " "
-echo "Waiting for VM to be ready..."
+echo "Waiting for k8smaster-01 to be ready..."
 spin='-\|/'
 i=1
 until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
@@ -184,14 +174,18 @@ spin='-\|/'
 i=1
 until curl -o /dev/null -sIf http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+i=1
+until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
+echo " "
 
 if [ $new_vm = 1 ]
 then
-    # attach label to the node
+    # attach label to the nodes
     echo " "
-    ~/kube-cluster/bin/kubectl label nodes $master_vm_ip node=worker1
+    ~/kube-cluster/bin/kubectl label nodes $node1_vm_ip node=worker1
+    ~/kube-cluster/bin/kubectl label nodes $node2_vm_ip node=worker2
     # copy add-ons files
     cp "${res_folder}"/k8s/*.yaml ~/kube-cluster/kubernetes
     install_k8s_add_ons "$master_vm_ip"

@@ -10,7 +10,7 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 status=$("${res_folder}"/bin/corectl ps 2>&1 | grep "[k]8smaster-01")
 
 if [ "$status" = "" ]; then
-    echo -n "VM is stopped"
+    echo -n "VMs are stopped"
 else
-    echo -n "VM is running"
+    echo -n "VMs are running"
 fi

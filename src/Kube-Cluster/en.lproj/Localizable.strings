@@ -12,15 +12,15 @@
 
 // VM States
 
-"VMStateAlreadyRunning" = "VM is already running !!!";
-"VMStateAlreadyOff" = "VM is already Off !!!";
-"VMStateWillStop" = "VM will be stopped";
-"VMStateStopping" = "VM is stopping !!!";
-"VMStateOff" = "VM is OFF !!!";
-"VMStateWillReload" = "VM will be reloaded";
-"VMStateStopped" = "VM is stopped";
-"VMStateRunning" = "VM is running";
-"VMStateWillDestroy" = "VM will be destroyed";
+"VMStateAlreadyRunning" = "VMs are already running !!!";
+"VMStateAlreadyOff" = "VMs are already Off !!!";
+"VMStateWillStop" = "VMs will be stopped";
+"VMStateStopping" = "VMs are stopping !!!";
+"VMStateOff" = "VMs are OFF !!!";
+"VMStateWillReload" = "VMs will be reloaded";
+"VMStateStopped" = "VMs are stopped";
+"VMStateRunning" = "VMs are running";
+"VMStateWillDestroy" = "VMs will be destroyed";
 
 // Notification Messages
 
@@ -28,10 +28,10 @@
 "ISOImageWillBeUpdatedNotificationMessage" = "CoreOS ISO image will be updated";
 "ReleaseChannelChangeNotificationMessage" = "CoreOS release channel change";
 "SudoPasswordChangeNotificationMessage" = "sudo password change";
-"SSHShellWillOpenNotificationMessage" = "VM ssh shell will be opened";
+"SSHShellWillOpenNotificationMessage" = "VM's ssh shell will be opened";
 "ShellWillOpenNotificationMessage" = "OS X shell will be opened";
 "ConsoleWillOpenNotificationMessage" = "VM's console will be opened";
-"WillSetupNotificationTitle" = "Kube Cluster will be up shortly";
+"WillSetupNotificationTitle" = "Kube-Cluster will be up shortly";
 "WillSetupNotificationMessage" = "and OS shell will be opened";
 "KubernetesUpdateNotificationTitle" = "Kube-Cluster and";
 "KubernetedUpdateNotificationMessage" = "OS X kubectl will be updated";
@@ -41,7 +41,7 @@
 
 // Alerts
 
-"NotSetupAlertMessage" = "Kube Cluster was not setup";
+"NotSetupAlertMessage" = "Kube-Cluster was not set";
 "NotSetupAlertInformativeText" = "Do you want to set it up?";
 "SetupAlertMessage" = "You can set Kube-Cluster from menu 'Setup':";
 "SetupAlertInformativeText" = " 'Initial setup of Kube-Cluster' at any time later one !!! ";

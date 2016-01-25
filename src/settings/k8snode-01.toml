@@ -2,7 +2,7 @@
    uuid = "31D7ADDF-96D7-428A-A17F-14CB902CCD05"
    channel = "alpha"
    volume = "node-01-data.img"
-   cloud_config = "cloud-init/user-data.node"
+   cloud_config = "cloud-init/user-data.node1"
    cpus = 2
    memory = "2048"
    local = "true"

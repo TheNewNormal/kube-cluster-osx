@@ -31,13 +31,13 @@
 
     NSString *string;
     string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"Show VM status:\n%@", string);
+    NSLog(@"Show VMs status:\n%@", string);
 
-    if ([string isEqual:@"VM is stopped"]) {
-        NSLog(@"VM is Off");
+    if ([string isEqual:@"VMs are stopped"]) {
+        NSLog(@"VMs are Off");
         return VMStatusDown;
     } else {
-        NSLog(@"VM is On");
+        NSLog(@"VMs are On");
         return VMStatusUp;
     }
 }
@@ -112,8 +112,16 @@
     [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"os_shell.command"]];
 }
 
-- (void)runSSH {
-    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh.command"]];
+- (void)runSSHMaster {
+    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh_master.command"]];
+}
+
+- (void)runSSHNode1 {
+    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh_node1.command"]];
+}
+
+- (void)runSSHNode2 {
+    [self runApp:@"iTerm" arguments:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ssh_node2.command"]];
 }
 
 @end

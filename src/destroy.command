@@ -10,9 +10,6 @@ source "${DIR}"/functions.sh
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get master VM's IP
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
-
 # get password for sudo
 my_password=$(security find-generic-password -wa kube-cluster-app)
 # reset sudo
@@ -36,14 +33,12 @@ do
         echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
         # send halt to VMs
-        echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8smaster-01 > /dev/null 2>&1
-        echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8snode-01 > /dev/null 2>&1
-        echo -e "$my_password\n" | sudo -S "${res_folder}"/bin/corectl halt k8snode-02 > /dev/null 2>&1
+        sudo -S "${res_folder}"/bin/corectl halt k8smaster-01 > /dev/null 2>&1
+        sudo -S "${res_folder}"/bin/corectl halt k8snode-01 > /dev/null 2>&1
+        sudo -S "${res_folder}"/bin/corectl halt k8snode-02 > /dev/null 2>&1
 
-        # delete volume images
-        rm -f ~/kube-cluster/master-data.img
-        rm -f ~/kube-cluster/node-01-data
-        rm -f ~/kube-cluster/node-02-data
+        # delete master and nodes volume images
+        rm -f ~/kube-cluster/*.img
 
         # delete password in keychain
         security 2>&1 >/dev/null delete-generic-password -a kube-cluster-app 2>&1 >/dev/null

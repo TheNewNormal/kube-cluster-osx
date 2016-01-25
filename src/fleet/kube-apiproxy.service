@@ -5,6 +5,8 @@ Documentation=https://github.com/vaijab/kube-apiproxy
 [Service]
 ExecStart=/opt/bin/kube-apiproxy \
   --api-port=8080 \
+  --fleet-endpoint="unix:///run/fleet.sock" \
+  --proxy-listen="127.0.0.1:8080" \
   --unit-name=kube-apiserver.service
 
 Restart=always

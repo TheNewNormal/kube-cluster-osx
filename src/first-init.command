@@ -62,8 +62,11 @@ fi
 "${res_folder}"/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
 # get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
-# update nodes cloud-init file with master's IP
-sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node
+# update nodes cloud-init files with master's IP
+sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
+sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
+#
+sleep 2
 #
 echo " "
 echo "Starting k8snode-01 VM ..."
@@ -90,7 +93,6 @@ echo " "
 node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 #
 #
-echo " "
 echo "Starting k8snode-02 VM ..."
 echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 #
@@ -163,10 +165,13 @@ until curl -o /dev/null http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $master_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+i=1
+until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
-# attach label to the node
-~/kube-cluster/bin/kubectl label nodes $master_vm_ip node=worker1
+# attach label to the nodes
+~/kube-cluster/bin/kubectl label nodes $node1_vm_ip node=worker1
+~/kube-cluster/bin/kubectl label nodes $node2_vm_ip node=worker2
 #
 install_k8s_add_ons "$master_vm_ip"
 #
@@ -189,8 +194,8 @@ echo " "
 echo "You can control this App via status bar icon... "
 echo " "
 
-echo "Also you can install Deis PaaS (http://deis.io) v2 alpha version with 'install_deis' command ..."
-echo " "
+##echo "Also you can install Deis PaaS (http://deis.io) v2 alpha version with 'install_deis' command ..."
+##echo " "
 
 cd ~/kube-cluster
 # open bash shell

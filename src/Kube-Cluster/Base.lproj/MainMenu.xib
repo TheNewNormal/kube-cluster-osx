@@ -673,21 +673,12 @@
                 <menuItem isSeparatorItem="YES" id="jV7-Ne-Ped"/>
                 <menuItem title="SSH to k8smaster-01" id="dvF-TI-XNx">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="runSsh:" target="494" id="oZV-FT-fvi"/>
-                    </connections>
                 </menuItem>
                 <menuItem title="SSH to k8snode-01" id="R3P-Zp-RBe">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="runSsh:" target="494" id="Q33-3y-sam"/>
-                    </connections>
                 </menuItem>
                 <menuItem title="SSH to k8snode-02" id="k3S-vt-DSV">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="runSsh:" target="494" id="eIh-bf-EOd"/>
-                    </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="B1N-0s-OFg"/>
                 <menuItem title="Preset OS shell" id="YiP-H1-GtD">
@@ -712,15 +703,9 @@
                 <menuItem isSeparatorItem="YES" id="k2D-0b-tel"/>
                 <menuItem title="k8snode-01 cAdvisor" id="bXS-8Q-f6a">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="node1_cAdvisor:" target="494" id="8AX-S8-lIe"/>
-                    </connections>
                 </menuItem>
                 <menuItem title="k8snode-02 cAdvisor" id="714-JA-kJc">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="node1_cAdvisor:" target="494" id="brH-bZ-A57"/>
-                    </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="JNE-kH-7PZ"/>
                 <menuItem title="Updates" id="VT6-tu-oxP" userLabel="Menu Item - Updates">
@@ -784,14 +769,14 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="IpY-jd-Luh"/>
-                            <menuItem title="Destroy Kube-Cluster VM" id="FxG-t4-gXU">
+                            <menuItem title="Destroy Kube-Cluster VMs" id="FxG-t4-gXU">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="destroy:" target="494" id="Jew-dm-MAW"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="iDa-Hf-lxm"/>
-                            <menuItem title="Initial setup of Kube-Cluster VM" id="dRI-wk-81S">
+                            <menuItem title="Initial setup of Kube-Cluster VMs" id="dRI-wk-81S">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="initialInstall:" target="494" id="n4m-Uq-Dx0"/>
@@ -815,7 +800,7 @@
                     </connections>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="66.5" y="237.5"/>
+            <point key="canvasLocation" x="-373.5" y="117.5"/>
         </menu>
     </objects>
 </document>
