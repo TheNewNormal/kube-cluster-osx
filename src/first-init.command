@@ -180,7 +180,7 @@ echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #
-echo "Installation has finished, Kube Solo VM is up and running !!!"
+echo "Installation has finished, Kube Cluster VMs are up and running !!!"
 echo " "
 echo "Assigned static IP for master VM: $master_vm_ip"
 echo "Assigned static IP for node1 VM: $node1_vm_ip"

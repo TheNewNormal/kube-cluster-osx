@@ -395,7 +395,7 @@ echo "  "
 echo "Your Mac user's password will be saved in to 'Keychain' "
 echo "and later one used for 'sudo' command to start VM !!!"
 echo " "
-echo "This is not the password to access VM via ssh or console !!!"
+echo "This is not the password to access VMs via ssh or console !!!"
 echo " "
 echo "Please type your Mac user's password followed by [ENTER]:"
 read -s my_password
@@ -447,7 +447,9 @@ echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
 # send halt to VMs
 sudo "${res_folder}"/bin/corectl halt k8snode-01
+sleep 1
 sudo "${res_folder}"/bin/corectl halt k8snode-02
+sleep 1
 sudo "${res_folder}"/bin/corectl halt k8smaster-01
 
 # kill all other scripts

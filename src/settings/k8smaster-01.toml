@@ -1,5 +1,5 @@
 [k8smaster-01]
-   uuid = "96677A350-A1E1-46FC-9BC7-4024162BF95B"
+   uuid = "7E79BC00-7E3C-4B19-9CDF-83F99FD73A23"
    channel = "alpha"
    volume = "master-data.img"
    cloud_config = "cloud-init/user-data.master"

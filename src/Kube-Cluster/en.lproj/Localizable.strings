@@ -31,7 +31,7 @@
 "SSHShellWillOpenNotificationMessage" = "VM ssh shell will be opened";
 "ShellWillOpenNotificationMessage" = "OS X shell will be opened";
 "ConsoleWillOpenNotificationMessage" = "VM's console will be opened";
-"WillSetupNotificationTitle" = "Kube Solo will be up shortly";
+"WillSetupNotificationTitle" = "Kube Cluster will be up shortly";
 "WillSetupNotificationMessage" = "and OS shell will be opened";
 "KubernetesUpdateNotificationTitle" = "Kube-Cluster and";
 "KubernetedUpdateNotificationMessage" = "OS X kubectl will be updated";
@@ -41,7 +41,7 @@
 
 // Alerts
 
-"NotSetupAlertMessage" = "Kube Solo was not setup";
+"NotSetupAlertMessage" = "Kube Cluster was not setup";
 "NotSetupAlertInformativeText" = "Do you want to set it up?";
 "SetupAlertMessage" = "You can set Kube-Cluster from menu 'Setup':";
 "SetupAlertInformativeText" = " 'Initial setup of Kube-Cluster' at any time later one !!! ";

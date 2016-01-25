@@ -21,5 +21,7 @@ echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
 
 # send halt to VMs
 sudo "${res_folder}"/bin/corectl halt k8snode-01
+sleep 1
 sudo "${res_folder}"/bin/corectl halt k8snode-02
+sleep 1
 sudo "${res_folder}"/bin/corectl halt k8smaster-01
