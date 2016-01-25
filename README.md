@@ -4,9 +4,11 @@ Kubernetes Cluster for OS X
 
 **Kube-Cluster for Mac OS X** is a Mac Status bar App which works like a wrapper around the [corectl](https://github.com/TheNewNormal/corectl) command line tool (it makes easier to control [xhyve](https://github.com/xhyve-xyz/xhyve) based VMs) and bootstraps Kubernetes cluster with one master and two nodes based on [CoreOS VMs](https://coreos.com).
 
-Includes [Helm](https://helm.sh) - The Kubernetes Package Manager. 
+**Includes:** [Helm](https://helm.sh) - The Kubernetes Package Manager. 
 
-Kube-Cluster App can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and has a private local Docker registry v2 which is accessible from Kube-Cluster App.
+**Includes:** an option from shell to install [Deis open source PaaS](http://deis.io/overview/) v2 alpha on top of Kubernetes: `$ install_deis`
+
+**Kube-Cluster App** can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and has a private local Docker registry v2 which is accessible from Kube-Cluster App.
 
 ![Kube-Cluster](kube-cluster-osx.png "Kubernetes-Cluster")
 
