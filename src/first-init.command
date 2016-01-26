@@ -29,6 +29,9 @@ save_password
 # Set release channel
 release_channel
 
+# set Nodes RAM
+change_nodes_ram
+
 # create Data disk
 create_data_disk
 

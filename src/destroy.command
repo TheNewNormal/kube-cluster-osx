@@ -19,6 +19,7 @@ LOOP=1
 while [ $LOOP -gt 0 ]
 do
     VALID_MAIN=0
+    echo " "
     echo "VMs will be stopped (if is running) and destroyed !!!"
     echo "Do you want to continue [y/n]"
 

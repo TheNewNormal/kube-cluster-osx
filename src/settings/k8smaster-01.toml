@@ -4,5 +4,5 @@
    volume = "master-data.img"
    cloud_config = "cloud-init/user-data.master"
    cpus = 1
-   memory = "1024"
+   memory = 1024
    local = "true"
