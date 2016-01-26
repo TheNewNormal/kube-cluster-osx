@@ -29,7 +29,9 @@ rm -f ~/kube-cluster/bin/gen_kubeconfig
 chmod 755 ~/kube-cluster/bin/*
 
 # add ssh key to Keychain
-ssh-add -K ~/.ssh/id_rsa &>/dev/null
+if ! ssh-add -l | grep -q ssh/id_rsa; then
+    ssh-add -K ~/.ssh/id_rsa &>/dev/null
+fi
 #
 
 # check for password in Keychain
