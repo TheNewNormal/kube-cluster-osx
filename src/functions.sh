@@ -42,7 +42,7 @@ do
     echo "Set CoreOS Release Channel:"
     echo " 1)  Alpha "
     echo " 2)  Beta "
-    echo " 3)  Stable "
+    echo " 3)  Stable (recommended)"
     echo " "
     echo -n "Select an option: "
 
