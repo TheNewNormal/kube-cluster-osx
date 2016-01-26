@@ -3,7 +3,7 @@
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get VM's IP
+# get VMs IPs
 node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 
 # get lastest OS X helm version
@@ -15,14 +15,17 @@ curl -s https://get.helm.sh | bash > /dev/null 2>&1
 cd $current_folder
 echo "helm is installed to ~/kube-cluster/bin ... "
 
-# run helm for the first time
+# run helm update
 helm up
 # add Deis Chart repo
 helm repo add deis https://github.com/deis/charts
-# Get the latest version of all Charts from repos
+# get the latest version of all Charts from all repos
 helm up
-# Fetch Deis Chart to your helm's working directory
+# fetch Deis Chart to your helm's working directory
 helm fetch deis/deis
+# pin router to node worker1
+echo "      nodeSelector:" >> ~/.helm/workspace/charts/deis/manifests/deis-router-rc.yaml
+echo "        node: worker1" >> ~/.helm/workspace/charts/deis/manifests/deis-router-rc.yaml
 # Install Deis PaaS
 helm install deis
 
@@ -50,21 +53,11 @@ until kubectl --namespace=deis get po | grep [d]eis-workflow- | grep "Running"  
 until curl -o /dev/null -sI http://deis.$node1_vm_ip.xip.io/health-check >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
 
-sleep 5
-
-# run deis register user
-echo " "
-echo "Registering user ..."
-deis register deis.$node1_vm_ip.xip.io
-
-# add ssh key to Deis PaaS
-echo " "
-echo "Adding ssh key to Deis PaaS ... "
-deis keys:add ~/.ssh/id_rsa.pub
-echo " "
+sleep 20
 
 echo " "
 echo "Clonning some demo Apps for Deis ... "
+echo " "
 rm -fr ~/kube-cluster/deis/apps
 mkdir -p ~/kube-cluster/deis/apps
 cd ~/kube-cluster/deis/apps
@@ -73,8 +66,19 @@ git clone https://github.com/deis/helloworld.git
 git clone https://github.com/deis/example-go.git
 echo " "
 
-cd ~/kube-cluster/deis/apps
+# run deis register user
+echo " "
+echo "Registering user ..."
+deis register http://deis.$node1_vm_ip.xip.io
 
+# add ssh key to Deis PaaS
+echo " "
+echo "Adding ssh key to Deis PaaS ... "
+deis keys:add ~/.ssh/id_rsa.pub
+echo " "
+#
+cd ~/kube-cluster/deis/apps
+#
 echo "Deis PaaS install is completed ..."
 echo "It can be accessed via http://deis.$node1_vm_ip.xip.io "
 echo " "
@@ -83,4 +87,3 @@ echo "Deploy Applications - https://github.com/deis/workflow/blob/node1/docs/src
 echo "To manage Applications - https://github.com/deis/workflow/blob/node1/docs/src/using-deis/managing-an-application.md"
 echo "Using Deis PaaS - https://github.com/deis/workflow/tree/node1/docs/src/using-deis"
 echo " "
-
