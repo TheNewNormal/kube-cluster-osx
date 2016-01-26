@@ -97,7 +97,7 @@ echo "-"
 echo "Created 1.5GB Data disk for Master"
 echo " "
 
-echo "Please type Node1/2 Data disk size in GBs followed by [ENTER]:"
+echo "Please type Nodes Data disk size in GBs followed by [ENTER]:"
 echo -n "[default is 5]: "
 read disk_size
 if [ -z "$disk_size" ]
@@ -123,6 +123,30 @@ else
     mkfile "$disk_size"g node-02-data.img
     echo "-"
     echo "Created "$disk_size"GB Data disk for Node2"
+fi
+
+}
+
+change_nodes_ram() {
+echo " "
+echo " "
+echo "Please type Nodes RAM size in GBs followed by [ENTER]:"
+echo -n "[default is 2]: "
+read ram_size
+if [ -z "$ram_size" ]
+then
+    ram_size=2
+    echo "Changing Nodes RAM to "$ram_size"GB..."
+    ((new_ram_size=$ram_size*1024))
+    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-01.toml
+    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-02.toml
+    echo " "
+else
+    echo "Changing Nodes RAM to "$ram_size"GB..."
+    ((new_ram_size=$ram_size*1024))
+    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-01.toml
+    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-02.toml
+    echo " "
 fi
 
 }
@@ -159,6 +183,9 @@ fi
 "${res_folder}"/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
 # get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+# update nodes cloud-init files with master's IP
+sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
+sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
 #
 sleep 2
 #
@@ -281,8 +308,6 @@ k8s_upgrade=1
 
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
-# copy kube-apiproxy
-cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 
 # download latest version of kubectl for OS X
 cd ~/kube-cluster/tmp
@@ -301,6 +326,9 @@ bins=( kubectl kubelet kube-proxy kube-apiserver kube-scheduler kube-controller-
 for b in "${bins[@]}"; do
     curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
 done
+#
+# copy kube-apiproxy
+cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 #
 chmod 755 ~/kube-cluster/tmp/*
 #
@@ -357,8 +385,6 @@ k8s_upgrade=1
 
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
-# copy kube-apiproxy
-cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 
 # download required version of Kubernetes
 cd ~/kube-cluster/tmp
@@ -379,6 +405,8 @@ for b in "${bins[@]}"; do
 done
 rm -f kubernetes.tar.gz
 rm -f kubernetes-server-linux-amd64.tar.gz
+# copy kube-apiproxy
+cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 #
 curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > easy-rsa.tar.gz
 #

@@ -4,5 +4,5 @@
    volume = "node-02-data.img"
    cloud_config = "cloud-init/user-data.node2"
    cpus = 2
-   memory = "2048"
+   memory = 2048
    local = "true"
