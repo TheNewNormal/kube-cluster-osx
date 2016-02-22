@@ -97,11 +97,12 @@ until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; 
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
+#
+install_k8s_add_ons "$master_vm_ip"
+#
 # attach label to the nodes
 ~/kube-cluster/bin/kubectl label nodes $node1_vm_ip node=worker1
 ~/kube-cluster/bin/kubectl label nodes $node2_vm_ip node=worker2
-#
-install_k8s_add_ons "$master_vm_ip"
 #
 echo "fleetctl list-machines:"
 fleetctl list-machines
