@@ -29,7 +29,7 @@ How to install Kube-Cluster
 
 ###Install:
 
-Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kube-Cluster` and and `Initial setup of Kube-Cluster VMs` will run.
+Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kube-Cluster` and `Initial setup of Kube-Cluster VMs` will run.
 
 * All dependent files/folders will be put under `kube-cluster` folder in the user's home folder e.g /Users/someuser/kube-cluster
 * User's Mac password will be stored in `OS X KeyChain`, it will be used for sudo command which needs to be used starting VM with `corectl`
