@@ -79,7 +79,7 @@ deploy_fleet_units
 sleep 2
 
 # generate kubeconfig file
-echo Generate kubeconfig file ...
+echo Generating kubeconfig file ...
 "${res_folder}"/bin/gen_kubeconfig $master_vm_ip
 #
 
