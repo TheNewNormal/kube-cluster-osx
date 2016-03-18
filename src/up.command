@@ -56,6 +56,13 @@ fi
 # start cluster VMs
 start_vms
 
+# generate kubeconfig file
+if [ ! -f $HOME/kube-cluster/kube/kubeconfig ]; then
+    echo Generating kubeconfig file ...
+    "${res_folder}"/bin/gen_kubeconfig $master_vm_ip
+    echo " "
+fi
+
 # Set the environment variables
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379

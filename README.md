@@ -24,6 +24,7 @@ How to install Kube-Cluster
  -----------
   - **OS X 10.10.3** Yosemite or later 
   - Mac 2010 or later for this to work.
+  - **Note:** For the fresh install it is recommended to restart your Mac if you have used VirtualBox based VM, as the VirtualBox sometimes messes up networking.
 
 
 ###Install:
@@ -40,8 +41,8 @@ That allows to share the same images between different `corectl` based Apps and 
 * It will install `fleetctl, etcdctl and kubectl` to `~/kube-cluster/bin/`
 * Kubernetes services will be installed with fleet units which are placed in `~/kube-cluster/fleet`, this allows very easy updates to fleet units if needed.
 * [Fleet-UI](http://fleetui.com) via unit file will be installed to check running fleet units
-* [Kubernetes UI](http://kubernetes.io/v1.1/docs/user-guide/ui.html) will be instlled as an add-on
-* Also [DNS Add On](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns) will be installed
+* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will be instlled as an add-on
+* Also [DNS addon](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md) will be installed
 * Via assigned static IPs (which will be shown on first boot and will survive VMs reboots) you can access any port on any CoreOS VM
 * Persistent disks `xxx-data.img` will be created and mounted to VMs `/data` for these mount binds:
 
@@ -75,8 +76,7 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 * `SSH to k8smaster01 and k8snode-01/02` menu options will open VMs shell
 * `node1/2 cAdvisor` will open cAdvisor URL in default browser
 * [Fleet-UI](http://fleetui.com) dashboard will show running fleet units and etc
-* [Kubernetes-UI](https://github.com/GoogleCloudPlatform/kubernetes/tree/master/www) (contributed by [Kismatic.io](http://kismatic.io/)) will show nice Kubernetes Dashboard, where you can check Nodes, Pods, Replication Controllers and etc.
-
+* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will show nice Kubernetes Dashboard, where you can check Nodes, Pods, Replication and Service Controllers, deploy Apps and etc.
 
 
 Example ouput of succesfull CoreOS + Kubernetes cluster install:
@@ -121,7 +121,7 @@ Usage
 
 You're now ready to use Kubernetes cluster.
 
-Some examples to start with [Kubernetes examples](https://github.com/kubernetes/kubernetes/tree/master/examples).
+Some examples to start with [Kubernetes examples](http://kubernetes.io/docs/samples/q).
 
 Other links
 -----------
