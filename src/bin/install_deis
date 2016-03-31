@@ -57,7 +57,7 @@ until kubectl --namespace=deis get po | grep [d]eis-controller- | grep "1/1"  >/
 sleep 5
 
 echo " "
-echo "Cloning some demo Apps for Deis ... "
+echo "Cloning some demo Apps for testing ... "
 echo " "
 rm -fr ~/kube-cluster/deis/apps
 mkdir -p ~/kube-cluster/deis/apps
@@ -69,12 +69,12 @@ echo " "
 
 # run deis register user
 echo " "
-echo "Registering user ..."
+echo "Registering Deis Workflow PaaS user ..."
 deis register http://deis.$node1_vm_ip.xip.io
 
 # add ssh key to Deis PaaS
 echo " "
-echo "Adding ssh key to Deis PaaS ... "
+echo "Adding ssh key to Deis Workflow PaaS ... "
 deis keys:add ~/.ssh/id_rsa.pub
 echo " "
 #
