@@ -162,7 +162,7 @@ sudo -k > /dev/null 2>&1
 cd ~/kube-cluster
 echo " "
 echo "Starting k8smaster-01 VM ..."
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 #
 sudo "${res_folder}"/bin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/master_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/master_vm_up.log | grep "started")
@@ -191,7 +191,7 @@ sleep 2
 #
 echo " "
 echo "Starting k8snode-01 VM ..."
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 #
 sudo "${res_folder}"/bin/corectl load settings/k8snode-01.toml 2>&1 | tee ~/kube-cluster/logs/node1_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/node1_vm_up.log | grep "started")
@@ -215,7 +215,7 @@ node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 #
 #
 echo "Starting k8snode-02 VM ..."
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 #
 sudo "${res_folder}"/bin/corectl load settings/k8snode-02.toml 2>&1 | tee ~/kube-cluster/logs/node2_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/node2_vm_up.log | grep "started")
@@ -511,7 +511,7 @@ echo " "
 echo "This is not the password to access VMs via ssh or console !!!"
 echo " "
 echo "Please type your Mac user's password followed by [ENTER]:"
-read -s my_password
+read -s -r my_password
 passwd_ok=0
 
 # check if sudo password is correct
@@ -520,7 +520,7 @@ do
     # reset sudo
     sudo -k
     # check sudo
-    echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+    printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
     CAN_I_RUN_SUDO=$(sudo -n uptime 2>&1|grep "load"|wc -l)
     if [ ${CAN_I_RUN_SUDO} -gt 0 ]
     then
@@ -531,7 +531,7 @@ do
         echo " "
         echo "The password you entered does not match your Mac user password !!!"
         echo "Please type your Mac user's password followed by [ENTER]:"
-        read -s my_password
+        read -s -r my_password
     fi
 done
 
@@ -556,7 +556,7 @@ my_password=$(security find-generic-password -wa kube-cluster-app)
 # reset sudo
 sudo -k
 # enable sudo
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 
 # send halt to VMs
 sudo "${res_folder}"/bin/corectl halt k8snode-01
