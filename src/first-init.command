@@ -123,7 +123,7 @@ echo " "
 echo "You can control this App via status bar icon... "
 echo " "
 
-echo "Also you can install Deis Workflow PaaS (http://deis.io) beta1 version with 'install_deis' command ..."
+echo "Also you can install Deis Workflow (http://deis.io) with 'install_deis' command ..."
 echo " "
 
 cd ~/kube-cluster
