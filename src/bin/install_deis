@@ -3,8 +3,20 @@
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
+function pause(){
+    read -p "$*"
+}
+
 # get VMs IPs
 node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
+
+#
+echo " "
+echo "If you have installed previous beta version of Deis Workflow PaaS, please uninstall it first"
+echo "'$ helm uninstall workflow-beta2 -n deis' as currently any upgrade between Workflow betas is not supported yet ..."
+echo " "
+pause 'Press [Enter] key to continue...'
+echo " "
 
 # get lastest OS X helm version
 current_folder=$(pwd)
@@ -21,15 +33,17 @@ helm up
 helm repo add deis https://github.com/deis/charts
 # get the latest version of all Charts from all repos
 helm up
+# delete the old folder if such exists
+rm -rf ~/.helm/workspace/charts/workflow-beta3-kube-cluster > /dev/null 2>&1
 # fetch Deis Workflow Chart to your helm's working directory
-helm fetch deis/workflow-beta1
+helm fetch deis/workflow-beta3 workflow-beta3-kube-cluster
 # run helm generate
-helm generate -x manifests workflow-beta1
+helm generate -x manifests workflow-beta3-kube-cluster
 # pin router to node worker1
-echo "      nodeSelector:" >> ~/.helm/workspace/charts/workflow-beta1/manifests/deis-router-rc.yaml
-echo "        node: worker1" >> ~/.helm/workspace/charts/workflow-beta1/manifests/deis-router-rc.yaml
+echo "      nodeSelector:" >> ~/.helm/workspace/charts/workflow-beta3-kube-cluster/manifests/deis-router-rc.yaml
+echo "        node: worker1" >> ~/.helm/workspace/charts/workflow-beta3-kube-cluster/manifests/deis-router-rc.yaml
 # Install Deis PaaS
-helm install workflow-beta1
+helm install workflow-beta3-kube-cluster
 
 # Install deis client
 current_folder=$(pwd)
@@ -43,7 +57,7 @@ echo "To learn more about deis client, execute:"
 echo "deis -h"
 echo " "
 #
-echo "Waiting for Deis Workflow PaaS to be ready... but first, coffee! "
+echo "Waiting for Deis Workflow to be ready... but first, coffee! "
 spin='-\|/'
 i=1
 until kubectl --namespace=deis get po | grep [d]eis-builder- | grep "1/1"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
@@ -62,15 +76,15 @@ echo " "
 rm -fr ~/kube-cluster/deis/apps
 mkdir -p ~/kube-cluster/deis/apps
 cd ~/kube-cluster/deis/apps
-git clone https://github.com/deis/example-ruby-sinatra.git
+git clone https://github.com/deis/example-dockerfile-http
 git clone https://github.com/deis/helloworld.git
 git clone https://github.com/deis/example-go.git
 echo " "
 
 # run deis register user
 echo " "
-echo "Registering Deis Workflow PaaS user ..."
-deis register http://deis.$node1_vm_ip.xip.io
+echo "Registering Deis Workflow user ..."
+deis register http://deis.$node1_vm_ip.nip.io
 
 # add ssh key to Deis PaaS
 echo " "
@@ -80,11 +94,11 @@ echo " "
 #
 cd ~/kube-cluster/deis/apps
 #
-echo "Deis Workflow PaaS install is completed ..."
-echo "Deis Workflow PaaS IP is http://deis.$node1_vm_ip.xip.io "
+echo "Deis Workflow install is completed ..."
+echo "Deis Workflow IP is http://deis.$node1_vm_ip.nip.io "
 echo " "
 echo "Please read how to:" 
-echo "Deploy Applications - http://docs-v2.readthedocs.org/en/latest/using-workflow/deploying-an-application/"
+echo "To deploy Applications - http://docs-v2.readthedocs.org/en/latest/using-workflow/deploying-an-application/"
 echo "To manage Applications - http://docs-v2.readthedocs.org/en/latest/using-workflow/managing-an-application/"
-echo "Understanding Deis Workflow PaaS - http://docs-v2.readthedocs.org/en/latest/understanding-workflow/concepts/"
+echo "Understanding Deis Workflow - http://docs-v2.readthedocs.org/en/latest/understanding-workflow/concepts/"
 echo " "

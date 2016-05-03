@@ -35,6 +35,9 @@
     # linux binaries
     cp "$1"/k8s/kube.tgz ~/kube-cluster/kube
 
+    # copy fleetctl
+    cp -f "$1"/files/fleetctl ~/kube-cluster/bin
+
     # copy fleet units
     cp -R "$1"/fleet/ ~/kube-cluster/fleet
     #
