@@ -20,7 +20,7 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 cp -f "${res_folder}"/bin/* ~/kube-cluster/bin
 chmod 755 ~/kube-cluster/bin/*
 
-# download latest version of fleetctl and helm clients
+# download latest version of fleetctl and helmc clients
 download_osx_clients
 #
 
