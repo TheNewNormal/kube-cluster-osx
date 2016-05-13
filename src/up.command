@@ -24,7 +24,7 @@ fi
 mkdir ~/kube-cluster/logs > /dev/null 2>&1
 
 # copy bin files to ~/kube-cluster/bin
-rsync -r --verbose --exclude 'helm' "${res_folder}"/bin/* ~/kube-cluster/bin/ > /dev/null 2>&1
+rsync -r --verbose --exclude 'helmc' "${res_folder}"/bin/* ~/kube-cluster/bin/ > /dev/null 2>&1
 rm -f ~/kube-cluster/bin/gen_kubeconfig
 chmod 755 ~/kube-cluster/bin/*
 
