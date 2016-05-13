@@ -268,16 +268,13 @@ else
     fi
 fi
 
-# get lastest OS X helm version from bintray
+# get lastest OS X helmc version from bintray
 cd ~/kube-cluster/bin
-# curl -s https://get.helm.sh | bash > /dev/null 2>&1
-bin_version=$(curl -sI https://bintray.com/deis/helm/helm/_latestVersion | grep "Location:" | sed -n 's%.*helm/%%;s%/view.*%%p')
-echo "Downloading latest version of helm for OS X"
-curl -L "https://dl.bintray.com/deis/helm/helm-$bin_version-darwin-amd64.zip" -o helm.zip
-unzip -o helm.zip > /dev/null 2>&1
-rm -f helm.zip
+bin_version=$(curl -sI https://bintray.com/deis/helm/helmc/_latestVersion | grep "Location:" | sed -n 's%.*helm/%%;s%/view.*%%p')
+echo "Downloading latest version of helmc for OS X"
+curl -s https://get.helm.sh | bash > /dev/null 2>&1
 echo " "
-echo "Installed latest helm $bin_version to ~/kube-cluster/bin ..."
+echo "Installed latest helmc $bin_version to ~/kube-cluster/bin ..."
 #
 
 }
