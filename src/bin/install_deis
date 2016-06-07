@@ -34,16 +34,16 @@ helmc repo add deis https://github.com/deis/charts
 # get the latest version of all Charts from all repos
 helmc up
 # delete the old folder if such exists
-rm -rf ~/.helmc/workspace/charts/workflow-rc1-kube-cluster > /dev/null 2>&1
+rm -rf ~/.helmc/workspace/charts/workflow-rc2-kube-cluster > /dev/null 2>&1
 # fetch Deis Workflow Chart to your helmc's working directory
-helmc fetch deis/workflow-rc1 workflow-rc1-kube-cluster
+helmc fetch deis/workflow-rc2 workflow-rc2-kube-cluster
 # run helmc generate
-helmc generate -x manifests workflow-rc1-kube-cluster
+helmc generate -x manifests workflow-rc2-kube-cluster
 # pin router to node worker1
-echo "      nodeSelector:" >> ~/.helmc/workspace/charts/workflow-rc1-kube-cluster/manifests/deis-router-rc.yaml
-echo "        node: worker1" >> ~/.helmc/workspace/charts/workflow-rc1-kube-cluster/manifests/deis-router-rc.yaml
+echo "      nodeSelector:" >> ~/.helmc/workspace/charts/workflow-rc2-kube-cluster/manifests/deis-router-rc.yaml
+echo "        node: worker1" >> ~/.helmc/workspace/charts/workflow-rc2-kube-cluster/manifests/deis-router-rc.yaml
 # Install Deis PaaS
-helmc install workflow-rc1-kube-cluster
+helmc install workflow-rc2-kube-cluster
 
 # Install deis client
 current_folder=$(pwd)
