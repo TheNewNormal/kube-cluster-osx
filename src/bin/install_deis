@@ -12,8 +12,9 @@ node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
 
 #
 echo " "
-echo "If you have installed previous beta version of Deis Workflow PaaS, please uninstall it first"
-echo "'$ helmc uninstall previous workflow-beta -n deis' as currently any upgrade between Workflow Betas/RCs is not supported yet ..."
+echo "If you have installed previous beta versions of Deis Workflow PaaS, please uninstall it first"
+echo "'$ helmc uninstall workflow-beta4 -n deis' as upgrades from Workflow Betas to GA is not supported ..."
+echo "If you have RC1/2 installed check out how to upgrade to GA at http://docs-v2.readthedocs.io/en/latest/managing-workflow/upgrading-workflow/ "
 echo " "
 pause 'Press [Enter] key to continue...'
 echo " "
@@ -34,16 +35,16 @@ helmc repo add deis https://github.com/deis/charts
 # get the latest version of all Charts from all repos
 helmc up
 # delete the old folder if such exists
-rm -rf ~/.helmc/workspace/charts/workflow-rc2-kube-cluster > /dev/null 2>&1
+rm -rf ~/.helmc/workspace/charts/workflow-v2.0.0-kube-cluster > /dev/null 2>&1
 # fetch Deis Workflow Chart to your helmc's working directory
-helmc fetch deis/workflow-rc2 workflow-rc2-kube-cluster
+helmc fetch deis/workflow-v2.0.0 workflow-v2.0.0-kube-cluster
 # run helmc generate
-helmc generate -x manifests workflow-rc2-kube-cluster
+helmc generate -x manifests workflow-v2.0.0-kube-cluster
 # pin router to node worker1
-echo "      nodeSelector:" >> ~/.helmc/workspace/charts/workflow-rc2-kube-cluster/manifests/deis-router-rc.yaml
-echo "        node: worker1" >> ~/.helmc/workspace/charts/workflow-rc2-kube-cluster/manifests/deis-router-rc.yaml
+echo "      nodeSelector:" >> ~/.helmc/workspace/charts/workflow-v2.0.0-kube-cluster/manifests/deis-router-rc.yaml
+echo "        node: worker1" >> ~/.helmc/workspace/charts/workflow-v2.0.0-kube-cluster/manifests/deis-router-rc.yaml
 # Install Deis PaaS
-helmc install workflow-rc2-kube-cluster
+helmc install workflow-v2.0.0-kube-cluster
 
 # Install deis client
 current_folder=$(pwd)
