@@ -1,4 +1,4 @@
-Kubernetes Cluster for OS X 
+Kubernetes Cluster for macOS
 ============================
 ![k8s-multinode](k8s-multinode.png)
 
