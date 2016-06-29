@@ -2,7 +2,7 @@ Kubernetes Cluster for macOS
 ============================
 ![k8s-multinode](k8s-multinode.png)
 
-**Kube-Cluster for Mac OS X** is a Mac Status bar App which works like a wrapper around the [corectl](https://github.com/TheNewNormal/corectl) command line tool (it makes easier to control [xhyve](https://github.com/xhyve-xyz/xhyve) based VMs) and bootstraps Kubernetes cluster with one master and two nodes based on [CoreOS VMs](https://coreos.com).
+**Kube-Cluster for macOS** is a Mac Status bar App which works like a wrapper around the [corectl](https://github.com/TheNewNormal/corectl) command line tool (it makes easier to control [xhyve](https://github.com/xhyve-xyz/xhyve) based VMs) and bootstraps Kubernetes cluster with one master and two nodes based on [CoreOS VMs](https://coreos.com).
 
 **Includes:** [Helm](https://helm.sh) - The Kubernetes Package Manager. 
 
@@ -22,7 +22,7 @@ How to install Kube-Cluster
 
 **Requirements**
  -----------
-  - **OS X 10.10.3** Yosemite or later 
+  - **macOS 10.10.3** Yosemite or later 
   - Mac 2010 or later for this to work.
   - **Note:** For the fresh install it is recommended to restart your Mac if you have used VirtualBox based VM, as the VirtualBox sometimes messes up networking.
 
@@ -125,8 +125,8 @@ Some examples to start with [Kubernetes examples](http://kubernetes.io/docs/samp
 
 Other links
 -----------
-* Kubernetes Solo Cluster VM App can be found here [Kube-Solo for OS X](https://github.com/TheNewNormal/kube-solo-osx).
+* Kubernetes Solo Cluster VM App can be found here [Kube-Solo for macOS](https://github.com/TheNewNormal/kube-solo-osx).
 
-* Standalone CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for OS X](https://github.com/TheNewNormal/coreos-osx).
+* Standalone CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for macOS](https://github.com/TheNewNormal/coreos-osx).
 
-* CoreOS Cluster App without Kubernetes can be found here [CoreOS Cluster for OS X](https://github.com/rimusz/coreos-osx-cluster).
+* CoreOS Cluster App without Kubernetes can be found here [CoreOS Cluster for macOS](https://github.com/rimusz/coreos-osx-cluster).
