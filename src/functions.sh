@@ -313,13 +313,12 @@ else
     fi
 fi
 
-# get lastest OS X helmc version from bintray
+# get lastest OS X helmc version
 cd ~/kube-cluster/bin
-bin_version=$(curl -sI https://bintray.com/deis/helm/helmc/_latestVersion | grep "Location:" | /usr/bin/sed -n 's%.*helm/%%;s%/view.*%%p')
+#bin_version=$(curl -sI https://bintray.com/deis/helm/helmc/_latestVersion | grep "Location:" | /usr/bin/sed -n 's%.*helm/%%;s%/view.*%%p')
 echo "Downloading latest version of helmc for OS X"
 curl -s https://get.helm.sh | bash > /dev/null 2>&1
-echo " "
-echo "Installed latest helmc $bin_version to ~/kube-cluster/bin ..."
+#echo "Installed latest helmc $bin_version to ~/kube-cluster/bin ..."
 #
 
 }

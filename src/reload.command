@@ -17,7 +17,7 @@ my_password=$(security find-generic-password -wa kube-cluster-app)
 sudo -k
 
 # check if k8s files are on master VM
-if "${res_folder}"/bin/corectl ssh k8master-01 '[ ! -f /opt/bin/kube-apiserver ]' &> /dev/null
+if "${res_folder}"/bin/corectl ssh k8smaster-01 '[ ! -f /opt/bin/kube-apiserver ]' &> /dev/null
 then
     echo " "
     stop_vms

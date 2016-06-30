@@ -88,7 +88,7 @@ echo "fleetctl list-machines:"
 fleetctl list-machines
 #
 # check if k8s files are on master VM
-if "${res_folder}"/bin/corectl ssh k8master-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
+if "${res_folder}"/bin/corectl ssh k8smaster-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
 then
     new_vm=0
 else
@@ -106,10 +106,6 @@ then
     #
     echo "  "
     deploy_fleet_units
-    # generate kubeconfig file
-    echo Generate kubeconfig file ...
-    "${res_folder}"/bin/gen_kubeconfig $vm_ip
-    #
 fi
 
 echo " "
