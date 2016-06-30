@@ -66,9 +66,9 @@ fi
 # Set the environment variables
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
-# wait till VM is ready
+# wait till etcd is ready
 echo " "
-echo "Waiting for k8smaster-01 to be ready..."
+echo "Waiting for etcd service to be ready on k8smaster-01 VM..."
 spin='-\|/'
 i=1
 until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
@@ -87,12 +87,29 @@ sleep 3
 echo "fleetctl list-machines:"
 fleetctl list-machines
 #
+# check if k8s files are on master VM
+if "${res_folder}"/bin/corectl ssh k8master-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
+then
+    new_vm=0
+else
+    new_vm=1
+fi
+#
 if [ $new_vm = 1 ]
 then
+    # check internet from VM
+    echo " "
+    echo "Checking internet availablity on master VM..."
+    check_internet_from_vm
+    #
     install_k8s_files
     #
     echo "  "
     deploy_fleet_units
+    # generate kubeconfig file
+    echo Generate kubeconfig file ...
+    "${res_folder}"/bin/gen_kubeconfig $vm_ip
+    #
 fi
 
 echo " "
@@ -106,6 +123,8 @@ i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+i=1
+until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
 echo " "
 

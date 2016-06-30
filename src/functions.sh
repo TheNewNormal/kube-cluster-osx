@@ -9,6 +9,25 @@ function pause(){
     read -p "$*"
 }
 
+function check_internet_from_vm(){
+#
+status=$(corectl ssh k8smaster-01 "curl -s -I https://coreos.com 2>/dev/null | head -n 1 | cut -d' ' -f2")
+
+if [[ $(echo "${status//[$'\t\r\n ']}") = "200" ]]; then
+    echo "Yes, internet is available ..."
+else
+    echo "There is no internet access from the k8smaster-01 VM !!!"
+    echo "That also means could be the same issue on nodes as well."
+    echo " "
+    echo "Please check you Mac's firewall, network setup and fix the problem. "
+    echo " "
+    echo "k8smaster-01 and node VMs are still running, so you can troubleshoot the network problem "
+    echo "and when you done just 'Halt' and 'Up' via menu and the installation will continue ... "
+    echo " "
+    pause 'Press [Enter] key to abort installation ...'
+    exit 1
+fi
+}
 
 function sshkey(){
 # add ssh key to *.toml files
@@ -52,8 +71,8 @@ do
     if [ $RESPONSE = 1 ]
     then
         VALID_MAIN=1
-        sed -i "" 's/channel = "stable"/channel = "alpha"/g' ~/kube-cluster/settings/*.toml
-        sed -i "" 's/channel = "beta"/channel = "alpha"/g' ~/kube-cluster/settings/*.toml
+        /usr/bin/sed -i "" 's/channel = "stable"/channel = "alpha"/g' ~/kube-cluster/settings/*.toml
+        /usr/bin/sed -i "" 's/channel = "beta"/channel = "alpha"/g' ~/kube-cluster/settings/*.toml
         channel="Alpha"
         LOOP=0
     fi
@@ -61,8 +80,8 @@ do
     if [ $RESPONSE = 2 ]
     then
         VALID_MAIN=1
-        sed -i "" 's/channel = "stable"/channel = "beta"/g' ~/kube-cluster/settings/*.toml
-        sed -i "" 's/channel = "alpha"/channel = "beta"/g' ~/kube-cluster/settings/*.toml
+        /usr/bin/sed -i "" 's/channel = "stable"/channel = "beta"/g' ~/kube-cluster/settings/*.toml
+        /usr/bin/sed -i "" 's/channel = "alpha"/channel = "beta"/g' ~/kube-cluster/settings/*.toml
         channel="Beta"
         LOOP=0
     fi
@@ -70,8 +89,8 @@ do
     if [ $RESPONSE = 3 ]
     then
         VALID_MAIN=1
-        sed -i "" 's/channel = "beta"/channel = "stable"/g' ~/kube-cluster/settings/*.toml
-        sed -i "" 's/channel = "alpha"/channel = "stable"/g' ~/kube-cluster/settings/*.toml
+        /usr/bin/sed -i "" 's/channel = "beta"/channel = "stable"/g' ~/kube-cluster/settings/*.toml
+        /usr/bin/sed -i "" 's/channel = "alpha"/channel = "stable"/g' ~/kube-cluster/settings/*.toml
         channel="Stable"
         LOOP=0
     fi
@@ -138,14 +157,14 @@ then
     ram_size=2
     echo "Changing Nodes RAM to "$ram_size"GB..."
     ((new_ram_size=$ram_size*1024))
-    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-01.toml
-    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-02.toml
+    /usr/bin/sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-01.toml
+    /usr/bin/sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-02.toml
     echo " "
 else
     echo "Changing Nodes RAM to "$ram_size"GB..."
     ((new_ram_size=$ram_size*1024))
-    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-01.toml
-    sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-02.toml
+    /usr/bin/sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-01.toml
+    /usr/bin/sed -i "" 's/\(memory = \)\(.*\)/\1'$new_ram_size'/g' ~/kube-cluster/settings/k8snode-02.toml
     echo " "
 fi
 
@@ -184,8 +203,8 @@ fi
 # get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
 # update nodes cloud-init files with master's IP
-sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
-sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
+/usr/bin/sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
+/usr/bin/sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
 #
 sleep 2
 #
@@ -240,6 +259,32 @@ node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
 }
 
 
+function stop_vms(){
+echo "Stopping VMs ..."
+echo " "
+echo "Stopping k8smaster-01 VM ..."
+# send halt to VM
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+sudo "${res_folder}"/bin/corectl halt k8smaster-01
+sleep 1
+#
+echo " "
+echo "Stopping k8snode-01 VM ..."
+# send halt to VM
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+sudo "${res_folder}"/bin/corectl halt k8snode-01
+sleep 1
+#
+echo " "
+echo "Stopping k8snode-02 VM ..."
+# send halt to VM
+echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
+sudo "${res_folder}"/bin/corectl halt k8snode-02
+sleep 1
+
+}
+
+
 function download_osx_clients() {
 # download fleetctl file
 FLEETCTL_VERSION=$("${res_folder}"/bin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
@@ -270,7 +315,7 @@ fi
 
 # get lastest OS X helmc version from bintray
 cd ~/kube-cluster/bin
-bin_version=$(curl -sI https://bintray.com/deis/helm/helmc/_latestVersion | grep "Location:" | sed -n 's%.*helm/%%;s%/view.*%%p')
+bin_version=$(curl -sI https://bintray.com/deis/helm/helmc/_latestVersion | grep "Location:" | /usr/bin/sed -n 's%.*helm/%%;s%/view.*%%p')
 echo "Downloading latest version of helmc for OS X"
 curl -s https://get.helm.sh | bash > /dev/null 2>&1
 echo " "
@@ -349,11 +394,12 @@ cd ~/kube-cluster/tmp
 
 # ask for k8s version
 echo "You can install a particular version of Kubernetes you migh want to test..."
+echo " "
 echo "Bear in mind if the version you want is lower than the currently installed, "
 echo "Kubernetes cluster migth not work, so you will need to destroy the cluster first "
-echo " and boot VM again !!! "
+echo "and boot VM again !!! "
 echo " "
-echo "Please type Kubernetes version you want to be installed e.g. v1.1.1 or v1.2.0-alpha.4"
+echo "Please type Kubernetes version you want to be installed e.g. v1.2.5 or v1.3.0-beta.2"
 echo "followed by [ENTER] to continue or press CMD + W to exit:"
 read K8S_VERSION
 
@@ -364,6 +410,8 @@ if curl --output /dev/null --silent --head --fail "$url"; then
 else
     echo " "
     echo "There is no such Kubernetes version to download !!!"
+    echo "List of available Kubernetes versions:"
+    curl -s https://api.github.com/repos/kubernetes/kubernetes/releases | grep "tag_name" | awk '{print $2}' | sed -e 's/"\(.*\)"./\1/' | sort -n
     pause 'Press [Enter] key to continue...'
     exit 1
 fi
@@ -478,7 +526,7 @@ echo " "
 echo "Creating kube-system namespace ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kube-system-ns.yaml
 #
-sed -i "" "s/_MASTER_IP_/$1/" ~/kube-cluster/kubernetes/skydns-rc.yaml
+/usr/bin/sed -i "" "s/_MASTER_IP_/$1/" ~/kube-cluster/kubernetes/skydns-rc.yaml
 echo " "
 echo "Installing SkyDNS ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/skydns-rc.yaml
@@ -488,6 +536,10 @@ echo " "
 echo "Installing Kubernetes UI ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/dashboard-controller.yaml
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/dashboard-service.yaml
+#
+echo " "
+echo "Installing Kubedash ..."
+~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kubedash.yaml
 sleep 1
 # clean up kubernetes folder
 rm -f ~/kube-cluster/kubernetes/kube-system-ns.yaml
@@ -495,6 +547,7 @@ rm -f ~/kube-cluster/kubernetes/skydns-rc.yaml
 rm -f ~/kube-cluster/kubernetes/skydns-svc.yaml
 rm -f ~/kube-cluster/kubernetes/dashboard-controller.yaml
 rm -f ~/kube-cluster/kubernetes/dashboard-service.yaml
+rm -f ~/kube-cluster/kubernetes/kubedash.yaml
 echo " "
 }
 
