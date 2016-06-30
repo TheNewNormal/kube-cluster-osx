@@ -4,7 +4,7 @@ Kubernetes Cluster for macOS
 
 **Kube-Cluster for macOS** is a Mac Status bar App which works like a wrapper around the [corectl](https://github.com/TheNewNormal/corectl) command line tool (it makes easier to control [xhyve](https://github.com/xhyve-xyz/xhyve) based VMs) and bootstraps Kubernetes cluster with one master and two nodes based on [CoreOS VMs](https://coreos.com).
 
-**Includes:** [Helm](https://helm.sh) - The Kubernetes Package Manager. 
+**Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager. 
 
 **Includes:** An option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
 
@@ -38,11 +38,10 @@ That allows to share the same images between different `corectl` based Apps and 
 * user-data file will have fleet, etcd and flannel set
 * Will download latest CoreOS ISO image and run `corectl` to initialise VM 
 * When you first time do install or 'Up' after destroying Kube-Cluster setup, k8s binary files (with the version which was available when the App was built) get copied to CoreOS VM, this speeds up Kubernetes cluster setup. To update Kubernetes just run from menu 'Updates' - Update Kubernetes and OS X kubectl.
-* It will install `fleetctl, etcdctl and kubectl` to `~/kube-cluster/bin/`
+* It will install `fleetctl and kubectl` to `~/kube-cluster/bin/`
 * Kubernetes services will be installed with fleet units which are placed in `~/kube-cluster/fleet`, this allows very easy updates to fleet units if needed.
 * [Fleet-UI](http://fleetui.com) via unit file will be installed to check running fleet units
-* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will be instlled as an add-on
-* Also [DNS addon](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md) will be installed
+* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/), [DNS](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md) and [Kubedash](https://github.com/kubernetes/kubedash) will be instlled as add-ons
 * Via assigned static IPs (which will be shown on first boot and will survive VMs reboots) you can access any port on any CoreOS VM
 * Persistent disks `xxx-data.img` will be created and mounted to VMs `/data` for these mount binds:
 
@@ -65,7 +64,7 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 2) etcd endpoint - export ETCDCTL_PEERS=http://192.168.64.xxx:2379
 3) fleetctl endpoint - export FLEETCTL_ENDPOINT=http://192.168.64.xxx:2379
 4) fleetctl driver - export FLEETCTL_DRIVER=etcd
-5) Path to ~/kube-cluster/bin where etcdctl, fleetctl, helm and kubernetes binaries are stored
+5) Path to ~/kube-cluster/bin where fleetctl, helmc and kubectl are stored
 ````
 
 * `Updates/Update Kubernetes cluster and OS X kubectl` will update to latest stable version of Kubernetes.
@@ -76,7 +75,8 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 * `SSH to k8smaster01 and k8snode-01/02` menu options will open VMs shell
 * `node1/2 cAdvisor` will open cAdvisor URL in default browser
 * [Fleet-UI](http://fleetui.com) dashboard will show running fleet units and etc
-* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will show nice Kubernetes Dashboard, where you can check Nodes, Pods, Replication and Service Controllers, deploy Apps and etc.
+* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will show nice Kubernetes Dashboard, where you can check Nodes, Pods, Replication, Deployments, Service Controllers, deploy Apps and etc.
+* [Kubedash](https://github.com/kubernetes/kubedash) is a performance analytics UI for Kubernetes Clusters
 
 
 Example ouput of succesfull CoreOS + Kubernetes cluster install:

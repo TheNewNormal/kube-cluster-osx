@@ -20,18 +20,12 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
 echo " "
-echo "etcdctl ls /:"
-etcdctl --no-sync ls /
-echo " "
 
 # set fleetctl endpoint
 export FLEETCTL_TUNNEL=
 export FLEETCTL_ENDPOINT=http://$master_vm_ip:2379
 export FLEETCTL_DRIVER=etcd
 export FLEETCTL_STRICT_HOST_KEY_CHECKING=false
-echo "fleetctl list-machines:"
-fleetctl list-machines
-echo " "
 echo "fleetctl list-units:"
 fleetctl list-units
 echo " "

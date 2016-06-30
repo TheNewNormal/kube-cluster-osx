@@ -45,6 +45,11 @@ sudo -k > /dev/null 2>&1
 # start cluster VMs
 start_vms
 
+# check internet from VMs
+echo " "
+echo "Checking internet availablity on VMs..."
+check_internet_from_vm
+
 # install k8s files on to VMs
 install_k8s_files
 #
@@ -55,13 +60,17 @@ download_osx_clients
 
 # run helmc for the first time
 helmc up
-# add kube-charts repo
-helmc repo add kube-charts https://github.com/TheNewNormal/kube-charts
-# Get the latest version of all Charts from repos
-helmc up
 
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
+
+# wait till etcd service is ready
+echo " "
+echo "Waiting for etcd service to be ready on master VM..."
+spin='-\|/'
+i=1
+until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+echo " "
 
 # set fleetctl endpoint and install fleet units
 export FLEETCTL_TUNNEL=
@@ -86,7 +95,7 @@ echo Generating kubeconfig file ...
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
 #
-echo Waiting for Kubernetes cluster to be ready. This can take a few minutes...
+echo "Waiting for Kubernetes cluster to be ready. This can take a few minutes..."
 spin='-\|/'
 i=1
 until curl -o /dev/null http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
@@ -96,6 +105,8 @@ i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+i=1
+until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
 install_k8s_add_ons "$master_vm_ip"
@@ -112,6 +123,10 @@ fleetctl list-units
 echo " "
 echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
+echo " "
+#
+echo "kubectl cluster-info:"
+~/kube-cluster/bin/kubectl cluster-info
 echo " "
 #
 echo "Installation has finished, Kube Cluster VMs are up and running !!!"
