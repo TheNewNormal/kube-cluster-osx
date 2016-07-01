@@ -23,6 +23,7 @@
 		01F0282C1A7C54C8008C37AA /* os_shell.command in Resources */ = {isa = PBXBuildFile; fileRef = 01F0282B1A7C54C8008C37AA /* os_shell.command */; };
 		131540891C55C65C0015936E /* ssh_node1.command in Resources */ = {isa = PBXBuildFile; fileRef = 131540881C55C65C0015936E /* ssh_node1.command */; };
 		1315408B1C55C68A0015936E /* ssh_node2.command in Resources */ = {isa = PBXBuildFile; fileRef = 1315408A1C55C68A0015936E /* ssh_node2.command */; };
+		132367271D26DC6500F679EE /* deis in Resources */ = {isa = PBXBuildFile; fileRef = 132367261D26DC6500F679EE /* deis */; };
 		1329DE901BD4F95F008AA719 /* settings in Resources */ = {isa = PBXBuildFile; fileRef = 1329DE8F1BD4F95F008AA719 /* settings */; };
 		1329DE921BD4F974008AA719 /* files in Resources */ = {isa = PBXBuildFile; fileRef = 1329DE911BD4F974008AA719 /* files */; };
 		1329DE9A1BD4FA58008AA719 /* kube-cluster-install.command in Resources */ = {isa = PBXBuildFile; fileRef = 1329DE991BD4FA58008AA719 /* kube-cluster-install.command */; };
@@ -73,6 +74,7 @@
 		01F0282B1A7C54C8008C37AA /* os_shell.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = os_shell.command; sourceTree = "<group>"; };
 		131540881C55C65C0015936E /* ssh_node1.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ssh_node1.command; sourceTree = "<group>"; };
 		1315408A1C55C68A0015936E /* ssh_node2.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ssh_node2.command; sourceTree = "<group>"; };
+		132367261D26DC6500F679EE /* deis */ = {isa = PBXFileReference; lastKnownFileType = folder; path = deis; sourceTree = SOURCE_ROOT; };
 		1329DE8F1BD4F95F008AA719 /* settings */ = {isa = PBXFileReference; lastKnownFileType = folder; path = settings; sourceTree = SOURCE_ROOT; };
 		1329DE911BD4F974008AA719 /* files */ = {isa = PBXFileReference; lastKnownFileType = folder; path = files; sourceTree = SOURCE_ROOT; };
 		1329DE991BD4FA58008AA719 /* kube-cluster-install.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "kube-cluster-install.command"; sourceTree = SOURCE_ROOT; };
@@ -114,6 +116,7 @@
 		014E6F8B18B63AF700E697C0 /* Installation Files */ = {
 			isa = PBXGroup;
 			children = (
+				132367261D26DC6500F679EE /* deis */,
 				13FE22161C1C40C700F465F1 /* bin */,
 				13FE22181C1C410100F465F1 /* cloud-init */,
 				1329DE911BD4F974008AA719 /* files */,
@@ -301,6 +304,7 @@
 				01E2855618A6C4E300BC630D /* Images.xcassets in Resources */,
 				1329DEB21BD4FB5F008AA719 /* reload.command in Resources */,
 				01741B63190DB80500BB1F91 /* first-init.command in Resources */,
+				132367271D26DC6500F679EE /* deis in Resources */,
 				011BBA3B1A2A842A00AAB35B /* change_release_channel.command in Resources */,
 				13FE22191C1C410100F465F1 /* cloud-init in Resources */,
 				01689B731A2D1A260099CB78 /* fleet in Resources */,
