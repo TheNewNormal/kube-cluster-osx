@@ -95,6 +95,22 @@ else
     new_vm=1
 fi
 #
+# check if k8s files are on node1 VM
+if "${res_folder}"/bin/corectl ssh k8snode-01 '[ -f /opt/bin/kubelet ]' &> /dev/null
+then
+    new_vm=0
+else
+    new_vm=1
+fi
+#
+# check if k8s files are on node2 VM
+if "${res_folder}"/bin/corectl ssh k8snode-02 '[ -f /opt/bin/kubelet ]' &> /dev/null
+then
+    new_vm=0
+else
+    new_vm=1
+fi
+#
 if [ $new_vm = 1 ]
 then
     # check internet from VM
