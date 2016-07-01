@@ -110,10 +110,10 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 # create persistent disks
 cd ~/kube-cluster/
 echo "  "
-echo "Creating 1GB Data disk for Master ..."
-##mkfile 1g master-data.img
-~/kube-cluster/bin/pv -s 1g -S < /dev/zero > master-data.img
-echo "Created 1GB Data disk for Master"
+echo "Creating 2GB Data disk for Master ..."
+##mkfile 2g master-data.img
+~/kube-cluster/bin/pv -s 2g -S < /dev/zero > master-data.img
+echo "Created 2GB Data disk for Master"
 echo " "
 
 echo "Please type Nodes Data disk size in GBs followed by [ENTER]:"
@@ -123,23 +123,19 @@ if [ -z "$disk_size" ]
 then
     echo " "
     echo "Creating 10GB Data disk for Node1..."
-##    mkfile 10g node-01-data.img
     ~/kube-cluster/bin/pv -s 10g -S < /dev/zero > node-01-data.img
     echo "Created 10GB Data disk for Node1"
     echo " "
     echo "Creating 10GB Data disk for Node2..."
-##    mkfile 10g node-02-data.img
     ~/kube-cluster/bin/pv -s 10g -S < /dev/zero > node-02-data.img
     echo "Created 10GB Data disk for Node2"
 else
     echo " "
     echo "Creating "$disk_size"GB Data disk for Node1 (it could take a while for big disks)..."
-##    mkfile "$disk_size"g node-01-data.img
     ~/kube-cluster/bin/pv -s "$disk_size"g -S < /dev/zero > node-01-data.img
     echo "Created "$disk_size"GB Data disk for Node1"
     echo " "
     echo "Creating "$disk_size"GB Data disk for Node2 (it could take a while for big disks)..."
-##    mkfile "$disk_size"g node-02-data.img
     ~/kube-cluster/bin/pv -s "$disk_size"g -S < /dev/zero > node-02-data.img
     echo "Created "$disk_size"GB Data disk for Node2"
 fi
