@@ -1,0 +1,5 @@
+        - name: home-minio
+          hostPath:
+            path: /data/deis/minio
+      nodeSelector:
+              node: worker2
