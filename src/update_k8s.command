@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  update_k8s.command
-#  Kube-Cluster for OS X
+#  Kube-Cluster for macOS
 #
 #
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )

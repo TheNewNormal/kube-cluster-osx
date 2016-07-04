@@ -287,7 +287,7 @@ FLEETCTL_VERSION=$("${res_folder}"/bin/corectl ssh k8smaster-01 'fleetctl --vers
 FILE=fleetctl
 if [ ! -f ~/kube-cluster/bin/$FILE ]; then
     cd ~/kube-cluster/bin
-    echo "Downloading fleetctl v$FLEETCTL_VERSION for OS X"
+    echo "Downloading fleetctl v$FLEETCTL_VERSION for macOS"
     curl -L -o fleet.zip "https://github.com/coreos/fleet/releases/download/v$FLEETCTL_VERSION/fleet-v$FLEETCTL_VERSION-darwin-amd64.zip"
     unzip -j -o "fleet.zip" "fleet-v$FLEETCTL_VERSION-darwin-amd64/fleetctl" > /dev/null 2>&1
     rm -f fleet.zip
@@ -298,7 +298,7 @@ else
     if [ $MATCH -eq 0 ]; then
         # the version is different
         cd ~/kube-cluster/bin
-        echo "Downloading fleetctl v$FLEETCTL_VERSION for OS X"
+        echo "Downloading fleetctl v$FLEETCTL_VERSION for macOS"
         curl -L -o fleet.zip "https://github.com/coreos/fleet/releases/download/v$FLEETCTL_VERSION/fleet-v$FLEETCTL_VERSION-darwin-amd64.zip"
         unzip -j -o "fleet.zip" "fleet-v$FLEETCTL_VERSION-darwin-amd64/fleetctl" > /dev/null 2>&1
         rm -f fleet.zip
@@ -309,12 +309,22 @@ else
     fi
 fi
 
-# get lastest OS X helmc version
+# get lastest macOS helmc cli version
 cd ~/kube-cluster/bin
-#bin_version=$(curl -sI https://bintray.com/deis/helm/helmc/_latestVersion | grep "Location:" | /usr/bin/sed -n 's%.*helm/%%;s%/view.*%%p')
-echo "Downloading latest version of helmc for OS X"
-curl -s https://get.helm.sh | bash > /dev/null 2>&1
-#echo "Installed latest helmc $bin_version to ~/kube-cluster/bin ..."
+echo "Downloading latest version of helmc cli for macOS"
+curl -o helmc https://storage.googleapis.com/helm-classic/helmc-latest-darwin-amd64
+chmod +x helmc
+echo " "
+echo "Installed latest helmc cli to ~/kube-cluster/bin ..."
+#
+
+# get lastest macOS deis cli version
+cd ~/kube-cluster/bin
+echo "Downloading latest version of Workflow deis cli for macOS"
+curl -o deis https://storage.googleapis.com/workflow-cli/deis-latest-darwin-amd64
+chmod +x deis
+echo " "
+echo "Installed latest deis cli to ~/kube-cluster/bin ..."
 #
 
 }
@@ -346,9 +356,9 @@ k8s_upgrade=1
 # clean up tmp folder
 rm -rf ~/kube-cluster/tmp/*
 
-# download latest version of kubectl for OS X
+# download latest version of kubectl for macOS
 cd ~/kube-cluster/tmp
-echo "Downloading kubectl $K8S_VERSION for OS X"
+echo "Downloading kubectl $K8S_VERSION for macOS"
 curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/darwin/amd64/kubectl >  ~/kube-cluster/kube/kubectl
 chmod 755 ~/kube-cluster/kube/kubectl
 echo "kubectl was copied to ~/kube-cluster/kube"
@@ -487,6 +497,16 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get master VM's IP
 master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+
+# check if file ~/kube-cluster/kube/kube.tgz exists
+if [ ! -f ~/kube-cluster/kube/kube.tgz ]
+then
+    # copy k8s files
+    cp -f "${res_folder}"/k8s/kubectl ~/kube-cluster/kube
+    chmod +x ~/kube-cluster/kube/kubectl
+    # linux binaries tar file
+    cp -f "${res_folder}"/k8s/kube.tgz ~/kube-cluster/kube
+fi
 
 # install k8s files on to VMs
 echo " "
