@@ -20,12 +20,13 @@ echo " "
 pause 'Press [Enter] key to continue...'
 echo " "
 
-# get lastest OS X helmc version
+# get lastest macOS helmc version
 current_folder=$(pwd)
 cd ~/kube-cluster/bin
+echo "Downloading latest version of helmc cli for macOS"
+curl -o helmc https://storage.googleapis.com/helm-classic/helmc-latest-darwin-amd64
+chmod +x helmc
 echo " "
-echo "Installing latest helmc version..."
-curl -s https://get.helm.sh | bash > /dev/null 2>&1
 cd $current_folder
 echo "helmc is installed to ~/kube-cluster/bin ... "
 
@@ -66,8 +67,9 @@ helmc install workflow-${WORKFLOW_RELEASE}-kube-cluster
 current_folder=$(pwd)
 cd ~/kube-cluster/bin
 echo " "
-echo "Installing deis OS X client ..."
-curl -sSL http://deis.io/deis-cli/install-v2.sh | bash > /dev/null 2>&1
+echo "Downloading latest version of Workflow deis cli for macOS"
+curl -o deis https://storage.googleapis.com/workflow-cli/deis-latest-darwin-amd64
+chmod +x deis
 cd $current_folder
 echo "deis client is installed to ~/kube-cluster/bin ..."
 echo "To learn more about deis client, execute:"

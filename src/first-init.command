@@ -14,7 +14,7 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 echo " "
-echo "Setting up Kubernetes Cluster for OS X"
+echo "Setting up Kubernetes Cluster for macOS"
 
 # add ssh key to *.toml files
 sshkey
