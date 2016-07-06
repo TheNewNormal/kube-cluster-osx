@@ -2,7 +2,7 @@ Kubernetes Cluster for macOS
 ============================
 ![k8s-multinode](k8s-multinode.png)
 
-**Kube-Cluster for macOS** is a Mac Status bar App which works like a wrapper around the [corectl](https://github.com/TheNewNormal/corectl) command line tool (it makes easier to control [xhyve](https://github.com/xhyve-xyz/xhyve) based VMs) and bootstraps Kubernetes cluster with one master and two nodes based on [CoreOS VMs](https://coreos.com).
+**Kube-Cluster for macOS** is `status bar app` which allows in an easy way to control and bootstrap multi-node (master+ two nodes) Kubernetes cluster on three [CoreOS](https://coreos.com) VMs.
 
 **Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager. 
 
@@ -23,7 +23,8 @@ How to install Kube-Cluster
 **Requirements**
  -----------
   - **macOS 10.10.3** Yosemite or later 
-  - Mac 2010 or later for this to work.
+  - Mac 2010 or later for this to work
+  - [Corectl App](https://github.com/TheNewNormal/corectl.app) is installed
   - **Note:** For the fresh install it is recommended to restart your Mac if you have used VirtualBox based VM, as the VirtualBox sometimes messes up networking.
 
 
@@ -123,10 +124,16 @@ You're now ready to use Kubernetes cluster.
 
 Some examples to start with [Kubernetes examples](http://kubernetes.io/docs/samples/q).
 
-Other links
+Other CoreOS VM based Apps for macOS
 -----------
 * Kubernetes Solo Cluster VM App can be found here [Kube-Solo for macOS](https://github.com/TheNewNormal/kube-solo-osx).
 
 * Standalone CoreOS VM App (good for docker images building and testing) can be found here [CoreOS VM for macOS](https://github.com/TheNewNormal/coreos-osx).
 
 * CoreOS Cluster App without Kubernetes can be found here [CoreOS Cluster for macOS](https://github.com/rimusz/coreos-osx-cluster).
+
+## Contributing
+
+**Corectl App** is an [open source](http://opensource.org/osd) project release under
+the [Apache License, Version 2.0](http://opensource.org/licenses/Apache-2.0),
+hence contributions and suggestions are gladly welcomed!

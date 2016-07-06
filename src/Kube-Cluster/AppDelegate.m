@@ -49,6 +49,25 @@
         [[NSApplication sharedApplication] terminate:self];
     }
     
+    // check that corectl.app is installed at /Applications folder
+    if(![[NSWorkspace sharedWorkspace] launchApplication:@"/Applications/corectl.app"]) {
+        NSLog(@"corectl failed to launch");
+        
+        // show alert message
+        NSString *message = [NSString stringWithFormat:NSLocalizedString(@"CorectlAppAlertMessage", nil)];
+        NSString *infoText = NSLocalizedString(@"CorectlAppAlertInformativeText", nil);
+        [self alertWithMessage:message infoText:infoText];
+        
+        // open corectl.app releases URL
+        NSString *url = [@[@"https://github.com/TheNewNormal/corectl.app/releases"] componentsJoinedByString:@""];
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
+        
+        // show quitting App message
+        [self notifyUserWithTitle:NSLocalizedString(@"QuittingNotificationTitle", nil) text:nil];
+        
+        // exiting App
+        [[NSApplication sharedApplication] terminate:self];
+    }
     
     BOOL isDir;
     if ([[NSFileManager defaultManager] fileExistsAtPath:[NSURL ks_homeURL].path isDirectory:&isDir] && isDir) {
@@ -83,6 +102,26 @@
 #pragma mark - Menu Items
 
 - (IBAction)Start:(id)sender {
+    // check that corectl.app is installed at /Applications folder
+    if(![[NSWorkspace sharedWorkspace] launchApplication:@"/Applications/corectl.app"]) {
+        NSLog(@"corectl failed to launch");
+        
+        // show alert message
+        NSString *message = [NSString stringWithFormat:NSLocalizedString(@"UpAppAlertMessage", nil)];
+        NSString *infoText = NSLocalizedString(@"CorectlAppAlertInformativeText", nil);
+        [self alertWithMessage:message infoText:infoText];
+        
+        // open corectl.app releases URL
+        NSString *url = [@[@"https://github.com/TheNewNormal/corectl.app/releases"] componentsJoinedByString:@""];
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
+        
+        // show quitting App message
+        [self notifyUserWithTitle:NSLocalizedString(@"QuittingNotificationTitle", nil) text:nil];
+        
+        // exiting App
+        [[NSApplication sharedApplication] terminate:self];
+    }
+    
     VMStatus vmStatus = [self.vmManager checkVMStatus];
 
     switch (vmStatus) {
@@ -221,11 +260,6 @@
 }
 
 
-- (IBAction)fetchLatestISO:(id)sender {
-    [self notifyUserWithText:NSLocalizedString(@"ISOImageWillBeUpdatedNotificationMessage", nil)];
-    [self.vmManager updateISO];
-}
-
 - (IBAction)changeReleaseChannel:(id)sender {
     [self notifyUserWithText:NSLocalizedString(@"ReleaseChannelChangeNotificationMessage", nil)];
     [self.vmManager changeReleaseChannel];
@@ -235,12 +269,6 @@
 - (IBAction)changeNodesRAM:(id)sender {
     [self notifyUserWithText:NSLocalizedString(@"NodesRamChangeNotificationMessage", nil)];
     [self.vmManager changeNodesRAM];
-}
-
-
-- (IBAction)changeSudoPassword:(id)sender {
-    [self notifyUserWithText:NSLocalizedString(@"SudoPasswordChangeNotificationMessage", nil)];
-    [self.vmManager changeSudoPassword];
 }
 
 

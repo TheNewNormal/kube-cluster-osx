@@ -24,10 +24,6 @@ if ! ssh-add -l | grep -q ssh/id_rsa; then
     ssh-add -K ~/.ssh/id_rsa &>/dev/null
 fi
 
-# save user's password to Keychain
-save_password
-#
-
 # Set release channel
 release_channel
 
@@ -36,11 +32,6 @@ change_nodes_ram
 
 # create Data disk
 create_data_disk
-
-# get password for sudo
-my_password=$(security find-generic-password -wa kube-cluster-app)
-# reset sudo
-sudo -k > /dev/null 2>&1
 
 # start cluster VMs
 start_vms

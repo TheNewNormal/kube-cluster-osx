@@ -11,7 +11,7 @@ source "${DIR}"/functions.sh
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get master VM's IP
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH

@@ -88,20 +88,12 @@
     [[NSWorkspace sharedWorkspace] openFile:arguments withApplication:appName];
 }
 
-- (void)updateISO {
-    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"fetch_latest_iso.command"]];
-}
-
 - (void)changeReleaseChannel {
     [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"change_release_channel.command"]];
 }
 
 - (void)changeNodesRAM {
     [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"change_nodes_ram.command"]];
-}
-
-- (void)changeSudoPassword {
-    [self runApp:@"iTerm" arguments:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"change_sudo_password.command"]];
 }
 
 - (void)destroy {

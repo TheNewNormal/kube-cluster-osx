@@ -7,6 +7,9 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source "${DIR}"/functions.sh
 
+# check corectld server
+check_corectld_server
+
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
@@ -33,16 +36,6 @@ if ! ssh-add -l | grep -q ssh/id_rsa; then
     ssh-add -K ~/.ssh/id_rsa &>/dev/null
 fi
 #
-
-# check for password in Keychain
-my_password=$(security 2>&1 >/dev/null find-generic-password -wa kube-cluster-app)
-if [ "$my_password" = "security: SecKeychainSearchCopyNext: The specified item could not be found in the keychain." ]
-then
-    echo " "
-    echo "Saved password could not be found in the 'Keychain': "
-    # save user password to Keychain
-    save_password
-fi
 
 new_vm=0
 # check if master's data disk exists, if not create it
@@ -88,7 +81,7 @@ echo "fleetctl list-machines:"
 fleetctl list-machines
 #
 # check if k8s files are on master VM
-if "${res_folder}"/bin/corectl ssh k8smaster-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
+if /usr/local/sbin/corectl ssh k8smaster-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
 then
     new_vm=0
 else
@@ -96,7 +89,7 @@ else
 fi
 #
 # check if k8s files are on node1 VM
-if "${res_folder}"/bin/corectl ssh k8snode-01 '[ -f /opt/bin/kubelet ]' &> /dev/null
+if /usr/local/sbin/corectl ssh k8snode-01 '[ -f /opt/bin/kubelet ]' &> /dev/null
 then
     new_vm=0
 else
@@ -104,7 +97,7 @@ else
 fi
 #
 # check if k8s files are on node2 VM
-if "${res_folder}"/bin/corectl ssh k8snode-02 '[ -f /opt/bin/kubelet ]' &> /dev/null
+if /usr/local/sbin/corectl ssh k8snode-02 '[ -f /opt/bin/kubelet ]' &> /dev/null
 then
     new_vm=0
 else
@@ -152,7 +145,7 @@ then
     #
 fi
 #
-echo "kubernetes nodes list:"
+echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #

@@ -3,6 +3,6 @@
    channel = "stable"
    volume = "master-data.img"
    cloud_config = "cloud-init/user-data.master"
-   cpus = 1
+   cpus = 2
    memory = 1024
    local = "true"
