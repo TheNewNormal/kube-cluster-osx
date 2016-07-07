@@ -78,7 +78,7 @@ i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
-echo "Kubernetes nodes list:"
+echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #

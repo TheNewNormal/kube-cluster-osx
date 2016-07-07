@@ -86,6 +86,7 @@ echo Generating kubeconfig file ...
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
 #
+echo "  "
 echo "Waiting for Kubernetes cluster to be ready. This can take a few minutes..."
 spin='-\|/'
 i=1

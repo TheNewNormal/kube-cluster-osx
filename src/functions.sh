@@ -202,8 +202,6 @@ else
     echo "Master VM successfully started !!!" >> ~/kube-cluster/logs/master_vm_up.log
 fi
 
-# check if /Users/homefolder is mounted, if not mount it
-/usr/local/sbin/corectl ssh k8smaster-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 # save master VM's IP
 /usr/local/sbin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
 # get master VM's IP
@@ -252,8 +250,6 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
 else
     echo "Node2 VM successfully started !!!" >> ~/kube-cluster/logs/node2_vm_up.log
 fi
-# check if /Users/homefolder is mounted, if not mount it
-/usr/local/sbin/corectl ssh k8snode-02 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 echo " "
 # save node2 VM's IP
 /usr/local/sbin/corectl q -i k8snode-02 | tr -d "\n" > ~/kube-cluster/.env/node2_ip_address

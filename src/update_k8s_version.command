@@ -81,7 +81,7 @@ until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; 
 echo " "
 #
 echo " "
-echo "Kubernetes nodes list:"
+echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #

@@ -32,7 +32,7 @@ echo " "
 
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
-echo "kubernetes nodes list:"
+echo "kubectl get nodes:"
 kubectl get nodes
 echo " "
 
