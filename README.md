@@ -32,14 +32,11 @@ How to install Kube-Cluster
 
 Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kube-Cluster` and `Initial setup of Kube-Cluster VMs` will run.
 
-* All dependent files/folders will be put under `kube-cluster` folder in the user's home folder e.g /Users/someuser/kube-cluster
-* User's Mac password will be stored in `OS X KeyChain`, it will be used for sudo command which needs to be used starting VM with `corectl`
-* ISO images are stored under `~/.coreos/images`.
-That allows to share the same images between different `corectl` based Apps and also speeds up this App's reinstall
+* All dependent files/folders will be put under `kube-cluster` folder in the user's home folder e.g `/Users/someuser/kube-cluster`
 * user-data file will have fleet, etcd and flannel set
-* Will download latest CoreOS ISO image and run `corectl` to initialise VM 
-* When you first time do install or 'Up' after destroying Kube-Cluster setup, k8s binary files (with the version which was available when the App was built) get copied to CoreOS VM, this speeds up Kubernetes cluster setup. To update Kubernetes just run from menu 'Updates' - Update Kubernetes and OS X kubectl.
-* It will install `fleetctl and kubectl` to `~/kube-cluster/bin/`
+* Will download latest CoreOS ISO image (if there is no such) and run `corectl` to initialise VM 
+* When you first time do install or 'Up' after destroying Kube-Cluster setup, k8s binary files (with the version which was available when the App was built) get copied to CoreOS VMs, this speeds up Kubernetes cluster setup. 
+* It will install `fleetctl, kubectl, helmc and deis` clients to `~/kube-cluster/bin/`
 * Kubernetes services will be installed with fleet units which are placed in `~/kube-cluster/fleet`, this allows very easy updates to fleet units if needed.
 * [Fleet-UI](http://fleetui.com) via unit file will be installed to check running fleet units
 * [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/), [DNS](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md) and [Kubedash](https://github.com/kubernetes/kubedash) will be instlled as add-ons
@@ -68,13 +65,10 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 5) Path to ~/kube-cluster/bin where fleetctl, helmc and kubectl are stored
 ````
 
-* `Updates/Update Kubernetes cluster and OS X kubectl` will update to latest stable version of Kubernetes.
-*`Updates/Update OS X fleetctl and helm clients` will update fleetctl to the same versions as Kube-Cluster Master runs and helm to the latest version.
-* `Updates/Force CoreOS update` will be run `sudo update_engine_client -update` on each CoreOS VM.
-* `Updates/Check updates for CoreOS vbox` will update CoreOS VM vagrant box.
-*
+* `Updates/Update Kubernetes to latest stable version` will update to latest stable version of Kubernetes.
+* `Updates\Change Kubernetes version` allows you to insatll any Kubernetes version available on github.com.
+* `Updates/Update macOS fleetctl, helmc and deis clients` will update fleetctl to the same versions as Kube-Cluster Master runs and helmc and deis to the latest versions.
 * `SSH to k8smaster01 and k8snode-01/02` menu options will open VMs shell
-* `node1/2 cAdvisor` will open cAdvisor URL in default browser
 * [Fleet-UI](http://fleetui.com) dashboard will show running fleet units and etc
 * [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will show nice Kubernetes Dashboard, where you can check Nodes, Pods, Replication, Deployments, Service Controllers, deploy Apps and etc.
 * [Kubedash](https://github.com/kubernetes/kubedash) is a performance analytics UI for Kubernetes Clusters
@@ -97,8 +91,6 @@ f93b555e...	192.168.64.2	role=control
 fleetctl list-units:
 UNIT				MACHINE				ACTIVE	SUB
 fleet-ui.service				f93b555e.../192.168.64.2	active	running
-kube-apiproxy.service			9b88a46c.../192.168.64.3	active	running
-kube-apiproxy.service			d0c68677.../192.168.64.4	active	running
 kube-apiserver.service			f93b555e.../192.168.64.2	active	running
 kube-controller-manager.service	f93b555e.../192.168.64.2	active	running
 kube-kubelet.service			9b88a46c.../192.168.64.3	active	running
@@ -109,8 +101,8 @@ kube-scheduler.service			f93b555e.../192.168.64.2	active	running
 
 kubectl get nodes:
 NAME           LABELS                                             STATUS    AGE
-192.168.64.8   kubernetes.io/hostname=192.168.64.8,node=worker1   Ready     1h
-192.168.64.9   kubernetes.io/hostname=192.168.64.9,node=worker2   Ready     1h
+192.168.64.8   kubernetes.io/hostname=k8snode-01,node=worker1   Ready     1h
+192.168.64.9   kubernetes.io/hostname=k8snode-02,node=worker2   Ready     1h
 
 ````
 
