@@ -12,7 +12,7 @@ ssh-add -K ~/.ssh/id_rsa &>/dev/null
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get master VM's IP
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
@@ -32,7 +32,7 @@ echo " "
 
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
-echo "kubernetes nodes list:"
+echo "kubectl get nodes:"
 kubectl get nodes
 echo " "
 

@@ -8,7 +8,7 @@ coreos:
   etcd2:
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
     advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    initial-cluster: k8smaster-01=http://_MASTER_IP_:2380
+    initial-cluster: k8smaster-01=http://k8smaster-01:2380
     proxy: on
   fleet:
     metadata: role=node
@@ -72,7 +72,7 @@ coreos:
         [Unit]
         Description=Binds /data/var/lib/etcd2 to /var/lib/etcd2
         After=persistent-data-checks.service
-        Requires=persistent-data-checks docker.service
+        Requires=persistent-data-checks docker.service etcd2.service
         Before=etcd2.service
         [Mount]
         What=/data/var/lib/etcd2
@@ -156,7 +156,7 @@ coreos:
           [Unit]
           Requires=etcd2.service
           [Service]
-          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network": "10.244.0.0/16", "SubnetLen": 24, "SubnetMin": "10.244.0.0", "Backend": {"Type": "vxlan"}}'
+          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network": "10.244.0.0/16", "SubnetLen": 24, "SubnetMin": "10.244.0.0", "Backend": {"Type": "udp"}}'
     - name: docker.service
       command: start
       drop-ins:

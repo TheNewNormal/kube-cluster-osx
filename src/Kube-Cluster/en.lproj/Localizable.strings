@@ -50,3 +50,6 @@
 "AboutInformativeText" = "It is a simple wrapper around corectl + CoreOS VM, which allows to control Kube-Cluster via Status Bar !!!";
 "DmgAlertMessage" = "Kube Cluster App cannot be started from DMG !!!";
 "DmgAlertInformativeText" = "Please copy the App e.g. to your Applications folder ...";
+"CorectlAppAlertMessage" = "Kube Cluster App cannot start !!!";
+"CorectlAppAlertInformativeText" = "corectl.app cannot be found in /Applications folder, the download link will be opened in your browser ...";
+"UpAppAlertMessage" = "Cannot start VM !!!";

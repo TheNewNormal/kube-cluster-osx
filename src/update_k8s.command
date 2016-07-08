@@ -11,9 +11,9 @@ source "${DIR}"/functions.sh
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get VMs IPs
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
-node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
-node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
+node1_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-01)
+node2_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-02)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
@@ -78,7 +78,7 @@ i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
-echo "Kubernetes nodes list:"
+echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #

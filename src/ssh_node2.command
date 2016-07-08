@@ -13,4 +13,4 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 # ssh into VM
-"${res_folder}"/bin/corectl ssh k8snode-02
+/usr/local/sbin/corectl ssh k8snode-02

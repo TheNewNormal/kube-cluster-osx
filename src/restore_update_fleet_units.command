@@ -10,9 +10,9 @@ source "${DIR}"/functions.sh
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get VMs IPs
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
-node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
-node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
+node1_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-01)
+node2_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-02)
 
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
@@ -38,7 +38,6 @@ echo "Destroying Kubernetes fleet units ..."
 ~/kube-cluster/bin/fleetctl destroy kube-apiserver.service
 ~/kube-cluster/bin/fleetctl destroy kube-controller-manager.service
 ~/kube-cluster/bin/fleetctl destroy kube-scheduler.service
-~/kube-cluster/bin/fleetctl destroy kube-apiproxy.service
 ~/kube-cluster/bin/fleetctl destroy kube-kubelet.service
 ~/kube-cluster/bin/fleetctl destroy kube-proxy.service
 echo " "
@@ -47,7 +46,6 @@ echo "Starting Kubernetes fleet units ..."
 ~/kube-cluster/bin/fleetctl start kube-apiserver.service
 ~/kube-cluster/bin/fleetctl start kube-controller-manager.service
 ~/kube-cluster/bin/fleetctl start kube-scheduler.service
-~/kube-cluster/bin/fleetctl start kube-apiproxy.service
 ~/kube-cluster/bin/fleetctl start kube-kubelet.service
 ~/kube-cluster/bin/fleetctl start kube-proxy.service
 #
@@ -70,7 +68,7 @@ until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; 
 echo " "
 #
 echo " "
-echo "Kubernetes nodes list:"
+echo "kubectl get nodes:"
 ~/kube-cluster/bin/kubectl get nodes
 echo " "
 #

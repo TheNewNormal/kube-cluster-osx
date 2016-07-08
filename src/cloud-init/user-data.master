@@ -7,13 +7,13 @@ coreos:
     reboot-strategy: off
   etcd2:
     name: k8smaster-01
-    initial-advertise-peer-urls: http://$private_ipv4:2380
     initial-cluster-token: k8s_etcd
-    initial-cluster: k8smaster-01=http://$private_ipv4:2380
     initial-cluster-state: new
-    listen-peer-urls: http://$private_ipv4:2380,http://$private_ipv4:7001
+    initial-advertise-peer-urls: http://k8smaster-01:2380
+    initial-cluster: k8smaster-01=http://k8smaster-01:2380
+    listen-peer-urls: http://k8smaster-01:2380,http://k8smaster-01:7001
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    advertise-client-urls: http://$private_ipv4:2379,http://$private_ipv4:4001
+    advertise-client-urls: http://k8smaster-01:2379,http://k8smaster-01:4001
   fleet:
     metadata: role=control
   units:
@@ -75,7 +75,7 @@ coreos:
         [Unit]
         Description=Binds /data/var/lib/etcd2 to /var/lib/etcd2
         After=persistent-data-checks.service
-        Requires=persistent-data-checks docker.service
+        Requires=persistent-data-checks docker.service etcd2.service
         Before=etcd2.service
         [Mount]
         What=/data/var/lib/etcd2
@@ -133,7 +133,7 @@ coreos:
           [Unit]
           Requires=etcd2.service
           [Service]
-          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network": "10.244.0.0/16", "SubnetLen": 24, "SubnetMin": "10.244.0.0", "Backend": {"Type": "vxlan"}}'
+          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network": "10.244.0.0/16", "SubnetLen": 24, "SubnetMin": "10.244.0.0", "Backend": {"Type": "udp"}}'
     - name: docker.service
       command: start
       drop-ins:
