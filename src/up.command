@@ -103,6 +103,7 @@ then
 else
     new_vm=1
 fi
+
 #
 if [ $new_vm = 1 ]
 then
@@ -125,11 +126,11 @@ spin='-\|/'
 i=1
 until curl -o /dev/null -sIf http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-01" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+#i=1
+#until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
 echo " "
 
@@ -137,8 +138,8 @@ if [ $new_vm = 1 ]
 then
     # attach label to the nodes
     echo " "
-    ~/kube-cluster/bin/kubectl label nodes $node1_vm_ip node=worker1
-    ~/kube-cluster/bin/kubectl label nodes $node2_vm_ip node=worker2
+    ~/kube-cluster/bin/kubectl label nodes k8snode-01 node=worker1
+    ~/kube-cluster/bin/kubectl label nodes k8snode-02 node=worker2
     # copy add-ons files
     cp "${res_folder}"/k8s/*.yaml ~/kube-cluster/kubernetes
     install_k8s_add_ons "$master_vm_ip"

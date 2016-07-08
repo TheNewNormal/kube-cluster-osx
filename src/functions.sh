@@ -23,7 +23,7 @@ if [[ "$CHECK_SERVER_STATUS" == "" ]]; then
 fi
 }
 
-#
+
 function check_internet_from_vm(){
 #
 status=$(/usr/local/sbin/corectl ssh k8smaster-01 "curl -s -I https://coreos.com 2>/dev/null | head -n 1 | cut -d' ' -f2")
@@ -43,6 +43,7 @@ else
     exit 1
 fi
 }
+
 
 function sshkey(){
 # add ssh key to *.toml files
@@ -206,9 +207,6 @@ fi
 /usr/local/sbin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
 # get master VM's IP
 master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
-# update nodes cloud-init files with master's IP
-/usr/bin/sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
-/usr/bin/sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
 #
 sleep 2
 #
@@ -375,9 +373,6 @@ for b in "${bins[@]}"; do
     curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
 done
 #
-# copy kube-apiproxy
-cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
-#
 chmod 755 ~/kube-cluster/tmp/*
 #
 curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > ~/kube-cluster/tmp/easy-rsa.tar.gz
@@ -456,8 +451,6 @@ for b in "${bins[@]}"; do
 done
 rm -f kubernetes.tar.gz
 rm -f kubernetes-server-linux-amd64.tar.gz
-# copy kube-apiproxy
-cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 #
 curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > easy-rsa.tar.gz
 #
@@ -481,7 +474,6 @@ fleetctl start fleet-ui.service
 fleetctl start kube-apiserver.service
 fleetctl start kube-controller-manager.service
 fleetctl start kube-scheduler.service
-fleetctl start kube-apiproxy.service
 fleetctl start kube-kubelet.service
 fleetctl start kube-proxy.service
 echo " "
@@ -540,9 +532,9 @@ echo " "
 function install_k8s_add_ons {
 echo " "
 echo "Creating kube-system namespace ..."
-~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kube-system-ns.yaml
+~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kube-system-ns.yaml > /dev/null 2>&1
 #
-/usr/bin/sed -i "" "s/_MASTER_IP_/$1/" ~/kube-cluster/kubernetes/skydns-rc.yaml
+#/usr/bin/sed -i "" "s/_MASTER_IP_/$1/" ~/kube-cluster/kubernetes/skydns-rc.yaml
 echo " "
 echo "Installing SkyDNS ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/skydns-rc.yaml

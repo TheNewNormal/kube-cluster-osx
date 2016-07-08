@@ -9,41 +9,14 @@ coreos:
     name: k8smaster-01
     initial-cluster-token: k8s_etcd
     initial-cluster-state: new
+    initial-advertise-peer-urls: http://k8smaster-01:2380
+    initial-cluster: k8smaster-01=http://k8smaster-01:2380
+    listen-peer-urls: http://k8smaster-01:2380,http://k8smaster-01:7001
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    advertise-client-urls: http://k8smaster-01:2379,http://k8smaster-01:4001
   fleet:
     metadata: role=control
   units:
-    - name: etcd2-environment.service
-      command: start
-      content: |
-        [Unit]
-          Description=passes to etcd the properly setup initialization env vars
-          Requires=phone-home.service
-          Requires=etcd2.service
-          After=phone-home.service
-          Before=etcd2.service
-        [Service]
-          Type=oneshot
-          RemainAfterExit=yes
-          StandardOutput=journal+console
-          EnvironmentFile=/etc/environment
-          ExecStart=/bin/bash -c "echo \"ETCD_ADVERTISE_CLIENT_URLS=http://${COREOS_PRIVATE_IPV4}:2379,http://${COREOS_PRIVATE_IPV4}:4001\" > /etc/etcd2.environment"
-          ExecStart=/bin/bash -c "echo \"ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${COREOS_PRIVATE_IPV4}:2380\" >> /etc/etcd2.environment"
-          ExecStart=/bin/bash -c "echo \"ETCD_INITIAL_CLUSTER=k8smaster-01=http://${COREOS_PRIVATE_IPV4}:2380\" >> /etc/etcd2.environment"
-          ExecStart=/bin/bash -c "echo \"ETCD_LISTEN_PEER_URLS=http://${COREOS_PRIVATE_IPV4}:2380,http://${COREOS_PRIVATE_IPV4}:7001\" >> /etc/etcd2.environment"
-          ExecStart=/bin/bash -c "echo \"ETCD_DATA_DIR=/var/lib/etcd2\" >> /etc/etcd2.environment"
-        [Install]
-          RequiredBy=etcd2.service
-    - name: etcd2.service
-      command: start
-      drop-ins:
-      - name: 50-etc-env-vars.conf
-        content: |
-          [Service]
-            EnvironmentFile=/etc/etcd2.environment
-          [Unit]
-            Requires=etcd2-environment.service
-            After=etcd2-environment.service
     - name: docker-tcp.socket
       command: start
       enable: true

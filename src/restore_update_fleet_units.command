@@ -38,7 +38,6 @@ echo "Destroying Kubernetes fleet units ..."
 ~/kube-cluster/bin/fleetctl destroy kube-apiserver.service
 ~/kube-cluster/bin/fleetctl destroy kube-controller-manager.service
 ~/kube-cluster/bin/fleetctl destroy kube-scheduler.service
-~/kube-cluster/bin/fleetctl destroy kube-apiproxy.service
 ~/kube-cluster/bin/fleetctl destroy kube-kubelet.service
 ~/kube-cluster/bin/fleetctl destroy kube-proxy.service
 echo " "
@@ -47,7 +46,6 @@ echo "Starting Kubernetes fleet units ..."
 ~/kube-cluster/bin/fleetctl start kube-apiserver.service
 ~/kube-cluster/bin/fleetctl start kube-controller-manager.service
 ~/kube-cluster/bin/fleetctl start kube-scheduler.service
-~/kube-cluster/bin/fleetctl start kube-apiproxy.service
 ~/kube-cluster/bin/fleetctl start kube-kubelet.service
 ~/kube-cluster/bin/fleetctl start kube-proxy.service
 #

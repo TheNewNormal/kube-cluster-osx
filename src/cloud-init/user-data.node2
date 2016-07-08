@@ -8,7 +8,7 @@ coreos:
   etcd2:
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
     advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    initial-cluster: k8smaster-01=http://_MASTER_IP_:2380
+    initial-cluster: k8smaster-01=http://k8smaster-01:2380
     proxy: on
   fleet:
     metadata: role=node
