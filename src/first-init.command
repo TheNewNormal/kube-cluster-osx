@@ -24,10 +24,6 @@ if ! ssh-add -l | grep -q ssh/id_rsa; then
     ssh-add -K ~/.ssh/id_rsa &>/dev/null
 fi
 
-# save user's password to Keychain
-save_password
-#
-
 # Set release channel
 release_channel
 
@@ -36,11 +32,6 @@ change_nodes_ram
 
 # create Data disk
 create_data_disk
-
-# get password for sudo
-my_password=$(security find-generic-password -wa kube-cluster-app)
-# reset sudo
-sudo -k > /dev/null 2>&1
 
 # start cluster VMs
 start_vms
@@ -95,6 +86,7 @@ echo Generating kubeconfig file ...
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
 #
+echo "  "
 echo "Waiting for Kubernetes cluster to be ready. This can take a few minutes..."
 spin='-\|/'
 i=1
@@ -102,19 +94,20 @@ until curl -o /dev/null http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $node1_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-01" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep $node2_vm_ip >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-i=1
-until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+#i=1
+#until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
 install_k8s_add_ons "$master_vm_ip"
 #
 # attach label to the nodes
-~/kube-cluster/bin/kubectl label nodes $node1_vm_ip node=worker1
-~/kube-cluster/bin/kubectl label nodes $node2_vm_ip node=worker2
+~/kube-cluster/bin/kubectl label nodes k8snode-01 node=worker1
+~/kube-cluster/bin/kubectl label nodes k8snode-02 node=worker2
 #
+echo "  "
 echo "fleetctl list-machines:"
 fleetctl list-machines
 echo " "

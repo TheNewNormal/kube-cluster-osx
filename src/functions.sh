@@ -9,9 +9,24 @@ function pause(){
     read -p "$*"
 }
 
+
+function check_corectld_server() {
+# check corectld server
+#
+CHECK_SERVER_STATUS=$(/usr/local/sbin/corectld status 2>&1 | grep "Uptime:")
+if [[ "$CHECK_SERVER_STATUS" == "" ]]; then
+    open -a /Applications/corectl.app
+fi
+
+if [[ "$CHECK_SERVER_STATUS" == "" ]]; then
+    sleep 3
+fi
+}
+
+
 function check_internet_from_vm(){
 #
-status=$(corectl ssh k8smaster-01 "curl -s -I https://coreos.com 2>/dev/null | head -n 1 | cut -d' ' -f2")
+status=$(/usr/local/sbin/corectl ssh k8smaster-01 "curl -s -I https://coreos.com 2>/dev/null | head -n 1 | cut -d' ' -f2")
 
 if [[ $(echo "${status//[$'\t\r\n ']}") = "200" ]]; then
     echo "Yes, internet is available ..."
@@ -28,6 +43,7 @@ else
     exit 1
 fi
 }
+
 
 function sshkey(){
 # add ssh key to *.toml files
@@ -168,18 +184,13 @@ fi
 
 
 function start_vms() {
-# get password for sudo
-my_password=$(security find-generic-password -wa kube-cluster-app)
-# reset sudo
-sudo -k > /dev/null 2>&1
 
 # Start VMs
 cd ~/kube-cluster
 echo " "
 echo "Starting k8smaster-01 VM ..."
-printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 #
-sudo "${res_folder}"/bin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/master_vm_up.log
+/usr/local/sbin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/master_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/master_vm_up.log | grep "started")
 #
 if [[ "$CHECK_VM_STATUS" == "" ]]; then
@@ -192,23 +203,17 @@ else
     echo "Master VM successfully started !!!" >> ~/kube-cluster/logs/master_vm_up.log
 fi
 
-# check if /Users/homefolder is mounted, if not mount it
-"${res_folder}"/bin/corectl ssh k8smaster-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 # save master VM's IP
-"${res_folder}"/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
+/usr/local/sbin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
 # get master VM's IP
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
-# update nodes cloud-init files with master's IP
-/usr/bin/sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node1
-/usr/bin/sed -i "" "s/_MASTER_IP_/$master_vm_ip/" ~/kube-cluster/cloud-init/user-data.node2
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
 #
 sleep 2
 #
 echo " "
 echo "Starting k8snode-01 VM ..."
-printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 #
-sudo "${res_folder}"/bin/corectl load settings/k8snode-01.toml 2>&1 | tee ~/kube-cluster/logs/node1_vm_up.log
+/usr/local/sbin/corectl load settings/k8snode-01.toml 2>&1 | tee ~/kube-cluster/logs/node1_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/node1_vm_up.log | grep "started")
 #
 if [[ "$CHECK_VM_STATUS" == "" ]]; then
@@ -221,18 +226,17 @@ else
     echo "Node1 VM successfully started !!!" >> ~/kube-cluster/logs/node1_vm_up.log
 fi
 # check if /Users/homefolder is mounted, if not mount it
-"${res_folder}"/bin/corectl ssh k8snode-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
+/usr/local/sbin/corectl ssh k8snode-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 echo " "
 # save node1 VM's IP
-"${res_folder}"/bin/corectl q -i k8snode-01 | tr -d "\n" > ~/kube-cluster/.env/node1_ip_address
+/usr/local/sbin/corectl q -i k8snode-01 | tr -d "\n" > ~/kube-cluster/.env/node1_ip_address
 # get node1 VM's IP
-node1_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-01)
+node1_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-01)
 #
 #
 echo "Starting k8snode-02 VM ..."
-printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
 #
-sudo "${res_folder}"/bin/corectl load settings/k8snode-02.toml 2>&1 | tee ~/kube-cluster/logs/node2_vm_up.log
+/usr/local/sbin/corectl load settings/k8snode-02.toml 2>&1 | tee ~/kube-cluster/logs/node2_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/node2_vm_up.log | grep "started")
 #
 if [[ "$CHECK_VM_STATUS" == "" ]]; then
@@ -244,13 +248,11 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
 else
     echo "Node2 VM successfully started !!!" >> ~/kube-cluster/logs/node2_vm_up.log
 fi
-# check if /Users/homefolder is mounted, if not mount it
-"${res_folder}"/bin/corectl ssh k8snode-02 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 echo " "
 # save node2 VM's IP
-"${res_folder}"/bin/corectl q -i k8snode-02 | tr -d "\n" > ~/kube-cluster/.env/node2_ip_address
+/usr/local/sbin/corectl q -i k8snode-02 | tr -d "\n" > ~/kube-cluster/.env/node2_ip_address
 # get node2 VM's IP
-node2_vm_ip=$("${res_folder}"/bin/corectl q -i k8snode-02)
+node2_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-02)
 
 }
 
@@ -260,22 +262,19 @@ echo "Stopping VMs ..."
 echo " "
 echo "Stopping k8smaster-01 VM ..."
 # send halt to VM
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-sudo "${res_folder}"/bin/corectl halt k8smaster-01
+/usr/local/sbin/corectl halt k8smaster-01
 sleep 1
 #
 echo " "
 echo "Stopping k8snode-01 VM ..."
 # send halt to VM
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-sudo "${res_folder}"/bin/corectl halt k8snode-01
+/usr/local/sbin/corectl halt k8snode-01
 sleep 1
 #
 echo " "
 echo "Stopping k8snode-02 VM ..."
 # send halt to VM
-echo -e "$my_password\n" | sudo -Sv > /dev/null 2>&1
-sudo "${res_folder}"/bin/corectl halt k8snode-02
+/usr/local/sbin/corectl halt k8snode-02
 sleep 1
 
 }
@@ -283,7 +282,7 @@ sleep 1
 
 function download_osx_clients() {
 # download fleetctl file
-FLEETCTL_VERSION=$("${res_folder}"/bin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
+FLEETCTL_VERSION=$(/usr/local/sbin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
 FILE=fleetctl
 if [ ! -f ~/kube-cluster/bin/$FILE ]; then
     cd ~/kube-cluster/bin
@@ -374,9 +373,6 @@ for b in "${bins[@]}"; do
     curl -k -L https://storage.googleapis.com/kubernetes-release/release/$K8S_VERSION/bin/linux/amd64/$b > ~/kube-cluster/tmp/$b
 done
 #
-# copy kube-apiproxy
-cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
-#
 chmod 755 ~/kube-cluster/tmp/*
 #
 curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > ~/kube-cluster/tmp/easy-rsa.tar.gz
@@ -455,8 +451,6 @@ for b in "${bins[@]}"; do
 done
 rm -f kubernetes.tar.gz
 rm -f kubernetes-server-linux-amd64.tar.gz
-# copy kube-apiproxy
-cp -f "${res_folder}"/k8s/kube-apiproxy ~/kube-cluster/tmp
 #
 curl -L https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz > easy-rsa.tar.gz
 #
@@ -480,7 +474,6 @@ fleetctl start fleet-ui.service
 fleetctl start kube-apiserver.service
 fleetctl start kube-controller-manager.service
 fleetctl start kube-scheduler.service
-fleetctl start kube-apiproxy.service
 fleetctl start kube-kubelet.service
 fleetctl start kube-proxy.service
 echo " "
@@ -496,7 +489,7 @@ function install_k8s_files {
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get master VM's IP
-master_vm_ip=$("${res_folder}"/bin/corectl q -i k8smaster-01)
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
 
 # check if file ~/kube-cluster/kube/kube.tgz exists
 if [ ! -f ~/kube-cluster/kube/kube.tgz ]
@@ -514,23 +507,23 @@ echo "Installing Kubernetes files on to VMs..."
 echo " "
 cd ~/kube-cluster/kube
 echo "Installing into k8smaster-01..."
-"${res_folder}"/bin/corectl scp kube.tgz k8smaster-01:/home/core/
-"${res_folder}"/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-"${res_folder}"/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+/usr/local/sbin/corectl scp kube.tgz k8smaster-01:/home/core/
+/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8smaster-01 "
 echo " "
 #
 echo "Installing into k8snode-01..."
-"${res_folder}"/bin/corectl scp kube.tgz k8snode-01:/home/core/
-"${res_folder}"/bin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-"${res_folder}"/bin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+/usr/local/sbin/corectl scp kube.tgz k8snode-01:/home/core/
+/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8snode-01 "
 echo " "
 #
 echo "Installing into k8snode-02..."
-"${res_folder}"/bin/corectl scp kube.tgz k8snode-02:/home/core/
-"${res_folder}"/bin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-"${res_folder}"/bin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+/usr/local/sbin/corectl scp kube.tgz k8snode-02:/home/core/
+/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
+/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8snode-02 "
 echo " "
 }
@@ -539,9 +532,9 @@ echo " "
 function install_k8s_add_ons {
 echo " "
 echo "Creating kube-system namespace ..."
-~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kube-system-ns.yaml
+~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kube-system-ns.yaml > /dev/null 2>&1
 #
-/usr/bin/sed -i "" "s/_MASTER_IP_/$1/" ~/kube-cluster/kubernetes/skydns-rc.yaml
+#/usr/bin/sed -i "" "s/_MASTER_IP_/$1/" ~/kube-cluster/kubernetes/skydns-rc.yaml
 echo " "
 echo "Installing SkyDNS ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/skydns-rc.yaml
@@ -567,43 +560,6 @@ echo " "
 }
 
 
-function save_password {
-# save user's password to Keychain
-echo "  "
-echo "Your Mac user's password will be saved in to 'Keychain' "
-echo "and later one used for 'sudo' command to start VM !!!"
-echo " "
-echo "This is not the password to access VMs via ssh or console !!!"
-echo " "
-echo "Please type your Mac user's password followed by [ENTER]:"
-read -s -r my_password
-passwd_ok=0
-
-# check if sudo password is correct
-while [ ! $passwd_ok = 1 ]
-do
-    # reset sudo
-    sudo -k
-    # check sudo
-    printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
-    CAN_I_RUN_SUDO=$(sudo -n uptime 2>&1|grep "load"|wc -l)
-    if [ ${CAN_I_RUN_SUDO} -gt 0 ]
-    then
-        echo "The sudo password is fine !!!"
-        echo " "
-        passwd_ok=1
-    else
-        echo " "
-        echo "The password you entered does not match your Mac user password !!!"
-        echo "Please type your Mac user's password followed by [ENTER]:"
-        read -s -r my_password
-    fi
-done
-
-security add-generic-password -a kube-cluster-app -s kube-cluster-app -w $my_password -U
-}
-
-
 function clean_up_after_vm {
 sleep 1
 
@@ -616,19 +572,12 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 # get App's Resources folder
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
-# get password for sudo
-my_password=$(security find-generic-password -wa kube-cluster-app)
-# reset sudo
-sudo -k
-# enable sudo
-printf '%s\n' "$my_password" | sudo -Sv > /dev/null 2>&1
-
 # send halt to VMs
-sudo "${res_folder}"/bin/corectl halt k8snode-01
+/usr/local/sbin/corectl halt k8snode-01
 sleep 1
-sudo "${res_folder}"/bin/corectl halt k8snode-02
+/usr/local/sbin/corectl halt k8snode-02
 sleep 1
-sudo "${res_folder}"/bin/corectl halt k8smaster-01
+/usr/local/sbin/corectl halt k8smaster-01
 
 # kill all other scripts
 pkill -f [K]ube-Solo.app/Contents/Resources/fetch_latest_iso.command

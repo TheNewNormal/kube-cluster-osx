@@ -11,13 +11,8 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 # path to the bin folder where we store our binary files
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
-# get password for sudo
-my_password=$(security find-generic-password -wa kube-cluster-app)
-# reset sudo
-sudo -k
-
 # check if k8s files are on master VM
-if "${res_folder}"/bin/corectl ssh k8smaster-01 '[ ! -f /opt/bin/kube-apiserver ]' &> /dev/null
+if /usr/local/sbin/corectl ssh k8smaster-01 '[ ! -f /opt/bin/kube-apiserver ]' &> /dev/null
 then
     echo " "
     stop_vms
@@ -36,6 +31,9 @@ echo " "
 stop_vms
 #
 sleep 2
+
+# check corectld server
+check_corectld_server
 
 ### Start cluster VMs
 start_vms
