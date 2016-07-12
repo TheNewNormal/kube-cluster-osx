@@ -13,6 +13,6 @@ release_channel
 #
 echo " "
 echo "CoreOS release channel was updated to '$channel' !!!"
-echo "You need to reload your VMs if they are running or on next VMs' boot new '$channel' ISO will be used ..."
+echo "You need to reboot your VMs if they are running or on next VMs' boot new '$channel' ISO will be used ..."
 echo " "
 pause 'Press [Enter] key to continue...'
