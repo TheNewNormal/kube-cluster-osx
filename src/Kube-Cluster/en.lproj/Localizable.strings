@@ -17,7 +17,6 @@
 "VMStateWillStop" = "VMs will be stopped";
 "VMStateStopping" = "VMs are stopping !!!";
 "VMStateOff" = "VMs are OFF !!!";
-"VMStateWillReload" = "VMs will be reloaded";
 "VMStateStopped" = "VMs are stopped";
 "VMStateRunning" = "VMs are running";
 "VMStateWillDestroy" = "VMs will be destroyed";
@@ -25,7 +24,6 @@
 // Notification Messages
 
 "ClientsWillBeUpdatedNotificationMessage" = "macOS clients will be updated";
-"ISOImageWillBeUpdatedNotificationMessage" = "CoreOS ISO image will be updated";
 "ReleaseChannelChangeNotificationMessage" = "CoreOS release channel change";
 "SudoPasswordChangeNotificationMessage" = "sudo password change";
 "SSHShellWillOpenNotificationMessage" = "VM's ssh shell will be opened";
@@ -53,3 +51,8 @@
 "CorectlAppAlertMessage" = "Kube Cluster App cannot start !!!";
 "CorectlAppAlertInformativeText" = "corectl.app cannot be found in /Applications folder, the download link will be opened in your browser ...";
 "UpAppAlertMessage" = "Cannot start VM !!!";
+"AppUpdateMessage" = "There is a new Kube-Cluster App version available !!!";
+"AppUpdatenformativeText" = "The download link will be opened in your browser ...";
+"NoAppUpdateMessage" = "Kube-Cluster for macOS";
+"NoAppUpdatenformativeText" = "You are-up-to-date !!!";
+

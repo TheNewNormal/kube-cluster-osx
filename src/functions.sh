@@ -225,8 +225,6 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
 else
     echo "Node1 VM successfully started !!!" >> ~/kube-cluster/logs/node1_vm_up.log
 fi
-# check if /Users/homefolder is mounted, if not mount it
-/usr/local/sbin/corectl ssh k8snode-01 'source /etc/environment; if df -h | grep ${HOMEDIR}; then echo 0; else sudo systemctl restart ${HOMEDIR}; fi' > /dev/null 2>&1
 echo " "
 # save node1 VM's IP
 /usr/local/sbin/corectl q -i k8snode-01 | tr -d "\n" > ~/kube-cluster/.env/node1_ip_address
