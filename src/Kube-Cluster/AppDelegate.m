@@ -27,6 +27,10 @@
     (self.statusItem).menu = self.statusMenu;
     (self.statusItem).image = [NSImage imageNamed:@"StatusItemIcon"];
     [self.statusItem setHighlightMode:YES];
+    
+    //check for latest app version and notify user if there is such one
+    NSString *popup = [[NSString alloc] init];
+    [self checkAppVersionGithub:popup = @"no"];
 
     // get resourcePath
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
@@ -185,20 +189,6 @@
     }
 }
 
-- (IBAction)Restart:(id)sender {
-    VMStatus vmStatus = [self.vmManager checkVMStatus];
-
-    switch (vmStatus) {
-        case VMStatusDown:
-            [self notifyUserWithText:NSLocalizedString(@"VMStateOff", nil)];
-            break;
-
-        case VMStatusUp:
-            [self notifyUserWithText:NSLocalizedString(@"VMStateWillReload", nil)];
-            [self.vmManager reload];
-            break;
-    }
-}
 
 - (IBAction)update_k8s:(id)sender {
     VMStatus vmStatus = [self.vmManager checkVMStatus];
@@ -228,6 +218,14 @@
             break;
     }
 }
+
+
+- (IBAction)checkForAppUpdates:(id)sender {
+    
+    NSString *popup = [[NSString alloc] init];
+    [self checkAppVersionGithub:popup = @"yes"];
+}
+
 
 - (IBAction)updates:(id)sender {
     VMStatus vmStatus = [self.vmManager checkVMStatus];
@@ -459,6 +457,40 @@
     [self notifyUserWithTitle:NSLocalizedString(@"QuittingNotificationTitle", nil) text:nil];
 
     [[NSApplication sharedApplication] terminate:self];
+}
+
+
+#pragma mark - App update check
+- (void)checkAppVersionGithub:(NSString*)popup {
+    // get App's current version'
+    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    NSString *app_version = [NSString stringWithFormat:@"%@%@", @"v", version];
+    NSLog (@"Installed App version:\n%@", app_version);
+    
+    // get lates github version
+    NSString *githubVersion = [self.vmManager getAppVersionGithub];
+    
+    if (app_version == githubVersion) {
+        if ([popup  isEqual: @"yes"]) {
+            // show alert message
+            NSString *message = [NSString stringWithFormat:NSLocalizedString(@"NoAppUpdateMessage", nil)];
+            NSString *infoText = NSLocalizedString(@"NoAppUpdatenformativeText", nil);
+            [self alertWithMessage:message infoText:infoText];
+        }
+        else {
+            NSLog (@"App is up-to-date!!!");
+        }
+    }
+    else {
+        // show alert message
+        NSString *message = [NSString stringWithFormat:NSLocalizedString(@"AppUpdateMessage", nil)];
+        NSString *infoText = NSLocalizedString(@"AppUpdatenformativeText", nil);
+        [self alertWithMessage:message infoText:infoText];
+        
+        // open kube-cluster.app releases URL
+        NSString *url = [NSString stringWithFormat:@"https://github.com/TheNewNormal/kube-cluster-osx/releases"];
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
+    }
 }
 
 #pragma mark - NSUserNotificationCenterDelegate

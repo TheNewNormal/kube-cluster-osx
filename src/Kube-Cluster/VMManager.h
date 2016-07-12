@@ -19,7 +19,6 @@ typedef NS_ENUM(NSInteger, VMStatus) {
 - (void)start;
 - (void)halt;
 - (void)kill;
-- (void)reload;
 - (void)updateKubernetes;
 - (void)updateKubernetesVersion;
 - (void)updateClients;
@@ -32,5 +31,6 @@ typedef NS_ENUM(NSInteger, VMStatus) {
 - (void)runSSHMaster;
 - (void)runSSHNode1;
 - (void)runSSHNode2;
+- (NSString*)getAppVersionGithub;
 
 @end
