@@ -52,14 +52,44 @@ fi
 # start cluster VMs
 start_vms
 
-# generate kubeconfig file
-if [ ! -f $HOME/kube-cluster/kube/kubeconfig ]; then
-    echo Generating kubeconfig file ...
-    "${res_folder}"/bin/gen_kubeconfig $master_vm_ip
-    echo " "
-fi
+# get master VM's IP
+master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
 
-# Set the environment variables
+### Run some checks
+# check if k8s files are on master VM
+if /usr/local/sbin/corectl ssh k8smaster-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
+then
+    new_vm=0
+else
+    new_vm=1
+fi
+# check if k8s files are on node1 VM
+if /usr/local/sbin/corectl ssh k8snode-01 '[ -f /opt/bin/kubelet ]' &> /dev/null
+then
+    new_vm=0
+else
+    new_vm=1
+fi
+# check if k8s files are on node2 VM
+if /usr/local/sbin/corectl ssh k8snode-02 '[ -f /opt/bin/kubelet ]' &> /dev/null
+then
+    new_vm=0
+else
+    new_vm=1
+fi
+#
+
+# if the new setup check for internet connection from the master
+if [ $new_vm = 1 ]
+then
+    echo " "
+    echo "Checking internet availablity on master VM..."
+    check_internet_from_vm
+fi
+#
+### done with checks
+
+# Set the shell environment variables
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
 # wait till etcd is ready
@@ -83,43 +113,25 @@ sleep 3
 echo "fleetctl list-machines:"
 fleetctl list-machines
 #
-# check if k8s files are on master VM
-if /usr/local/sbin/corectl ssh k8smaster-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
-then
-    new_vm=0
-else
-    new_vm=1
-fi
-#
-# check if k8s files are on node1 VM
-if /usr/local/sbin/corectl ssh k8snode-01 '[ -f /opt/bin/kubelet ]' &> /dev/null
-then
-    new_vm=0
-else
-    new_vm=1
-fi
-#
-# check if k8s files are on node2 VM
-if /usr/local/sbin/corectl ssh k8snode-02 '[ -f /opt/bin/kubelet ]' &> /dev/null
-then
-    new_vm=0
-else
-    new_vm=1
-fi
 
 #
 if [ $new_vm = 1 ]
 then
-    # check internet from VM
-    echo " "
-    echo "Checking internet availablity on master VM..."
-    check_internet_from_vm
-    #
+    # copy k8s files to VMS
     install_k8s_files
     #
     echo "  "
     deploy_fleet_units
 fi
+#
+
+# generate kubeconfig file
+if [ ! -f $HOME/kube-cluster/kube/kubeconfig ]; then
+    echo Generating kubeconfig file ...
+    "${res_folder}"/bin/gen_kubeconfig $master_vm_ip
+    echo " "
+fi
+#
 
 echo " "
 # set kubernetes master
@@ -132,8 +144,6 @@ i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-01" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-#i=1
-#until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
 echo " "
 
