@@ -10,6 +10,33 @@ function pause(){
 }
 
 
+function check_iso_offline_setting() {
+# check if offline setting is present in setting files
+
+# master
+check=$(cat ~/kube-cluster/settings/k8smaster-01.toml | grep "offline" )
+if [[ "${check}" = "" ]]
+then
+    echo '   offline = "true"' >> ~/kube-cluster/settings/k8smaster-01.toml
+fi
+
+# node 1
+check=$(cat ~/kube-cluster/settings/k8snode-01.toml | grep "offline" )
+if [[ "${check}" = "" ]]
+then
+    echo '   offline = "true"' >> ~/kube-cluster/settings/k8snode-01.toml
+fi
+
+# node 2
+check=$(cat ~/kube-cluster/settings/k8snode-02.toml | grep "offline" )
+if [[ "${check}" = "" ]]
+then
+    echo '   offline = "true"' >> ~/kube-cluster/settings/k8snode-02.toml
+fi
+
+}
+
+
 function check_corectld_server() {
 # check corectld server
 #
