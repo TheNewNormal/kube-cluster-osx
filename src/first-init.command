@@ -97,8 +97,6 @@ i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-01" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
-#i=1
-#until ~/kube-cluster/bin/kubectl get nodes | grep -w [R]eady >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 echo " "
 #
 install_k8s_add_ons "$master_vm_ip"
