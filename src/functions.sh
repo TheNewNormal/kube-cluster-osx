@@ -59,12 +59,13 @@ if [[ $(echo "${status//[$'\t\r\n ']}") = "200" ]]; then
     echo "Yes, internet is available ..."
 else
     echo "There is no internet access from the k8smaster-01 VM !!!"
-    echo "That also means could be the same issue on nodes as well."
+    echo "This also means that could be the same issue on the nodes as well."
     echo " "
-    echo "Please check you Mac's firewall, network setup and fix the problem. "
+    echo "Please check you Mac's firewall, network setup, stop dnsmasq (if you have installed such)"
+    echo "and try to fix the problem !!! "
     echo " "
     echo "k8smaster-01 and node VMs are still running, so you can troubleshoot the network problem "
-    echo "and when you done just 'Halt' and 'Up' via menu and the installation will continue ... "
+    echo "and when you done fixing it, just 'Halt' and 'Up' via menu and the installation will continue ... "
     echo " "
     pause 'Press [Enter] key to abort installation ...'
     exit 1
@@ -80,10 +81,10 @@ file="$HOME/.ssh/id_rsa.pub"
 
 while [ ! -f "$file" ]
 do
-echo " "
-echo "$file not found."
-echo "please run 'ssh-keygen -t rsa' before you continue !!!"
-pause 'Press [Enter] key to continue...'
+    echo " "
+    echo "$file not found."
+    echo "please run 'ssh-keygen -t rsa' before you continue !!!"
+    pause 'Press [Enter] key to continue...'
 done
 
 echo " "
