@@ -1,0 +1,179 @@
+#cloud-config
+
+coreos:
+  update:
+    reboot-strategy: off
+  etcd2:
+    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    initial-cluster: k8smaster-01=http://k8smaster-01:2380
+    proxy: on
+  fleet:
+    metadata: role=node
+  units:
+    - name: docker-tcp.socket
+      command: start
+      enable: true
+      content: |
+        [Unit]
+        Description=Docker Socket for the API
+
+        [Socket]
+        ListenStream=2375
+        BindIPv6Only=both
+        Service=docker.service
+
+        [Install]
+        WantedBy=sockets.target
+    - name: format-persistent-disk.service
+      command: start
+      content: |
+        [Unit]
+        Description=Formats the persistent drive (if not formated yet)
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/sh -c '/usr/sbin/blkid -pi /dev/vda | grep TYPE= || /usr/sbin/mkfs.ext4 -i 8192 -L k8s_data /dev/vda'
+    - name: data.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mounts ephemeral to /data
+        Requires=format-persistent-disk.service etcd2.service fleet.service docker.service rkt-metadata.socket
+        After=format-persistent-disk.service
+        Before=etcd2.service fleet.service docker.service rkt-metadata.socket
+        [Mount]
+        What=/dev/vda
+        Where=/data
+        Type=ext4
+    - name: persistent-data-checks.service
+      command: start
+      content: |
+        [Unit]
+        Description=prepare for etcd,docker,rkt,opt
+        Requires=data.mount
+        After=data.mount
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/sh -c '[[ -d /data/var/lib/etcd2 ]] || mkdir -p /data/var/lib/etcd2 && /usr/bin/chown etcd:etcd /data/var/lib/etcd2'
+        ExecStart=/bin/sh -c '/usr/bin/chown etcd:etcd /data/var/lib/etcd2'
+        ExecStart=/bin/sh -c '[[ -d /data/var/lib/docker ]] || mkdir -p /data/var/lib/docker'
+        ExecStart=/bin/sh -c '[[ -d /data/var/lib/rkt ]] || mkdir -p /data/var/lib/rkt && /usr/bin/chown root:rkt /data/var/lib/rkt && /usr/bin/chmod g+s /data/var/lib/rkt'
+        ExecStart=/bin/sh -c '/usr/bin/chown root:rkt /data/var/lib/rkt && /usr/bin/chmod g+s /data/var/lib/rkt'
+        ExecStart=/bin/sh -c '[[ -d /data/opt/bin ]] || mkdir -p /data/opt/bin'
+        ExecStart=/bin/sh -c '[[ -d /data/kubelet ]] || mkdir -p /data/kubelet'
+        ExecStart=/bin/sh -c '[[ -d /data/mnt ]] || mkdir -p /data/mnt'
+    - name: var-lib-etcd2.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Binds /data/var/lib/etcd2 to /var/lib/etcd2
+        After=persistent-data-checks.service
+        Requires=persistent-data-checks docker.service etcd2.service
+        Before=etcd2.service
+        [Mount]
+        What=/data/var/lib/etcd2
+        Where=/var/lib/etcd2
+        Type=none
+        Options=bind
+    - name: var-lib-docker.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Binds /data/var/lib/docker to /var/lib/docker
+        After=persistent-data-checks.service
+        Requires=persistent-data-checks docker.service
+        Before=docker.service
+        [Mount]
+        What=/data/var/lib/docker
+        Where=/var/lib/docker
+        Type=none
+        Options=bind
+    - name: var-lib-rkt.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Binds /data/var/lib/rkt to /var/lib/rkt
+        Requires=persistent-data-checks.service rkt-metadata.socket
+        After=persistent-data-checks.service
+        Before=rkt-metadata.socket
+        [Mount]
+        What=/data/var/lib/rkt
+        Where=/var/lib/rkt
+        Type=none
+        Options=bind
+    - name: opt-bin.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Binds /data/opt/bin to /opt/bin
+        Requires=persistent-data-checks.service
+        After=persistent-data-checks.service
+        Before=docker.service rkt-metadata.socket
+        [Mount]
+        What=/data/opt/bin
+        Where=/opt/bin
+        Type=none
+        Options=bind
+    - name: var-lib-kubelet.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Binds /data/kubelet to /var/lib/kubelet
+        Requires=persistent-data-checks.service
+        After=persistent-data-checks.service
+        Before=docker.service rkt-metadata.socket
+        [Mount]
+        What=/data/kubelet
+        Where=/var/lib/kubelet
+        Type=none
+        Options=bind
+    - name: mnt.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Binds /data/mnt to /mnt
+        Requires=persistent-data-checks.service
+        After=persistent-data-checks.service
+        Before=docker.service rkt-metadata.socket
+        [Mount]
+        What=/data/mnt
+        Where=/mnt
+        Type=none
+        Options=bind
+    - name: etcd2.service
+      command: start
+    - name: fleet.service
+      command: start
+    - name: flanneld.service
+      command: start
+      drop-ins:
+      - name: 50-network-config.conf
+        content: |
+          [Unit]
+          Requires=etcd2.service
+          [Service]
+          ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network": "10.244.0.0/16", "SubnetLen": 24, "SubnetMin": "10.244.0.0", "Backend": {"Type": "udp"}}'
+    - name: docker.service
+      command: start
+      drop-ins:
+        - name: 50-insecure-registry.conf
+          content: |
+            [Unit]
+            Requires=flanneld.service
+            [Service]
+            Environment=DOCKER_OPTS='--insecure-registry="0.0.0.0/0"'
+    - name: update-engine.service
+      command: stop
+write_files:
+ - path: /opt/sbin/wupiao
+   permissions: '0755'
+   content: |
+      #!/bin/bash
+      # [w]ait [u]ntil [p]ort [i]s [a]ctually [o]pen
+      [ -n "$1" ] && \
+        until curl -o /dev/null -sIf http://${1}; do \
+          sleep 1 && echo .;
+        done;
+      exit $?

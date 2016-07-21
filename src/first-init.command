@@ -49,18 +49,16 @@ install_k8s_files
 download_osx_clients
 #
 
-# run helmc for the first time
-helmc up
-
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
 
 # wait till etcd service is ready
-echo " "
+echo "--------"
 echo "Waiting for etcd service to be ready on master VM..."
 spin='-\|/'
 i=1
 until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+echo "..."
 echo " "
 
 # set fleetctl endpoint and install fleet units
@@ -76,7 +74,7 @@ echo " "
 deploy_fleet_units
 #
 
-sleep 2
+sleep 3
 
 # generate kubeconfig file
 echo Generating kubeconfig file ...
@@ -93,10 +91,14 @@ i=1
 until curl -o /dev/null http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl version | grep 'Server Version' >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\b${spin:i++%${#sp}:1}"; sleep .1; done
+echo "..."
+echo " "
+echo "Waiting for Kubernetes nodes to be ready. This can take a bit..."
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-01" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+echo "..."
 echo " "
 #
 install_k8s_add_ons "$master_vm_ip"
@@ -104,6 +106,9 @@ install_k8s_add_ons "$master_vm_ip"
 # attach label to the nodes
 ~/kube-cluster/bin/kubectl label nodes k8snode-01 node=worker1
 ~/kube-cluster/bin/kubectl label nodes k8snode-02 node=worker2
+#
+# remove unfinished_setup file
+rm -f ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
 #
 echo "  "
 echo "fleetctl list-machines:"
@@ -129,12 +134,17 @@ echo " "
 echo "You can control this App via status bar icon... "
 echo " "
 
-echo "Also you can install Deis Workflow (http://deis.io) with 'install_deis' command ..."
+echo "Also you can install Deis Workflow PaaS (https://deis.com) with 'install_deis' command ..."
 echo " "
 
 cd ~/kube-cluster
-# open bash shell
-/bin/bash
+
+# open user's preferred shell
+if [[ ! -z "$SHELL" ]]; then
+    $SHELL
+else
+    /bin/bash
+fi
 
 
 

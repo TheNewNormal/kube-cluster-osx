@@ -1,8 +1,8 @@
 [Unit]
 Description=Kubernetes API Server
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-Requires=etcd2.service fleet.service docker.service flanneld.service
-After=etcd2.service fleet.service docker.service flanneld.service
+Requires=etcd2.service fleet.service docker.service flanneld.service persistent-data-checks.service
+After=etcd2.service fleet.service docker.service flanneld.service persistent-data-checks.service
 
 [Service]
 LimitNOFILE=491521
