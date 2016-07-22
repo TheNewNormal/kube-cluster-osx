@@ -67,6 +67,8 @@ else
     echo "k8smaster-01 and node VMs are still running, so you can troubleshoot the network problem "
     echo "and when you done fixing it, just 'Halt' and 'Up' via menu and the installation will continue ... "
     echo " "
+    # create file 'unfinished_setup' so on next boot fresh install gets triggered again !!!
+    touch ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
     pause 'Press [Enter] key to abort installation ...'
     exit 1
 fi
@@ -154,33 +156,39 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 # create persistent disks
 cd ~/kube-cluster/
 echo "  "
-echo "Creating 2GB Data disk for Master ..."
-##mkfile 2g master-data.img
-~/kube-cluster/bin/pv -s 2g -S < /dev/zero > master-data.img
-echo "Created 2GB Data disk for Master"
+echo "Creating 5GB sparse disk (QCow2) for Master ..."
+/usr/local/sbin/qcow-tool create --size=5GiB master-data.img
+echo "-"
+echo "Created 5GB Data disk for Master"
 echo " "
-
+# create file 'unfinished_setup' so on next boot fresh install gets triggered again !!!
+touch ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
+#
 echo "Please type Nodes Data disk size in GBs followed by [ENTER]:"
-echo -n "[default is 10]: "
+echo -n "[default is 15]: "
 read disk_size
 if [ -z "$disk_size" ]
 then
     echo " "
-    echo "Creating 10GB Data disk for Node1..."
-    ~/kube-cluster/bin/pv -s 10g -S < /dev/zero > node-01-data.img
-    echo "Created 10GB Data disk for Node1"
+    echo "Creating 15GB sparse disk (QCow2) for Node1..."
+    /usr/local/sbin/qcow-tool create --size=15GiB node-01-data.img
+    echo "-"
+    echo "Created 15GB Data disk for Node1"
     echo " "
-    echo "Creating 10GB Data disk for Node2..."
-    ~/kube-cluster/bin/pv -s 10g -S < /dev/zero > node-02-data.img
-    echo "Created 10GB Data disk for Node2"
+    echo "Creating 15GB sparse disk (QCow2) for Node2..."
+    /usr/local/sbin/qcow-tool create --size=15GiB node-02-data.img
+    echo "-"
+    echo "Created 15GB Data disk for Node2"
 else
     echo " "
-    echo "Creating "$disk_size"GB Data disk for Node1 (it could take a while for big disks)..."
-    ~/kube-cluster/bin/pv -s "$disk_size"g -S < /dev/zero > node-01-data.img
+    echo "Creating "$disk_size"GB sparse disk (QCow2) for Node1..."
+    /usr/local/sbin/qcow-tool create --size="$disk_size"GiB node-01-data.img
+    echo "-"
     echo "Created "$disk_size"GB Data disk for Node1"
     echo " "
-    echo "Creating "$disk_size"GB Data disk for Node2 (it could take a while for big disks)..."
-    ~/kube-cluster/bin/pv -s "$disk_size"g -S < /dev/zero > node-02-data.img
+    echo "Creating "$disk_size"GB sparse disk (QCow2) for Node2..."
+    /usr/local/sbin/qcow-tool create --size="$disk_size"GiB node-02-data.img
+    echo "-"
     echo "Created "$disk_size"GB Data disk for Node2"
 fi
 
@@ -225,6 +233,8 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
     echo " "
     echo "Master VM has not booted, please check '~/kube-cluster/logs/master_vm_up.log' and report the problem !!! "
     echo " "
+    # create file 'unfinished_setup' so on next boot fresh install gets triggered again !!!
+    touch ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
     pause 'Press [Enter] key to continue...'
     exit 0
 else
@@ -248,6 +258,8 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
     echo " "
     echo "Node1 VM has not booted, please check '~/kube-cluster/logs/node1_vm_up.log' and report the problem !!! "
     echo " "
+    # create file 'unfinished_setup' so on next boot fresh install gets triggered again !!!
+    touch ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
     pause 'Press [Enter] key to continue...'
     exit 0
 else
@@ -269,6 +281,8 @@ if [[ "$CHECK_VM_STATUS" == "" ]]; then
     echo " "
     echo "Node2 VM has not booted, please check '~/kube-cluster/logs/node2_vm_up.log' and report the problem !!! "
     echo " "
+    # create file 'unfinished_setup' so on next boot fresh install gets triggered again !!!
+    touch ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
     pause 'Press [Enter] key to continue...'
     exit 0
 else
@@ -426,7 +440,7 @@ echo "Bear in mind if the version you want is lower than the currently installed
 echo "Kubernetes cluster migth not work, so you will need to destroy the cluster first "
 echo "and boot VM again !!! "
 echo " "
-echo "Please type Kubernetes version you want to be installed e.g. v1.2.5 or v1.3.0-beta.2"
+echo "Please type Kubernetes version you want to be installed e.g. v1.3.2 or v1.4.0-alpha.2"
 echo "followed by [ENTER] to continue or press CMD + W to exit:"
 read K8S_VERSION
 
@@ -534,22 +548,28 @@ echo " "
 cd ~/kube-cluster/kube
 echo "Installing into k8smaster-01..."
 /usr/local/sbin/corectl scp kube.tgz k8smaster-01:/home/core/
-/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+echo "Files copied to VM..."
+echo "Installing now ..."
+/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
+/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8smaster-01 "
 echo " "
 #
 echo "Installing into k8snode-01..."
 /usr/local/sbin/corectl scp kube.tgz k8snode-01:/home/core/
-/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+echo "Files copied to VM..."
+echo "Installing now ..."
+/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
+/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8snode-01 "
 echo " "
 #
 echo "Installing into k8snode-02..."
 /usr/local/sbin/corectl scp kube.tgz k8snode-02:/home/core/
-/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/bin && sudo tar xzf /home/core/kube.tgz -C /opt/bin && sudo chmod 755 /opt/bin/*'
-/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /opt/bin/easy-rsa.tar.gz /opt/tmp'
+echo "Files copied to VM..."
+echo "Installing now ..."
+/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
+/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8snode-02 "
 echo " "
 }
