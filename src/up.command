@@ -51,7 +51,7 @@ if [ ! -f $HOME/kube-cluster/master-data.img ]; then
     create_data_disk
     new_vm=1
 fi
-# check if '~/kube-solo/logs/unfinished_setup' file exists
+# check if '~/kube-cluster/logs/unfinished_setup' file exists
 if [ -f "$HOME"/kube-cluster/logs/unfinished_setup ]; then
     # found it, so installation will continue
     new_vm=1

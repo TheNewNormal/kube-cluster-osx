@@ -9,7 +9,7 @@ ExecStartPre=-/bin/sh -c 'sudo mkdir -p /data/deis/minio && sudo chown 106:107 /
 #
 ExecStartPre=/opt/sbin/wupiao k8smaster-01:8080
 #
-ExecStart=/opt/bin/kubelet \
+ExecStart=/data/opt/bin/kubelet \
  --address=0.0.0.0 \
  --port=10250 \
  --hostname_override=${HOSTNAME} \
