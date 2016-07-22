@@ -1,4 +1,4 @@
-Kubernetes Cluster for macOS
+Easy Kubernetes Cluster for macOS
 ============================
 ![k8s-multinode](k8s-multinode.png)
 
@@ -24,13 +24,23 @@ How to install Kube-Cluster
  -----------
   - **macOS 10.10.3** Yosemite or later 
   - Mac 2010 or later for this to work
-  - [Corectl App](https://github.com/TheNewNormal/corectl.app) is installed
-  - **Note:** For the fresh install it is recommended to restart your Mac if you have used VirtualBox based VM, as the VirtualBox sometimes messes up networking.
+  - **Note:** [Corectl App](https://github.com/TheNewNormal/corectl.app) must be installed, which will serve as `corectld` server daemon control.
 
 
 ###Install:
 
-Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kube-Cluster` and `Initial setup of Kube-Cluster VMs` will run.
+- Download [Corectl App](https://github.com/TheNewNormal/corectl.app) `latest dmg` from the [Releases Page](https://github.com/TheNewNormal/corectl.app/releases) and install it to `/Applications` folder, it allows to start/stop/update [corectl](https://github.com/TheNewNormal/corectl) tools needed to run CoreOS VMs on macOS
+- Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kube-Cluster` and `Initial setup of Kube-Cluster VMs` will run, then follow the instructions there.
+
+**TL;DR**
+
+- App's files are installed to `~/kube-solo` folder
+- App will bootstrap `master+worker` Kubernetes cluster on the single VM
+- Mac user home folder can be enabled via `Setup\Enable shared NFS user home folder` to automaticly mounted to VM: `/Users/my_user`:`/Users/my_user` on each VM boot
+- macOS `docker` client is installed to `~/kube-solo/bin` and preset in `OS shell` to be used from there, so you can build `docker` images on the VM and use with Kubernetes
+
+
+**The install will do the following:**
 
 * All dependent files/folders will be put under `kube-cluster` folder in the user's home folder e.g `/Users/someuser/kube-cluster`
 * user-data file will have fleet, etcd and flannel set
@@ -41,13 +51,15 @@ Open downloaded `dmg` file and drag the App e.g. to your Desktop. Start the `Kub
 * [Fleet-UI](http://fleetui.com) via unit file will be installed to check running fleet units
 * [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/), [DNS](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md) and [Kubedash](https://github.com/kubernetes/kubedash) will be instlled as add-ons
 * Via assigned static IPs (which will be shown on first boot and will survive VMs reboots) you can access any port on any CoreOS VM
-* Persistent disks `xxx-data.img` will be created and mounted to VMs `/data` for these mount binds:
+* Persistent sparse disks (QCow2) `xxx-data.img` will be created and mounted to VMs as `/data` for these mount binds and other folders:
 
 ```
 /data/var/lib/docker -> /var/lib/docker
 /data/var/lib/rkt -> /var/lib/rkt
-/data/var/lib/etcd2 -> /var/lib/etcd2
-/data/opt/bin -> /opt/bin
+/var/lib/kubelet sym linked to /data/kubelet
+/data/opt/bin
+/data/var/lib/etcd2
+/data/kubernetes
 ``` 
 
 How it works
@@ -62,7 +74,7 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 2) etcd endpoint - export ETCDCTL_PEERS=http://192.168.64.xxx:2379
 3) fleetctl endpoint - export FLEETCTL_ENDPOINT=http://192.168.64.xxx:2379
 4) fleetctl driver - export FLEETCTL_DRIVER=etcd
-5) Path to ~/kube-cluster/bin where fleetctl, helmc and kubectl are stored
+5) Path to ~/kube-cluster/bin where fleetctl, helmc, deis and kubectl are stored
 ````
 
 * `Updates/Update Kubernetes to latest stable version` will update to latest stable version of Kubernetes.
@@ -77,33 +89,44 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 Example ouput of succesfull CoreOS + Kubernetes cluster install:
 
 ````
-$ 
-etcd cluster:
-/registry
-/coreos.com
-
-fleetctl list-machines:
-MACHINE		IP		METADATA
-9b88a46c...	192.168.64.3	role=node
-d0c68677...	192.168.64.4	role=node
-f93b555e...	192.168.64.2	role=control
-
 fleetctl list-units:
-UNIT				MACHINE				ACTIVE	SUB
-fleet-ui.service				f93b555e.../192.168.64.2	active	running
-kube-apiserver.service			f93b555e.../192.168.64.2	active	running
-kube-controller-manager.service	f93b555e.../192.168.64.2	active	running
-kube-kubelet.service			9b88a46c.../192.168.64.3	active	running
-kube-kubelet.service			d0c68677.../192.168.64.4	active	running
-kube-proxy.service				9b88a46c.../192.168.64.3	active	running
-kube-proxy.service				d0c68677.../192.168.64.4	active	running
-kube-scheduler.service			f93b555e.../192.168.64.2	active	running
+UNIT							MACHINE						ACTIVE		SUB
+fleet-ui.service				78ea6428.../192.168.64.5	active		running
+kube-apiserver.service			78ea6428.../192.168.64.5	active		running
+kube-controller-manager.service	78ea6428.../192.168.64.5	active		running
+kube-scheduler.service			78ea6428.../192.168.64.5	active		running
+kube-kubelet.service			1d00e269.../192.168.64.6	active		running
+kube-kubelet.service			de9127a5.../192.168.64.7	active		running
+kube-proxy.service				1d00e269.../192.168.64.6	active		running
+kube-proxy.service				de9127a5.../192.168.64.7	active		running
+
+Waiting for Kubernetes cluster to be ready. This can take a few minutes...
+\...
+
+Waiting for Kubernetes nodes to be ready. This can take a bit...
+-...
+
+node "k8snode-01" labeled
+node "k8snode-02" labeled
+
+Creating kube-system namespace ...
+
+Installing SkyDNS ...
+replicationcontroller "kube-dns-v17" created
+service "kube-dns" created
+
+Installing Kubernetes UI ...
+replicationcontroller "kubernetes-dashboard-v1.1.0" created
+service "kubernetes-dashboard" created
+
+Installing Kubedash ...
+deployment "kubedash" created
+service "kubedash" created
 
 kubectl get nodes:
-NAME           LABELS                                             STATUS    AGE
-192.168.64.8   kubernetes.io/hostname=k8snode-01,node=worker1   Ready     1h
-192.168.64.9   kubernetes.io/hostname=k8snode-02,node=worker2   Ready     1h
-
+NAME         STATUS    AGE
+k8snode-01   Ready     6s
+k8snode-02   Ready     6s
 ````
 
 

@@ -34,7 +34,7 @@ do
         rm -f ~/kube-cluster/*.img
 
         echo "-"
-        echo "Done, please start VMs with 'Up' and the VMs will be recreated ..."
+        echo "Done, please start VMs with 'Up' and the new VMs will be recreated ..."
         echo " "
         pause 'Press [Enter] key to continue...'
         LOOP=0

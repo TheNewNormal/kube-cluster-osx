@@ -4,7 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStartPre=/opt/sbin/wupiao k8smaster-01:8080
-ExecStart=/opt/bin/kube-proxy \
+ExecStart=/data/opt/bin/kube-proxy \
  --master=http://k8smaster-01:8080 \
  --logtostderr=true
 

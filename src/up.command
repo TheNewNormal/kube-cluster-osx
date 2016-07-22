@@ -40,14 +40,24 @@ if ! ssh-add -l | grep -q ssh/id_rsa; then
 fi
 #
 
+# set variable to 0
 new_vm=0
+
+### run some checks
 # check if master's data disk exists, if not create it
 if [ ! -f $HOME/kube-cluster/master-data.img ]; then
     echo " "
-    echo "Data disks do not exist, they will be created now ..."
+    echo "Kube-Cluster data disks do not exist, they will be created now ..."
     create_data_disk
     new_vm=1
 fi
+# check if '~/kube-cluster/logs/unfinished_setup' file exists
+if [ -f "$HOME"/kube-cluster/logs/unfinished_setup ]; then
+    # found it, so installation will continue
+    new_vm=1
+fi
+#
+###
 
 # start cluster VMs
 start_vms
@@ -55,39 +65,15 @@ start_vms
 # get master VM's IP
 master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
 
-### Run some checks
-# check if k8s files are on master VM
-if /usr/local/sbin/corectl ssh k8smaster-01 '[ -f /opt/bin/kube-apiserver ]' &> /dev/null
-then
-    new_vm=0
-else
-    new_vm=1
-fi
-# check if k8s files are on node1 VM
-if /usr/local/sbin/corectl ssh k8snode-01 '[ -f /opt/bin/kubelet ]' &> /dev/null
-then
-    new_vm=0
-else
-    new_vm=1
-fi
-# check if k8s files are on node2 VM
-if /usr/local/sbin/corectl ssh k8snode-02 '[ -f /opt/bin/kubelet ]' &> /dev/null
-then
-    new_vm=0
-else
-    new_vm=1
-fi
-#
 
 # if the new setup check for internet connection from the master
-if [ $new_vm = 1 ]
+if [[ "${new_vm}" == "1" ]]
 then
     echo " "
     echo "Checking internet availablity on master VM..."
     check_internet_from_vm
 fi
 #
-### done with checks
 
 # Set the shell environment variables
 # set etcd endpoint
@@ -98,6 +84,7 @@ echo "Waiting for etcd service to be ready on k8smaster-01 VM..."
 spin='-\|/'
 i=1
 until curl -o /dev/null http://$master_vm_ip:2379 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+echo "..."
 echo " "
 #
 
@@ -115,7 +102,7 @@ fleetctl list-machines
 #
 
 #
-if [ $new_vm = 1 ]
+if [[ "${new_vm}" == "1" ]]
 then
     # copy k8s files to VMS
     install_k8s_files
@@ -140,23 +127,28 @@ echo "Waiting for Kubernetes cluster to be ready. This can take a few minutes...
 spin='-\|/'
 i=1
 until curl -o /dev/null -sIf http://$master_vm_ip:8080 >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+echo "..."
+echo " "
+echo "Waiting for Kubernetes nodes to be ready. This can take a bit..."
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-01" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 i=1
 until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Ready" >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
+echo "..."
 echo " "
 
-if [ $new_vm = 1 ]
+if [[ "${new_vm}" == "1" ]]
 then
     # attach label to the nodes
-    echo " "
     ~/kube-cluster/bin/kubectl label nodes k8snode-01 node=worker1
     ~/kube-cluster/bin/kubectl label nodes k8snode-02 node=worker2
     # copy add-ons files
-    cp "${res_folder}"/k8s/*.yaml ~/kube-cluster/kubernetes
+    cp "${res_folder}"/k8s/add-ons/*.yaml ~/kube-cluster/kubernetes
     install_k8s_add_ons "$master_vm_ip"
     #
+    # remove unfinished_setup file
+    rm -f ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
 fi
 #
 echo "kubectl get nodes:"
@@ -166,5 +158,9 @@ echo " "
 
 cd ~/kube-cluster/kubernetes
 
-# open bash shell
-/bin/bash
+# open user's preferred shell
+if [[ ! -z "$SHELL" ]]; then
+    $SHELL
+else
+    /bin/bash
+fi
