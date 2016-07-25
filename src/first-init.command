@@ -43,6 +43,7 @@ check_internet_from_vm
 
 # install k8s files on to VMs
 install_k8s_files
+echo " "
 #
 
 # download latest version of fleetctl and helmc clients
@@ -53,6 +54,7 @@ download_osx_clients
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
 
 # wait till etcd service is ready
+echo " "
 echo "--------"
 echo "Waiting for etcd service to be ready on master VM..."
 spin='-\|/'
@@ -77,7 +79,8 @@ deploy_fleet_units
 sleep 3
 
 # generate kubeconfig file
-echo Generating kubeconfig file ...
+echo " "
+echo "Generating kubeconfig file ..."
 "${res_folder}"/bin/gen_kubeconfig $master_vm_ip
 #
 
@@ -101,7 +104,7 @@ until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Rea
 echo "..."
 echo " "
 #
-install_k8s_add_ons "$master_vm_ip"
+install_k8s_add_ons
 #
 # attach label to the nodes
 ~/kube-cluster/bin/kubectl label nodes k8snode-01 node=worker1
