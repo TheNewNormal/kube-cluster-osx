@@ -145,7 +145,7 @@ then
     ~/kube-cluster/bin/kubectl label nodes k8snode-02 node=worker2
     # copy add-ons files
     cp "${res_folder}"/k8s/add-ons/*.yaml ~/kube-cluster/kubernetes
-    install_k8s_add_ons "$master_vm_ip"
+    install_k8s_add_ons
     #
     # remove unfinished_setup file
     rm -f ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1

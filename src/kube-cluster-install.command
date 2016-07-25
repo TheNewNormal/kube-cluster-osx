@@ -31,7 +31,7 @@
     # copy k8s files
     cp "$1"/k8s/kubectl ~/kube-cluster/kube
     chmod 755 ~/kube-cluster/kube/kubectl
-    cp "$1"/k8s/*.yaml ~/kube-cluster/kubernetes
+    cp "$1"/k8s/add-ons/*.yaml ~/kube-cluster/kubernetes
     # linux binaries
     cp "$1"/k8s/kube.tgz ~/kube-cluster/kube
 
