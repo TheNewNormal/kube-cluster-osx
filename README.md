@@ -4,9 +4,11 @@ Easy Kubernetes Cluster for macOS
 
 **Kube-Cluster for macOS** is `status bar app` which allows in an easy way to control and bootstrap multi-node (master+ two nodes) Kubernetes cluster on three [CoreOS](https://coreos.com) VMs.
 
-**Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager. 
+It leverages macOS native Hypervisor framework of using [xhyve](https://github.com/xhyve-xyz/xhyve) based [corectl](https://github.com/TheNewNormal/corectl) command line tool without any needs to use VirtualBox or similar virtualisation software.
 
-**Includes:** An option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
+**New:** After successful install you can control kube-cluster VMs via `kcluster` cli as well. Cli resides in `~/kube-cluster/bin` folder and has simple commands: `kcluster start|stop|status|ip`. Just copy the `kcluster` to your pre-set path and you are good to control Kubernetes Cluster via cli, it is specially handy for automation tasks.
+
+**Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager and an option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
 
 **Kube-Cluster App** can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and has a private local Docker registry v2 which is accessible from Kube-Cluster App.
 
