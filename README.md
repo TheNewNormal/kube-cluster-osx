@@ -38,7 +38,7 @@ How to install Kube-Cluster
 
 - App's files are installed to `~/kube-solo` folder
 - App will bootstrap `master+worker` Kubernetes cluster on the single VM
-- Mac user home folder can be enabled via `Setup\Enable shared NFS user home folder` to automaticly mounted to VM: `/Users/my_user`:`/Users/my_user` on each VM boot
+- Mac user home folder is automaticly mounted to Node VMs: `/Users/my_user`:`/Users/my_user` on each VM boot, check the [PV example](https://github.com/TheNewNormal/kube-cluster-osx/blob/master/examples/pv/nfs-pv-mount-on-pod.md)
 - macOS `docker` client is installed to `~/kube-solo/bin` and preset in `OS shell` to be used from there, so you can build `docker` images on the VM and use with Kubernetes
 
 
