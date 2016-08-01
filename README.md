@@ -10,7 +10,7 @@ It leverages macOS native Hypervisor framework of using [xhyve](https://github.c
 
 **Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager and an option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
 
-**Kube-Cluster App** can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and has a private local Docker registry v2 which is accessible from Kube-Cluster App.
+**Kube-Cluster App** can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and both apps have access to the same local Docker registry hosted by [Corectl App](https://github.com/TheNewNormal/corectl.app).
 
 ![Kube-Cluster](kube-cluster-osx.png "Kubernetes-Cluster")
 
@@ -38,7 +38,7 @@ How to install Kube-Cluster
 
 - App's files are installed to `~/kube-solo` folder
 - App will bootstrap `master+worker` Kubernetes cluster on the single VM
-- Mac user home folder can be enabled via `Setup\Enable shared NFS user home folder` to automaticly mounted to VM: `/Users/my_user`:`/Users/my_user` on each VM boot
+- Mac user home folder is automaticly mounted to Node VMs: `/Users/my_user`:`/Users/my_user` on each VM boot, check the [PV example](https://github.com/TheNewNormal/kube-cluster-osx/blob/master/examples/pv/nfs-pv-mount-on-pod.md)
 - macOS `docker` client is installed to `~/kube-solo/bin` and preset in `OS shell` to be used from there, so you can build `docker` images on the VM and use with Kubernetes
 
 
