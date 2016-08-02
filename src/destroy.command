@@ -26,9 +26,9 @@ do
         VALID_MAIN=1
 
         # send halt to VMs
-        /usr/local/sbin/corectl halt k8smaster-01 > /dev/null 2>&1
-        /usr/local/sbin/corectl halt k8snode-01 > /dev/null 2>&1
-        /usr/local/sbin/corectl halt k8snode-02 > /dev/null 2>&1
+        ~/bin/corectl halt k8smaster-01 > /dev/null 2>&1
+        ~/bin/corectl halt k8snode-01 > /dev/null 2>&1
+        ~/bin/corectl halt k8snode-02 > /dev/null 2>&1
 
         # delete master and nodes volume images
         rm -f ~/kube-cluster/*.img

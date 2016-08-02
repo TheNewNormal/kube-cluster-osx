@@ -63,7 +63,7 @@ fi
 start_vms
 
 # get master VM's IP
-master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
+master_vm_ip=$(~/bin/corectl q -i k8smaster-01)
 
 
 # if the new setup check for internet connection from the master

@@ -40,7 +40,7 @@ fi
 function check_corectld_server() {
 # check corectld server
 #
-CHECK_SERVER_STATUS=$(/usr/local/sbin/corectld status 2>&1 | grep "Uptime:")
+CHECK_SERVER_STATUS=$(~/bin/corectld status 2>&1 | grep "Uptime:")
 if [[ "$CHECK_SERVER_STATUS" == "" ]]; then
     open -a /Applications/corectl.app
 fi
@@ -53,7 +53,7 @@ fi
 
 function check_internet_from_vm(){
 #
-status=$(/usr/local/sbin/corectl ssh k8smaster-01 "curl -s -I https://coreos.com 2>/dev/null | head -n 1 | cut -d' ' -f2")
+status=$(~/bin/corectl ssh k8smaster-01 "curl -s -I https://coreos.com 2>/dev/null | head -n 1 | cut -d' ' -f2")
 
 if [[ $(echo "${status//[$'\t\r\n ']}") = "200" ]]; then
     echo "Yes, internet is available ..."
@@ -157,7 +157,7 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 cd ~/kube-cluster/
 echo "  "
 echo "Creating 5GB sparse disk (QCow2) for Master ..."
-/usr/local/sbin/qcow-tool create --size=5GiB master-data.img
+~/bin/qcow-tool create --size=5GiB master-data.img
 echo "-"
 echo "Created 5GB Data disk for Master"
 echo " "
@@ -171,23 +171,23 @@ if [ -z "$disk_size" ]
 then
     echo " "
     echo "Creating 15GB sparse disk (QCow2) for Node1..."
-    /usr/local/sbin/qcow-tool create --size=15GiB node-01-data.img
+    ~/bin/qcow-tool create --size=15GiB node-01-data.img
     echo "-"
     echo "Created 15GB Data disk for Node1"
     echo " "
     echo "Creating 15GB sparse disk (QCow2) for Node2..."
-    /usr/local/sbin/qcow-tool create --size=15GiB node-02-data.img
+    ~/bin/qcow-tool create --size=15GiB node-02-data.img
     echo "-"
     echo "Created 15GB Data disk for Node2"
 else
     echo " "
     echo "Creating "$disk_size"GB sparse disk (QCow2) for Node1..."
-    /usr/local/sbin/qcow-tool create --size="$disk_size"GiB node-01-data.img
+    ~/bin/qcow-tool create --size="$disk_size"GiB node-01-data.img
     echo "-"
     echo "Created "$disk_size"GB Data disk for Node1"
     echo " "
     echo "Creating "$disk_size"GB sparse disk (QCow2) for Node2..."
-    /usr/local/sbin/qcow-tool create --size="$disk_size"GiB node-02-data.img
+    ~/bin/qcow-tool create --size="$disk_size"GiB node-02-data.img
     echo "-"
     echo "Created "$disk_size"GB Data disk for Node2"
 fi
@@ -226,7 +226,7 @@ cd ~/kube-cluster
 echo " "
 echo "Starting k8smaster-01 VM ..."
 #
-/usr/local/sbin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/master_vm_up.log
+~/bin/corectl load settings/k8smaster-01.toml 2>&1 | tee ~/kube-cluster/logs/master_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/master_vm_up.log | grep "started")
 #
 if [[ "$CHECK_VM_STATUS" == "" ]]; then
@@ -242,16 +242,16 @@ else
 fi
 
 # save master VM's IP
-/usr/local/sbin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
+~/bin/corectl q -i k8smaster-01 | tr -d "\n" > ~/kube-cluster/.env/master_ip_address
 # get master VM's IP
-master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
+master_vm_ip=$(~/bin/corectl q -i k8smaster-01)
 #
 sleep 2
 #
 echo " "
 echo "Starting k8snode-01 VM ..."
 #
-/usr/local/sbin/corectl load settings/k8snode-01.toml 2>&1 | tee ~/kube-cluster/logs/node1_vm_up.log
+~/bin/corectl load settings/k8snode-01.toml 2>&1 | tee ~/kube-cluster/logs/node1_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/node1_vm_up.log | grep "started")
 #
 if [[ "$CHECK_VM_STATUS" == "" ]]; then
@@ -267,14 +267,14 @@ else
 fi
 echo " "
 # save node1 VM's IP
-/usr/local/sbin/corectl q -i k8snode-01 | tr -d "\n" > ~/kube-cluster/.env/node1_ip_address
+~/bin/corectl q -i k8snode-01 | tr -d "\n" > ~/kube-cluster/.env/node1_ip_address
 # get node1 VM's IP
-node1_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-01)
+node1_vm_ip=$(~/bin/corectl q -i k8snode-01)
 #
 #
 echo "Starting k8snode-02 VM ..."
 #
-/usr/local/sbin/corectl load settings/k8snode-02.toml 2>&1 | tee ~/kube-cluster/logs/node2_vm_up.log
+~/bin/corectl load settings/k8snode-02.toml 2>&1 | tee ~/kube-cluster/logs/node2_vm_up.log
 CHECK_VM_STATUS=$(cat ~/kube-cluster/logs/node2_vm_up.log | grep "started")
 #
 if [[ "$CHECK_VM_STATUS" == "" ]]; then
@@ -290,9 +290,9 @@ else
 fi
 echo " "
 # save node2 VM's IP
-/usr/local/sbin/corectl q -i k8snode-02 | tr -d "\n" > ~/kube-cluster/.env/node2_ip_address
+~/bin/corectl q -i k8snode-02 | tr -d "\n" > ~/kube-cluster/.env/node2_ip_address
 # get node2 VM's IP
-node2_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-02)
+node2_vm_ip=$(~/bin/corectl q -i k8snode-02)
 
 }
 
@@ -302,19 +302,19 @@ echo "Stopping VMs ..."
 echo " "
 echo "Stopping k8smaster-01 VM ..."
 # send halt to VM
-/usr/local/sbin/corectl halt k8smaster-01
+~/bin/corectl halt k8smaster-01
 sleep 1
 #
 echo " "
 echo "Stopping k8snode-01 VM ..."
 # send halt to VM
-/usr/local/sbin/corectl halt k8snode-01
+~/bin/corectl halt k8snode-01
 sleep 1
 #
 echo " "
 echo "Stopping k8snode-02 VM ..."
 # send halt to VM
-/usr/local/sbin/corectl halt k8snode-02
+~/bin/corectl halt k8snode-02
 sleep 1
 
 }
@@ -322,7 +322,7 @@ sleep 1
 
 function download_osx_clients() {
 # download fleetctl file
-FLEETCTL_VERSION=$(/usr/local/sbin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
+FLEETCTL_VERSION=$(~/bin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
 FILE=fleetctl
 if [ ! -f ~/kube-cluster/bin/$FILE ]; then
     cd ~/kube-cluster/bin
@@ -529,7 +529,7 @@ function install_k8s_files {
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # get master VM's IP
-master_vm_ip=$(/usr/local/sbin/corectl q -i k8smaster-01)
+master_vm_ip=$(~/bin/corectl q -i k8smaster-01)
 
 # check if file ~/kube-cluster/kube/kube.tgz exists
 if [ ! -f ~/kube-cluster/kube/kube.tgz ]
@@ -547,29 +547,29 @@ echo "Installing Kubernetes files on to VMs..."
 echo " "
 cd ~/kube-cluster/kube
 echo "Installing into k8smaster-01..."
-/usr/local/sbin/corectl scp kube.tgz k8smaster-01:/home/core/
+~/bin/corectl scp kube.tgz k8smaster-01:/home/core/
 echo "Files copied to VM..."
 echo "Installing now ..."
-/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
-/usr/local/sbin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
+~/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
+~/bin/corectl ssh k8smaster-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8smaster-01 "
 echo " "
 #
 echo "Installing into k8snode-01..."
-/usr/local/sbin/corectl scp kube.tgz k8snode-01:/home/core/
+~/bin/corectl scp kube.tgz k8snode-01:/home/core/
 echo "Files copied to VM..."
 echo "Installing now ..."
-/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
-/usr/local/sbin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
+~/bin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
+~/bin/corectl ssh k8snode-01 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8snode-01 "
 echo " "
 #
 echo "Installing into k8snode-02..."
-/usr/local/sbin/corectl scp kube.tgz k8snode-02:/home/core/
+~/bin/corectl scp kube.tgz k8snode-02:/home/core/
 echo "Files copied to VM..."
 echo "Installing now ..."
-/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
-/usr/local/sbin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
+~/bin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /data/opt/bin && sudo tar xzf /home/core/kube.tgz -C /data/opt/bin && sudo chmod 755 /data/opt/bin/*'
+~/bin/corectl ssh k8snode-02 'sudo /usr/bin/mkdir -p /opt/tmp && sudo mv /data/opt/bin/easy-rsa.tar.gz /opt/tmp'
 echo "Done with k8snode-02 "
 echo " "
 }
@@ -619,11 +619,11 @@ export PATH=${HOME}/kube-cluster/bin:$PATH
 res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 
 # send halt to VMs
-/usr/local/sbin/corectl halt k8snode-01
+~/bin/corectl halt k8snode-01
 sleep 1
-/usr/local/sbin/corectl halt k8snode-02
+~/bin/corectl halt k8snode-02
 sleep 1
-/usr/local/sbin/corectl halt k8smaster-01
+~/bin/corectl halt k8smaster-01
 
 # kill all other scripts
 pkill -f [K]ube-Solo.app/Contents/Resources/fetch_latest_iso.command
