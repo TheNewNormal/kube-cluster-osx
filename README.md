@@ -36,10 +36,9 @@ How to install Kube-Cluster
 
 **TL;DR**
 
-- App's files are installed to `~/kube-solo` folder
-- App will bootstrap `master+worker` Kubernetes cluster on the single VM
-- Mac user home folder is automaticly mounted to Node VMs: `/Users/my_user`:`/Users/my_user` on each VM boot, check the [PV example](https://github.com/TheNewNormal/kube-cluster-osx/blob/master/examples/pv/nfs-pv-mount-on-pod.md)
-- macOS `docker` client is installed to `~/kube-solo/bin` and preset in `OS shell` to be used from there, so you can build `docker` images on the VM and use with Kubernetes
+- App's files are installed to `~/kube-cluster` folder
+- App will bootstrap `master + two nodes` Kubernetes cluster on three VMs.
+- Mac user home folder is automaticly mounted via NFS (it has to work on Mac end of course) to to Node VMs `/Users/my_user`:`/Users/my_user` on each boot, check the [PV example](https://github.com/TheNewNormal/kube-cluster-osx/blob/master/examples/pv/nfs-pv-mount-on-pod.md) how to use Persistent Volumes.
 
 
 **The install will do the following:**
@@ -51,7 +50,7 @@ How to install Kube-Cluster
 * It will install `fleetctl, kubectl, helmc and deis` clients to `~/kube-cluster/bin/`
 * Kubernetes services will be installed with fleet units which are placed in `~/kube-cluster/fleet`, this allows very easy updates to fleet units if needed.
 * [Fleet-UI](http://fleetui.com) via unit file will be installed to check running fleet units
-* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/), [DNS](https://github.com/kubernetes/kubernetes/blob/release-1.2/cluster/addons/dns/README.md) and [Kubedash](https://github.com/kubernetes/kubedash) will be instlled as add-ons
+* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/), [DNS](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns) and [Kubedash](https://github.com/kubernetes/kubedash) will be instlled as add-ons
 * Via assigned static IPs (which will be shown on first boot and will survive VMs reboots) you can access any port on any CoreOS VM
 * Persistent sparse disks (QCow2) `xxx-data.img` will be created and mounted to VMs as `/data` for these mount binds and other folders:
 
