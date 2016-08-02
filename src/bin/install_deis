@@ -8,7 +8,7 @@ function pause(){
 }
 
 # get VMs IPs
-node1_vm_ip=$(/usr/local/sbin/corectl q -i k8snode-01)
+node1_vm_ip=$(~/bin/corectl q -i k8snode-01)
 
 #
 echo " "

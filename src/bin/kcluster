@@ -16,22 +16,22 @@ stop() {
 
 status() {
     echo "Cluster Status:"
-    echo "$(/usr/local/sbin/corectl q -a k8smaster-01)"
+    echo "$(~/bin/corectl q -a k8smaster-01)"
     echo " "
-    echo "$(/usr/local/sbin/corectl q -a k8snode-01)"
+    echo "$(~/bin/corectl q -a k8snode-01)"
     echo " "
-    echo "$(/usr/local/sbin/corectl q -a k8snode-02)"
+    echo "$(~/bin/corectl q -a k8snode-02)"
     echo " "
 }
 
 
 ip() {
     echo "IPs:"
-    echo "k8smaster-01 VM: $(/usr/local/sbin/corectl q -i k8smaster-01)"
+    echo "k8smaster-01 VM: $(~/bin/corectl q -i k8smaster-01)"
     echo " "
-    echo "k8snode-01 VM:   $(/usr/local/sbin/corectl q -i k8snode-01)"
+    echo "k8snode-01 VM:   $(~/bin/corectl q -i k8snode-01)"
     echo " "
-    echo "k8snode-02 VM:   $(/usr/local/sbin/corectl q -i k8snode-02)"
+    echo "k8snode-02 VM:   $(~/bin/corectl q -i k8snode-02)"
     echo " "
 }
 
