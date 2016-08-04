@@ -138,7 +138,7 @@ Usage
 
 You're now ready to use Kubernetes cluster.
 
-Some examples to start with [Kubernetes examples](http://kubernetes.io/docs/samples/q).
+Some examples to start with [Kubernetes examples](http://kubernetes.io/docs/samples/).
 
 Other CoreOS VM based Apps for macOS
 -----------
