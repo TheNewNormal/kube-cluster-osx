@@ -6,7 +6,7 @@ Easy Kubernetes Cluster for macOS
 
 It leverages macOS native Hypervisor framework of using [xhyve](https://github.com/xhyve-xyz/xhyve) based [corectl](https://github.com/TheNewNormal/corectl) command line tool without any needs to use VirtualBox or similar virtualisation software.
 
-**New:** After successful install you can control kube-cluster VMs via `kcluster` cli as well. Cli resides in `~/kube-cluster/bin` folder and has simple commands: `kcluster start|stop|status|ip`. Just copy the `kcluster` to your pre-set path and you are good to control Kubernetes Cluster via cli, it is specially handy for automation tasks.
+**New:** After successful install you can control kube-cluster VMs via `kcluster` cli as well. Cli resides in `~/kube-cluster/bin` folder and has simple commands: `kcluster start|stop|status|ip`. Just copy the `kcluster` to your pre-set path and you are good to control Kubernetes Cluster via cli, it is especially handy for automation tasks.
 
 **Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager and an option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
 
