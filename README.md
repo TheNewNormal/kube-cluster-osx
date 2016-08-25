@@ -11,6 +11,8 @@ It leverages **macOS native Hypervisor virtualisation framework** of using [core
 
 **Kube-Cluster App** can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and both apps have access to the same local Docker registry hosted by [Corectl App](https://github.com/TheNewNormal/corectl.app).
 
+**App's menu** looks as per image below:
+
 ![Kube-Cluster](kube-cluster-osx.png "Kubernetes-Cluster")
 
 Download
