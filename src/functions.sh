@@ -591,9 +591,6 @@ echo "Installing Kubernetes UI ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/dashboard-controller.yaml
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/dashboard-service.yaml
 #
-echo " "
-echo "Installing Kubedash ..."
-~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/kubedash.yaml
 sleep 1
 # clean up kubernetes folder
 rm -f ~/kube-cluster/kubernetes/kube-system-ns.yaml
@@ -601,7 +598,6 @@ rm -f ~/kube-cluster/kubernetes/skydns-rc.yaml
 rm -f ~/kube-cluster/kubernetes/skydns-svc.yaml
 rm -f ~/kube-cluster/kubernetes/dashboard-controller.yaml
 rm -f ~/kube-cluster/kubernetes/dashboard-service.yaml
-rm -f ~/kube-cluster/kubernetes/kubedash.yaml
 echo " "
 }
 

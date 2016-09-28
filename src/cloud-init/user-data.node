@@ -66,6 +66,7 @@ coreos:
         ExecStart=/bin/sh -c '[[ -d /data/kubernetes/manifests ]] || mkdir -p /data/kubernetes/manifests'
         ExecStart=/bin/sh -c '[[ -d /data/kubelet ]] || mkdir -p /data/kubelet'
         ExecStart=/bin/sh -c 'sudo ln -s /data/kubelet /var/lib/kubelet'
+        ExecStart=/bin/sh -c 'sudo mkdir -p /opt/bin/ && sudo ln -s /data/opt/bin/socat /opt/bin/socat'
     - name: var-lib-docker.mount
       command: start
       content: |
