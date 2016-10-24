@@ -46,10 +46,6 @@ install_k8s_files
 echo " "
 #
 
-# download latest version of fleetctl and helmc clients
-download_osx_clients
-#
-
 # set etcd endpoint
 export ETCDCTL_PEERS=http://$master_vm_ip:2379
 
@@ -87,6 +83,11 @@ echo "Generating kubeconfig file ..."
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
 #
+# set kubernetes cluster config file path for Helm
+export KUBECONFIG=~/kube-cluster/kube/kubeconfig
+export HELM_HOST=$node2_vm_ip:32767
+
+# wait for Kubernetes cluster readiness
 echo "  "
 echo "Waiting for Kubernetes cluster to be ready. This can take a few minutes..."
 spin='-\|/'
@@ -104,12 +105,16 @@ until ~/kube-cluster/bin/kubectl get nodes | grep -w "k8snode-02" | grep -w "Rea
 echo "..."
 echo " "
 #
-install_k8s_add_ons
-#
 # attach label to the nodes
 ~/kube-cluster/bin/kubectl label nodes k8snode-01 node=worker1
 ~/kube-cluster/bin/kubectl label nodes k8snode-02 node=worker2
 #
+install_k8s_add_ons
+#
+# download latest version of deis, helmc and helm clients
+# install Helm Tiller
+download_osx_clients
+
 # remove unfinished_setup file
 rm -f ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
 #
@@ -137,7 +142,7 @@ echo " "
 echo "You can control this App via status bar icon... "
 echo " "
 
-echo "Also you can install Deis Workflow PaaS (https://deis.com) with 'install_deis' command ..."
+echo "Also you can install Deis Workflow PaaS (https://deis.com/workflow) with 'install_deis' command ..."
 echo " "
 
 cd ~/kube-cluster

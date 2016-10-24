@@ -321,6 +321,7 @@ sleep 1
 
 
 function download_osx_clients() {
+
 # download fleetctl file
 FLEETCTL_VERSION=$(~/bin/corectl ssh k8smaster-01 'fleetctl --version' | awk '{print $3}' | tr -d '\r')
 FILE=fleetctl
@@ -348,8 +349,53 @@ else
     fi
 fi
 
+# get lastest macOS helm cli version
+echo " "
+echo "Checking for latest Helm version..."
+cd ~/kube-cluster/tmp
+LATEST_HELM=$(curl -s https://api.github.com/repos/kubernetes/helm/releases/latest | grep "tag_name" | awk '{print $2}' | sed -e 's/"\(.*\)"./\1/')
+
+# check if the binary exists
+if [ ! -f ~/kube-cluster/bin/helm ]; then
+    INSTALLED_HELM=v0.0.0
+else
+    INSTALLED_HELM=$(~/kube-cluster/bin/helm version)
+fi
+
+#
+MATCH=$(echo "${INSTALLED_HELM}" | grep -c "${LATEST_HELM}")
+if [ $MATCH -ne 0 ]; then
+    echo " "
+    echo "Helm is up to date !!!"
+else
+    echo " "
+    echo "Downloading latest ${LATEST_HELM} of 'helm' cli for macOS"
+    curl -k -L http://storage.googleapis.com/kubernetes-helm/helm-${LATEST_HELM}-darwin-amd64.tar.gz > helm.tar.gz
+    tar xvf helm.tar.gz -C ~/kube-cluster/tmp --strip=1 darwin-amd64/helm > /dev/null 2>&1
+    chmod +x helm
+    mv -f helm ~/kube-cluster/bin/helm
+    rm -f helm.tar.gz
+    echo " "
+    echo "Installed latest ${LATEST_HELM} of 'helm' cli to ~/kube-cluster/bin ..."
+    echo " "
+    # get VM's IP
+    vm_ip=$(~/bin/corectl q -i k8snode-02)
+    # Set the shell environment variables
+    # set kubernetes master endpoint
+    export KUBERNETES_MASTER=http://$vm_ip:8080
+    # set kubernetes cluster config file path for Helm
+    export KUBECONFIG=~/kube-cluster/kube/kubeconfig
+    export HELM_HOST=$vm_ip:32767
+    echo "Installing new version of Helm Tiller..."
+    kubectl --namespace=kube-system delete deployment tiller-deploy > /dev/null 2>&1
+    ~/kube-cluster/bin/helm init
+    echo "Helm is ready to sail ..."
+fi
+#
+
 # get lastest macOS helmc cli version
 cd ~/kube-cluster/bin
+echo " "
 echo "Downloading latest version of helmc cli for macOS"
 curl -o helmc https://storage.googleapis.com/helm-classic/helmc-latest-darwin-amd64
 chmod +x helmc
@@ -359,6 +405,7 @@ echo "Installed latest helmc cli to ~/kube-cluster/bin ..."
 
 # get lastest macOS deis cli version
 cd ~/kube-cluster/bin
+echo " "
 echo "Downloading latest version of Workflow deis cli for macOS"
 curl -o deis https://storage.googleapis.com/workflow-cli/deis-latest-darwin-amd64
 chmod +x deis
@@ -587,17 +634,23 @@ echo "Installing SkyDNS ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/skydns-svc.yaml
 #
 echo " "
-echo "Installing Kubernetes UI ..."
+echo "Installing Kubernetes Dashboard ..."
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/dashboard-controller.yaml
 ~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/dashboard-service.yaml
 #
+#
+echo " "
+echo "Installing Helm Tiller service ..."
+~/kube-cluster/bin/kubectl create -f ~/kube-cluster/kubernetes/tiller-deploy-service.yaml
 sleep 1
+
 # clean up kubernetes folder
 rm -f ~/kube-cluster/kubernetes/kube-system-ns.yaml
 rm -f ~/kube-cluster/kubernetes/skydns-rc.yaml
 rm -f ~/kube-cluster/kubernetes/skydns-svc.yaml
 rm -f ~/kube-cluster/kubernetes/dashboard-controller.yaml
 rm -f ~/kube-cluster/kubernetes/dashboard-service.yaml
+rm -f ~/kube-cluster/kubernetes/tiller-deploy-service.yaml
 echo " "
 }
 

@@ -7,7 +7,7 @@ Easy Kubernetes Cluster for macOS
 
 It leverages **macOS native Hypervisor virtualisation framework** of using [corectl](https://github.com/TheNewNormal/corectl) command line tool, so there are no needs to use VirtualBox or any other virtualisation software anymore.
 
-**Includes:** [Helm Classic](https://helm.sh) - The Kubernetes Package Manager and an option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
+**Includes:** [Helm Classic](https://helm.sh) / [Helm v2](https://github.com/kubernetes/helm) - The Kubernetes Package Manager and an option from shell to install [Deis Workflow](https://deis.com) on top of Kubernetes: `$ install_deis`
 
 **Kube-Cluster App** can be used together with [CoreOS VM App](https://github.com/TheNewNormal/coreos-osx) which allows to build Docker containers and both apps have access to the same local Docker registry hosted by [Corectl App](https://github.com/TheNewNormal/corectl.app).
 
@@ -49,10 +49,10 @@ How to install Kube-Cluster
 * user-data file will have fleet, etcd and flannel set
 * Will download latest CoreOS ISO image (if there is no such) and run `corectl` to initialise VM 
 * When you first time do install or 'Up' after destroying Kube-Cluster setup, k8s binary files (with the version which was available when the App was built) get copied to CoreOS VMs, this speeds up Kubernetes cluster setup. 
-* It will install `fleetctl, kubectl, helmc and deis` clients to `~/kube-cluster/bin/`
+* It will install `fleetctl, kubectl, helm and deis` clients to `~/kube-cluster/bin/`
 * Kubernetes services will be installed with fleet units which are placed in `~/kube-cluster/fleet`, this allows very easy updates to fleet units if needed.
 * [Fleet-UI](http://fleetui.com) via unit file will be installed to check running fleet units
-* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/), [DNS](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns) and [Kubedash](https://github.com/kubernetes/kubedash) will be instlled as add-ons
+* [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) and  [DNS](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns) will be instlled as add-ons
 * Via assigned static IPs (which will be shown on first boot and will survive VMs reboots) you can access any port on any CoreOS VM
 * Persistent sparse disks (QCow2) `xxx-data.img` will be created and mounted to VMs as `/data` for these mount binds and other folders:
 
@@ -86,7 +86,6 @@ Just start `Kube-Cluster` application and you will find a small icon with the Ku
 * `SSH to k8smaster01 and k8snode-01/02` menu options will open VMs shell
 * [Fleet-UI](http://fleetui.com) dashboard will show running fleet units and etc
 * [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/) will show nice Kubernetes Dashboard, where you can check Nodes, Pods, Replication, Deployments, Service Controllers, deploy Apps and etc.
-* [Kubedash](https://github.com/kubernetes/kubedash) is a performance analytics UI for Kubernetes Clusters
 
 
 Example ouput of succesfull CoreOS + Kubernetes cluster install:
@@ -118,20 +117,15 @@ Installing SkyDNS ...
 replicationcontroller "kube-dns-v17" created
 service "kube-dns" created
 
-Installing Kubernetes UI ...
-replicationcontroller "kubernetes-dashboard-v1.1.0" created
+Installing Kubernetes Dashboard ...
+Deployment "kubernetes-dashboard-v1.4.0" created
 service "kubernetes-dashboard" created
-
-Installing Kubedash ...
-deployment "kubedash" created
-service "kubedash" created
 
 kubectl get nodes:
 NAME         STATUS    AGE
 k8snode-01   Ready     6s
 k8snode-02   Ready     6s
 ````
-
 
 
 

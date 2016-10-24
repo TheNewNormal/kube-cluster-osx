@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  download_dashboard.command
-#  Kube-Solo for macOS
+#  Kube-Cluster for macOS
 #
 #  Created by Rimantas on 03/06/2015.
 #  Copyright (c) 2014 Rimantas Mocevicius. All rights reserved.
