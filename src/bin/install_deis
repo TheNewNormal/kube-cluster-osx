@@ -46,15 +46,15 @@ helmc fetch deis/workflow-${WORKFLOW_RELEASE} workflow-${WORKFLOW_RELEASE}-kube-
 helmc generate -x manifests workflow-${WORKFLOW_RELEASE}-kube-cluster
 
 # pin router to node worker1
-echo "      nodeSelector:" >> ~/.helmc/workspace/charts/workflow-${WORKFLOW_RELEASE}-kube-cluster/manifests/deis-router-rc.yaml
-echo "        node: worker1" >> ~/.helmc/workspace/charts/workflow-${WORKFLOW_RELEASE}-kube-cluster/manifests/deis-router-rc.yaml
+echo "      nodeSelector:" >> ~/.helmc/workspace/charts/workflow-${WORKFLOW_RELEASE}-kube-cluster/manifests/deis-router-deployment.yaml
+echo "        node: worker1" >> ~/.helmc/workspace/charts/workflow-${WORKFLOW_RELEASE}-kube-cluster/manifests/deis-router-deployment.yaml
 
-# update minio RC with persistent volume
+# update minio Deployment with persistent volume
 cp "${res_folder}"/deis/* ~/.helmc/workspace/charts/workflow-${WORKFLOW_RELEASE}-kube-cluster/manifests
 #
 cd ~/.helmc/workspace/charts/workflow-${WORKFLOW_RELEASE}-kube-cluster/manifests
-"${res_folder}"/bin/gsed -i '/readOnly: true/ r deis-minio-rc-1.txt' deis-minio-rc.yaml
-cat deis-minio-rc-2.txt >> deis-minio-rc.yaml
+"${res_folder}"/bin/gsed -i '/readOnly: true/ r deis-minio-ds-1.txt' deis-minio-deployment.yaml
+cat deis-minio-ds-2.txt >> deis-minio-deployment.yaml
 rm -f *.txt
 
 # Install Deis PaaS
@@ -83,8 +83,9 @@ until kubectl --namespace=deis get po | grep [d]eis-logger- | grep "1/1"  >/dev/
 until kubectl --namespace=deis get po | grep [d]eis-database- | grep "1/1"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 until kubectl --namespace=deis get po | grep [d]eis-router- | grep "1/1"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 until kubectl --namespace=deis get po | grep [d]eis-controller- | grep "1/1"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
+sleep 10
+until kubectl --namespace=deis get po | grep [d]eis-controller- | grep "1/1"  >/dev/null 2>&1; do i=$(( (i+1) %4 )); printf "\r${spin:$i:1}"; sleep .1; done
 #
-
 sleep 10
 
 echo " "
