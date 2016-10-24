@@ -123,6 +123,10 @@ fi
 echo " "
 # set kubernetes master
 export KUBERNETES_MASTER=http://$master_vm_ip:8080
+# set kubernetes cluster config file path for Helm
+export KUBECONFIG=~/kube-cluster/kube/kubeconfig
+export HELM_HOST=$node2_vm_ip:32767
+
 echo "Waiting for Kubernetes cluster to be ready. This can take a few minutes..."
 spin='-\|/'
 i=1
@@ -147,6 +151,20 @@ then
     cp "${res_folder}"/k8s/add-ons/*.yaml ~/kube-cluster/kubernetes
     install_k8s_add_ons
     #
+    # install Helm Tiller
+    echo " "
+    echo "Installing Helm Tiller..."
+    ~/kube-cluster/bin/helm init
+    #
+    echo " "
+    echo "kubectl cluster-info:"
+    ~/kube-cluster/bin/kubectl cluster-info
+    echo " "
+    echo "Cluster version:"
+    CLIENT_INSTALLED_VERSION=$(~/kube-cluster/bin/kubectl version | grep "Client Version:" | awk '{print $5}' | awk -v FS='(:"|",)' '{print $2}')
+    SERVER_INSTALLED_VERSION=$(~/kube-cluster/bin/kubectl version | grep "Server Version:" | awk '{print $5}' | awk -v FS='(:"|",)' '{print $2}')
+    echo "Client version: $CLIENT_INSTALLED_VERSION"
+    echo "Server version: $SERVER_INSTALLED_VERSION"
     # remove unfinished_setup file
     rm -f ~/kube-cluster/logs/unfinished_setup > /dev/null 2>&1
 fi
