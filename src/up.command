@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # up.command
 #
@@ -20,10 +20,13 @@ res_folder=$(cat ~/kube-cluster/.env/resouces_path)
 export PATH=${HOME}/kube-cluster/bin:$PATH
 
 # check if iTerm.app exists
-App="/Applications/iTerm.app"
-if [ ! -d "$App" ]
+APP="/Applications/iTerm.app"
+if [ ! -d "$APP" ]
 then
-    unzip "${res_folder}"/files/iTerm2.zip -d /Applications/
+    ITERM_ZIP="$(mktemp)"
+    trap "rm -f '${ITERM_ZIP}'" EXIT
+    curl -Lso "${ITERM_ZIP}" https://iterm2.com/downloads/stable/latest
+    unzip "${ITERM_ZIP}" -d /Applications/
 fi
 
 # create logs dir
