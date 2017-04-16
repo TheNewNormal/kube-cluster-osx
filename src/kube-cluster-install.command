@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  kube-cluster-install.command
 #
@@ -43,12 +43,14 @@
     #
 
     # check if iTerm.app exists
-    App="/Applications/iTerm.app"
-    if [ ! -d "$App" ]
+    APP="/Applications/iTerm.app"
+    if [ ! -d "$APP" ]
     then
-        unzip "$1"/files/iTerm2.zip -d /Applications/
+        ITERM_ZIP="$(mktemp)"
+        trap "rm -f '${ITERM_ZIP}'" EXIT
+        curl -Lso "${ITERM_ZIP}" https://iterm2.com/downloads/stable/latest
+        unzip "${ITERM_ZIP}" -d /Applications/
     fi
 
     # initial init
     open -a iTerm.app "$1"/first-init.command
-
