@@ -1,7 +1,7 @@
 Easy Kubernetes Cluster for macOS
 ============================
 
-**Note:** Regarding lack of my time I cannot keep up this project up to date, so it gets updates only time by time.
+**This project is not maintained anymore, please use [minikube](https://github.com/kubernetes/minikube) instead**
 
 **Kube-Cluster for macOS** is a `status bar app` which allows in an easy way to bootstrap and control multi-node (master+ two nodes) Kubernetes cluster on three [CoreOS](https://coreos.com) VMs.
 
